@@ -117,7 +117,7 @@ HTTP状态码由三个十进制数字组成，第一个十进制数字定义了�
 | 500 | Internal Server Error | 服务器内部错误，无法完成请求                                 |
 | 502 | Bad Gateway | 作为网关或者代理工作的服务器尝试执行请求时，从远程服务器接收到了一个无效的响应 |
 
-### GET和POST
+## GET和POST
 
 #### 幂等性
 
@@ -130,4 +130,6 @@ GET我们可以理解为**读取**一个资源。比如Get到一个html文件。
 #### 安全性
 
 貌似GET比POST安全，因为GET把数据全部保存在URL中，然而对攻击者来说，GET、POST都不安全，因为HTTP协议是明文传输的，无论url、headers、body。
+
+## HTTP和HTTPS
 

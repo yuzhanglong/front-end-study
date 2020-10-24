@@ -120,3 +120,10 @@ document.body.insertBefore(script, document.body.firstChild);
 - 不好确定 JSONP 请求是否失败。虽然 HTML5 规定了`<script>`元素的 `onerror` 事件
   处理程序，但还没有被任何浏览器实现。为此，开发者经常使用计时器来决定是否放弃等待响应。  
 
+## Cookie/Session/localstorage
+
+## 性能优化
+
+## MVVM/MVC
+
+## 浏览器的缓存方式
