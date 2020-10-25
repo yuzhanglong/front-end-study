@@ -3,6 +3,7 @@
 参考资料：
 
 - [详解HTTPS是如何确保安全性的](https://blog.csdn.net/wx_962464/article/details/51043069)
+- https://www.zhihu.com/question/338939262/answer/778573750
 
 ## SSL
 
@@ -130,6 +131,4 @@ GET我们可以理解为**读取**一个资源。比如Get到一个html文件。
 #### 安全性
 
 貌似GET比POST安全，因为GET把数据全部保存在URL中，然而对攻击者来说，GET、POST都不安全，因为HTTP协议是明文传输的，无论url、headers、body。
-
-## HTTP和HTTPS
 

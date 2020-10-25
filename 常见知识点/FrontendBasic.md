@@ -120,10 +120,84 @@ document.body.insertBefore(script, document.body.firstChild);
 - 不好确定 JSONP 请求是否失败。虽然 HTML5 规定了`<script>`元素的 `onerror` 事件
   处理程序，但还没有被任何浏览器实现。为此，开发者经常使用计时器来决定是否放弃等待响应。  
 
-## Cookie/Session/localstorage
-
 ## 性能优化
+
+### 缓存
+
+### 压缩
+
+### 本地存储
+
+### CDN
+
+
+
+
+
+
 
 ## MVVM/MVC
 
-## 浏览器的缓存方式
+## HTTP和HTTPS
+
+## XSS攻击
+
+### 概念
+
+XSS是跨站脚本攻击(Cross Site Scripting)，为不和层叠样式表(Cascading Style Sheets, CSS)的缩写混淆，故将跨站脚本攻击缩写为XSS。恶意攻击者往Web页面里插入恶意Script代码，当用户浏览该页之时，嵌入其中Web里面的Script代码会被执行，从而达到恶意攻击用户的目的。
+
+### 经典案例
+
+假如某网站的评论区允许用户输入文本来评论，一般情况下用户的文本没有啥问题，在拿到服务端的数据之后，它会这样显示：
+
+```html
+<div class="comment">hello world</div>
+```
+
+但是如果有心的用户输入了这样的文本：
+
+```html
+<script>alert(“hahahaha~”)</script>
+```
+
+那么最终我们显示在html里面的内容会是这样：
+
+```html
+<div class="comment">
+  <script>alert(“hahahaha~”)</script>
+</div>
+```
+
+这样只要这条"评论"存在，那么所有访问该网站的用户都会在访问评论区时接收到一个非预期的弹窗。
+
+另外，攻击者还可以利用XSS执行脚本，获取用户**cookie**或者**localstorage**的值，调用一些有权限的接口。
+
+### 如何防御
+
+#### 避免拼接 HTML
+
+前端采用拼接 HTML 的方法比较危险，如果框架允许，使用 createElement、setAttribute 之类的方法实现。或者采用比较成熟的渲染框架，如 Vue/React 等。
+
+#### 利用模板引擎
+
+开启模板引擎自带的 HTML 转义功能。
+
+- jQuery、模板引擎等多采用 模板 + encode(数据) 的方式生成 html，因而：
+
+  - 需要程序员根据上下文（js/css/html属性/...）仔细选择 encode 规则，心智负担重。
+
+  - 可能存在遗漏encode，或采用了不正确的 encode 规则。
+
+- Vue、React 则将模板/jsx解析为树，在 renderer 里调用 DOM API，因而：
+
+  - 减少了 encode 的必要性，减轻程序员心智负担。
+
+  - 减少了 encode 操作，减少了 XSS 隐患。
+
+- 但 Vue、React 也不是万能的，依然需要警惕：
+  - prerender / SSR 的 hydrate 过程会生成 html ，需要小心测试其中是否有 XSS 漏洞
+  - dangerouslySetInnerHTML、onload=字符串、href=字符串 等，都有可能造成 XSS 漏洞。
+
+#### 避免内联事件
+
+尽量不要使用 onLoad="onload('{{data}}')"、onClick="go('{{action}}')" 这种拼接内联事件的写法。在 JavaScript 中通过 .addEventlistener() 事件绑定会更安全。
