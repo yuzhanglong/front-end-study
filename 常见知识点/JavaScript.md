@@ -1053,8 +1053,6 @@ console.log(user.hobby); // basketball
 
 ## Proxy和Object.defineProperty()
 
-
-
 ### Object.defineProperty()的缺陷
 
 #### 无法监听数组变化

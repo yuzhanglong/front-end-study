@@ -130,9 +130,9 @@ document.body.insertBefore(script, document.body.firstChild);
 
 ### CDN
 
+网站上的静态资源css、js、图片应该全部使用**cdn**分发。
 
-
-
+关于CDN详细的内容请参照计算机网络篇 -- CDN。
 
 
 
