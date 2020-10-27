@@ -438,3 +438,127 @@ XSS是跨站脚本攻击(Cross Site Scripting)，为不和层叠样式表(Cascad
 #### 避免内联事件
 
 尽量不要使用 `onLoad="onload('{{data}}')"`、`onClick="go('{{action}}')"` 这种拼接内联事件的写法。在 JavaScript 中通过 `.addEventlistener()`事件绑定会更安全。
+
+## 客户端存储
+
+### sessionstorage
+
+#### 描述
+
+sessionStorage 对象只存储会话数据，这意味着数据只会存储到浏览器关闭。这跟浏览器关闭时会消失的会话 cookie 类似。存储在 sessionStorage 中的数据不受页面刷新影响，可以在浏览器崩溃并重启后恢复。主要用于存储只在会话期间有效的小块数据。  
+
+### cookie
+
+#### 描述
+
+HTTP cookie 通常也叫作 cookie，最初用于在客户端存储会话信息。这个规范要求服务器在响应
+HTTP 请求时，通过发送 Set-Cookie HTTP 头部包含会话信息。
+
+请看下面的HTTP头部：
+
+```
+HTTP/1.1 200 OK
+Content-type: text/html
+Set-Cookie: name=value
+Other-header: other-header-value
+```
+
+这个 HTTP 响应会设置一个名为"name"，值为"value"的 cookie。名和值在发送时都会经过 URL
+编码。浏览器会存储这些会话信息，并在之后的每个请求中都会通过 HTTP 头部 cookie 再将它们发回服务器。
+
+#### 特点
+
+##### 和特定域绑定
+
+设置 cookie 后，它会与请求一起发送到创建它的域。这个限制能保证cookie 中存储的信息只对被认可的接收者开放，不被其他域访问。
+
+##### 有大小限制
+
+在某些浏览器上有大小限制。超过最大限制就会以**LRU**原则将旧的cookie删除。
+
+##### 非安全环境
+
+cookie数据**不是安全的**，任何人都可以获得，常见的XSRF攻击就可以利用浏览器的cookie来进行非法的访问。
+
+#### 组成
+
+请看下图，这是我们访问MDN官网的COOKIE内容，可以看到一条COOKIE有10个参数。
+
+![](../assets/images/COOKIE内容.jpg)
+
+下面介绍几个重要的参数：
+
+- **name**：标识cookie的名称
+- **value**：存储在cookie的字符串
+- **domain**：域，上图中的**.developer.mozilla.org**和**developer.mozilla.org**是有区别的（注意前面的点），有点号标识这个值可以包含子域。
+
+- **path**：路径，请求url**包含这个路径**才会发送这个cookie。
+
+#### JS中操作Cookie
+
+JS操作cookie依靠`document.cookie`属性，且最终的cookie的内容如下:
+
+```javascript
+name1=value1;name2=value2;name3=value3
+```
+
+可见设置cookie主要依赖字符串拼接，并不直观，所以我们可以使用以下工具类(摘自JavaScript高级程序设计)：
+
+```javascript
+class CookieUtil {
+  static get(name) {
+    let cookieName = `${encodeURIComponent(name)}=`,
+      cookieStart = document.cookie.indexOf(cookieName),
+      cookieValue = null;
+    if (cookieStart > -1) {
+      let cookieEnd = document.cookie.indexOf(";", cookieStart);
+      if (cookieEnd === -1) {
+        cookieEnd = document.cookie.length;
+      }
+      cookieValue = decodeURIComponent(document.cookie.substring(cookieStart
+        + cookieName.length, cookieEnd));
+    }
+    return cookieValue;
+  }
+
+  static set(name, value, expires, path, domain, secure) {
+    let cookieText =
+      `${encodeURIComponent(name)}=${encodeURIComponent(value)}`
+    if (expires instanceof Date) {
+      cookieText += `; expires=${expires.toGMTString()}`;
+    }
+    if (path) {
+      cookieText += `; path=${path}`;
+    }
+    if (domain) {
+      cookieText += `; domain=${domain}`;
+    }
+    if (secure) {
+      cookieText += "; secure";
+    }
+    document.cookie = cookieText;
+  }
+
+  static unset(name, path, domain, secure) {
+    CookieUtil.set(name, "", new Date(0), path, domain, secure);
+  }
+}
+```
+
+### localstorage
+
+#### 描述
+
+localstorage也是浏览器客户端一种持久存储的机制。
+
+#### 和sessionStorage的区别
+
+存储在 localStorage 中的数据会保留到通过 JavaScript 删除或者用户清除浏览器缓存。 localStorage 数据不受页面刷新影响，也不会因关闭窗口、标签页或重新启动浏览器而丢失。  
+
+
+
+重绘和回流
+
+event loop
+
+浏览器底层（并发）
