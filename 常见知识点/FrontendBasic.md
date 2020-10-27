@@ -134,7 +134,9 @@ document.body.insertBefore(script, document.body.firstChild);
 
 ## 性能优化
 
-### 缓存
+### 合理利用http缓存
+
+合理利用Http缓存可以减少我们向服务器的请求量，从而加快页面加载速度。关于**Http缓存**的相关知识请阅读计算机网络部分。
 
 ### 优化资源的编码/大小
 
