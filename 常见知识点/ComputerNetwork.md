@@ -2,8 +2,10 @@
 
 参考资料：
 
+- https://www.runoob.com/html/html5-websocket.html
 - https://blog.csdn.net/wx_962464/article/details/51043069
 - https://www.zhihu.com/question/338939262/answer/778573750
+- https://github.com/abbshr/abbshr.github.io/issues/22
 
 ## SSL
 
@@ -248,3 +250,125 @@ ETag是URL的tag，用来标示URL对象是否改变。这样可以应用于客�
   - immutable 如果没有超过时间上的过期失效时间，那么服务器端该页面内容将不会改变，这样浏览器就不应该再发送有条件的重新验证请求。简而言之，可以理解为阻止了无意义的条件请求。
 
 - **Etag** 和 **If-None-Match**：当浏览器请求上面的js文件时, 服务器根据A算出一个哈希e5ee-zUVI2arEgtR9ThZVMK3qTcnqNck并通过 ETag 返回给浏览器，浏览器把这个hash值和 A 同时缓存在本地，当下次再次向服务器请求A时，会通过类似 If-None-Match: "e5ee-zUVI2arEgtR9ThZVMK3qTcnqNck" 的请求头把ETag发送给服务器，服务器再次计算A的哈希值并和浏览器返回的值做比较，来判断是直接返回资源还是使用缓存。
+
+## HTTP和HTTPS
+
+## DOS攻击
+
+**DOS**是Denial of Service的简称，即拒绝服务，造成DoS的攻击行为被称为DoS攻击，其目的是使计算机或网络无法提供正常的服务。最常见的DoS攻击有计算机网络宽带攻击和连通性攻击。*[百度百科]*
+
+### 类型
+
+大多数DOS攻击包括以下三种类型：
+
+- 弱点攻击。利用被攻击主机所提供服务程序或传输协议的本身实现缺陷，反复发送畸形的攻击数据引发系统错误的分配大量系统资源，使主机处于挂起状态甚至死机。
+- 带宽洪泛。制造大流量无用数据，造成通往被攻击主机的网络拥塞，使被攻击主机无法正常和外界通信。
+- 连接洪泛。攻击者在目标主机中创建大量的半开或者全开TCP连接，该主机由于这些伪造的连接陷入困境，并停止接收合法的连接。
+
+> 类似的，还有一种攻击叫做**DDOS**，是指处于不同位置的多个攻击者同时向一个或数个目标发动攻击，或者一个攻击者控制了位于不同位置的多台机器并利用这些机器对受害者同时实施攻击。由于攻击的发出点是分布在不同地方的，这类攻击称为**分布式拒绝服务攻击**，其中的攻击者可以有多个。
+
+### 防范
+
+
+
+## WebSocket
+
+### 经典轮询
+
+很多网站为了实现推送技术，所用的技术都是 **Ajax 轮询**。轮询是在特定的的时间间隔（如每1秒），由浏览器对服务器发出HTTP请求，然后由服务器返回最新的数据给客户端的浏览器。这种传统的模式带来很明显的缺点，即浏览器需要不断的向服务器发出请求，然而HTTP请求可能包含较长的头部，其中真正有效的数据可能只是很小的一部分，显然这样会浪费很多的带宽等资源。
+
+### 介绍
+
+Web Socket的目标是通过一个长时连接实现与服务器全双工、双向的通信，一般的HTTP协议只能通过客户端主动向服务端发起请求，而webSocket可以主动向客户端发送信息。只要**通过一次握手**，就可以实现双向推送。它和HTTP Server共享同一port。
+
+### 和HTTP协议的区别
+
+下面的内容来自https://tools.ietf.org/html/rfc6455#section-1.7
+
+- The WebSocket Protocol is an independent **TCP-based** protocol.
+- Its **only relationship** to HTTP is that its **handshake is interpreted by HTTP servers** as an Upgrade request.
+- By default, the WebSocket Protocol uses **port 80** for regular WebSocket connections and **port 443** for WebSocket connections tunneled over Transport Layer Security (TLS) *[RFC2818]*.
+
+> websocket协议是独立于基于TCP的协议的。
+>
+> 它和HTTP协议的唯一关系是它的握手流程是通过HTTP协议来实现的。
+>
+> 在默认情况下，websocket协议使用80端口（常规模式）或者443端口（安全传输模式下）
+
+### 实现细节
+
+#### 打开连接-握手
+
+若要实现WebSocket协议，首先需要浏览器主动发起一个**HTTP请求**, 下面是一个请求报文示例，多余的内容被省略。
+
+```http
+GET wss://xxxxx.com/ HTTP/1.1
+Upgrade: websocket
+Sec-WebSocket-Key: CENNKlxp+sYCvqt3pK2T1A==
+```
+
+请求头中有一个`Upgrade`字段，内容为`websocket`, 用于改变HTTP协议版本或换用其他协议，这里显然是换用了Websocket协议。还有一个最重要的字段`Sec-WebSocket-Key`，这是一个随机的经过`base64`编码的字符串，像密钥一样用于服务器和客户端的握手过程。服务器君接收到来自客户端的`upgrade`请求，便会将请求头中的`Sec-WebSocket-Key`字段提取出来，追加一个固定的“魔串”：`258EAFA5-E914-47DA-95CA-C5AB0DC85B11`，并进行`SHA-1`加密，然后再次经过`base64`编码生成一个新的key，作为响应头中的`Sec-WebSocket-Accept`字段的内容返回给浏览器。一旦浏览器接收到来自服务器的响应，便会解析响应中的`Sec-WebSocket-Accept`字段，与自己加密编码后的串进行匹配，一旦匹配成功，便有建立连接的可能了（因为还依赖许多其他因素）。
+
+下面是一个响应报文案例，多余的内容被省略。
+
+```http
+HTTP/1.1 101 Switching Protocols
+Upgrade: websocket
+Sec-WebSocket-Version: 13
+Connection: Upgrade
+Sec-WebSocket-Accept: 7d3Wyy9mojKdk/q0gH2A/xvwNV8=
+```
+
+### 实践
+
+主流浏览器支持`websocket`
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+  </head>
+  <body>
+    <script>
+      const SOCKET_URL = "wss://socket.idcd.com:1443";
+      const webSocket = () => {
+        // 浏览器会在初始化 WebSocket 对象之后立即创建连接
+        let socket = new WebSocket(SOCKET_URL);
+
+        // socket 连接成功 发送信息
+        socket.onopen = () => {
+          socket.send("hello world");
+        }
+      }
+      webSocket();
+    </script>
+  </body>
+</html>
+```
+
+浏览器开发者模式抓包：
+
+![](../assets/images/websocket报文.png)
+
+来看一下发起连接的报文：
+
+- 状态码为**101**。101表示等待，服务器收到请求，需要**请求者继续执行操作**。经过这样的请求-响应处理后，两端的WebSocket连接握手成功, 后续就可以进行TCP通讯了。
+- **Sec-WebSocket-Version** 表示websocket的版本。如果服务端不支持该版本，需要返回一个Sec-WebSocket-Versionheader，里面包含服务端支持的版本号。
+- **Sec-WebSocket-Key** 对应服务端响应头的Sec-WebSocket-Accept，由于没有同源限制，websocket客户端可任意连接支持websocket的服务。这个就相当于一个钥匙一把锁，避免多余的，无意义的连接。
+- **Sec-WebSocket-Accept**: 用来告知服务器愿意发起一个websocket连接， 值根据客户端请求头的Sec-WebSocket-Key计算出来。
+
+尝试发送一条消息：
+
+```javascript
+socket.send("hello world");
+```
+
+![](../assets/images/websocket发送消息.jpg)
+
+
+
+### 实现一个Websocket服务器
+
+TODO
