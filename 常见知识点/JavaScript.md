@@ -1271,19 +1271,113 @@ class Promise {
 }
 ```
 
+## let var 和 const
 
+### let和window
 
+var 声明的变量会**被挂载到window**下，请看下面代码：
 
+```javascript
+for(var p = 0; p < 10; p++){
+   console.log("hello");
+}
+console.log(window.p); // 10
+```
 
+### 声明提升
 
+请看下面代码：
 
+```javascript
+function foo() {
+    console.log(age);
+    var age = 26;
+}
+foo();
+```
 
+执行`foo`不会报错，因为ECMAScript 运行时把它看成等价于如下代码:
 
+```javascript
+function foo() {
+    var age;
+    console.log(age);
+    age = 26;
+}
+foo();
+```
 
+### 作用域
 
+let声明的是**块级作用域**，var声明的是**函数作用域**，请看下面代码, 我们可以打印出`name`
 
+```javascript
+if (true) {
+    var name = 'Matt';
+    console.log(name); // Matt
+}
+console.log(name); // Mat
+```
 
+但是如果使用`let`
 
+```javascript
+if (true) {
+    let age = 26;
+    console.log(age); // 26
+}
+console.log(age); // ReferenceError: age 没有定义
+```
+
+### 冗余声明
+
+**let/const**不允许冗余声明。
+
+```javascript
+var a = 100;
+console.log(a); // 100
+var a = 10;
+console.log(a); // 10
+
+let a = 100;
+let a = 10; // 报错：Identifier 'a' has already been declared
+```
+
+### 实践 -- 用var实现let
+
+```javascript
+// 下面的代码会输出
+// 2
+// 2
+// 这是由于var的特性所导致的，具体原因可以看一下作用域链的部分
+let myFunction = [];
+for (var i = 0; i < 2; i++) {
+  myFunction[i] = function () {
+    console.log(i);
+  }
+}
+myFunction[0]();
+myFunction[1]();
+```
+
+```javascript
+// 下面，不允许使用let, 实现预期输入
+// 0
+// 1
+
+let myFunction2 = [];
+for (var i = 0; i < 2; i++) {
+  let tmp = function () {
+    var t = i;
+    myFunction2[i] = function () {
+      console.log(t);
+    }
+  };
+  tmp();
+}
+myFunction2[0]();
+myFunction2[1]();
+```
 
 
 
@@ -1292,8 +1386,6 @@ class Promise {
 ## Proxy和Object.defineProperty()
 
 ### Object.defineProperty()的缺陷
-
-#### 无法监听数组变化
 
 重绘和回流
 
@@ -1306,3 +1398,8 @@ event loop
 - js 并发请求
 
 事件委托
+
+## 垃圾回收
+
+## 工作者线程
+
