@@ -8,7 +8,7 @@ https://developers.google.com/web/fundamentals/performance/optimizing-content-ef
 
 https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/javascript-startup-optimization?hl=zh-cn
 
-
+https://github.com/chenjigeng/blog/issues/4
 
 https://developer.mozilla.org/zh-CN/docs/Learn/HTML/Multimedia_and_embedding/Responsive_images
 
@@ -371,12 +371,6 @@ server{
 
 ## MVVM/MVC
 
-
-
-## HTTP和HTTPS
-
-
-
 ## XSS攻击
 
 ### 概念
@@ -454,9 +448,9 @@ sessionStorage 对象只存储会话数据，这意味着数据只会存储到�
 HTTP cookie 通常也叫作 cookie，最初用于在客户端存储会话信息。这个规范要求服务器在响应
 HTTP 请求时，通过发送 Set-Cookie HTTP 头部包含会话信息。
 
-请看下面的HTTP头部：
+请看下面的HTTP报文：
 
-```
+```http
 HTTP/1.1 200 OK
 Content-type: text/html
 Set-Cookie: name=value
@@ -482,17 +476,39 @@ cookie数据**不是安全的**，任何人都可以获得，常见的XSRF攻击
 
 #### 组成
 
-请看下图，这是我们访问MDN官网的COOKIE内容，可以看到一条COOKIE有10个参数。
+请看下图，这是我们访问**MDN官网**的COOKIE内容，可以看到一条COOKIE有10个参数。
 
 ![](../assets/images/COOKIE内容.jpg)
 
 下面介绍几个重要的参数：
 
 - **name**：标识cookie的名称
+
 - **value**：存储在cookie的字符串
+
 - **domain**：域，上图中的**.developer.mozilla.org**和**developer.mozilla.org**是有区别的（注意前面的点），有点号标识这个值可以包含子域。
 
 - **path**：路径，请求url**包含这个路径**才会发送这个cookie。
+
+- **SameSite**：这个属性很有意思，它是用来限制第三方cookie的，从而减少安全风险（例如**XSRF攻击**），它可以设置三个值：
+
+  - None：Chrome 计划将`Lax`变为默认设置。这时，网站可以选择显式关闭`SameSite`属性，将其设为`None`。不过，前提是必须同时设置`Secure`属性（Cookie 只能通过 HTTPS 协议发送），否则无效。
+
+  - Strict：`Strict`最为严格，完全禁止第三方 Cookie，跨站点时，任何情况下都不会发送 Cookie。换言之，只有当前网页的 URL 与请求目标一致，才会带上 Cookie。
+
+  > 这个规则过于严格，可能造成非常不好的用户体验。比如，当前网页有一个 GitHub 链接，用户点击跳转就不会带有 GitHub 的 Cookie，跳转过去总是未登陆状态。
+
+  - Lax：`Lax`规则稍稍放宽，大多数情况也是不发送第三方 Cookie，但是**导航到目标网址的 Get 请求除外**，具体内容请看下表。
+  
+  | 请求类型  |      示例      |    正常情况 | Lax         |
+  | :-------- | :------------: | ----------: | :---------- |
+  | 链接      |       `<a href="..."></a>`       | 发送 Cookie | 发送 Cookie |
+  | 预加载    |       `<link rel="prerender" href="..."/>`       | 发送 Cookie | 发送 Cookie |
+  | GET 表单  |       `<form method="GET" action="...">`       | 发送 Cookie | 发送 Cookie |
+  | POST 表单 |       `<form method="POST" action="...">`       | 发送 Cookie | 不发送      |
+  | iframe    |       `	<iframe src="..."></iframe>`       | 发送 Cookie | 不发送      |
+  | AJAX      | `$.get("...")` | 发送 Cookie | 不发送      |
+  | Image     |       `<img src="...">`       | 发送 Cookie | 不发送      |
 
 #### JS中操作Cookie
 
@@ -555,10 +571,179 @@ localstorage也是浏览器客户端一种持久存储的机制。
 
 存储在 localStorage 中的数据会保留到通过 JavaScript 删除或者用户清除浏览器缓存。 localStorage 数据不受页面刷新影响，也不会因关闭窗口、标签页或重新启动浏览器而丢失。  
 
+## 浏览器渲染流程
+
+推荐这一系列的优秀的博文：[Inside look at modern web browser](https://developers.google.com/web/updates/2018/09/inside-browser-part3)《现代浏览器内部揭秘》，图文并茂，内容也是满满的干货。下文的部分图片取自这篇博文。
+
+#### Step1：DOM树的生成
+
+当渲染进程收到导航的提交消息并开始接收 HTML 数据时，**主线程**开始解析文本字符串（HTML）并将其转换为文档对象模型（DOM）。
+
+##### 注意点：JS阻塞
+
+当 HTML 解析器遇到` <script>` 标记时，会暂停解析 HTML 文档，开始加载、解析并执行 JavaScript 代码。为什么？因为JavaScript 可以使用诸如 `document.write()` 的方法来改写文档，这会改变整个 DOM 结构。
+
+> 注意：如果script标签中有`async`或者`defer`属性，那么它不会阻塞解析。
+>
+> 详见本模块的<a href="#衡量第三方JavaScript脚本">衡量第三方JavaScript脚本</a>
+
+#### Step2：生成CSS规则树
+
+**主线程**解析 CSS 并确定每个 DOM 节点计算后的样式。
+
+> 提示：即使你不提供任何 CSS，每个 DOM 节点都可能会具有样式，因为浏览器具有默认样式表。
+
+#### Step3：布局，生成渲染树(也称为布局树)（Layout）
+
+现在，**渲染进程**知道每个节点的样式和文档的结构，但这不足以渲染页面。
+
+布局是计算元素几何形状的过程。**主线程**遍历计算样式后的 DOM 树，计算样式并创建**布局树**，其中包含 x / y 坐标和边界框大小等信息。
+
+布局树可能与DOM树结构类似，但它仅包含页面上**可见内容**相关的信息。
+
+例如，下面的这些css元素不是布局树的一部分：
+
+```css
+#element{
+    display: none;
+}
+
+p::before{
+	content:"Hi!"
+}
+```
+
+> 注意: 利用visibility和opacity隐藏的节点，还是会显示在渲染树上的。只有display:none的节点才不会显示在渲染树上。
+
+另外，还有一些标签，例如`<script>`、`<meta>`、`<link>`，也是不可见的。
+
+#### Step4: 绘制（Paint）
+
+拥有 DOM、样式和布局仍然不足以渲染页面。假设你正在尝试重现一幅画。你知道元素的大小、形状和位置，但你仍需要判断绘制它们的顺序。经典的案例就是`z-index`。
+
+在绘制步骤中，**主线程**遍历**布局树**创建绘制记录。绘制记录是绘图过程的记录，就像是“背景优先，然后是文本，然后是矩形”。如果你使用过 JavaScript 绘制了 `<canvas>` 元素，那么这个过程对你来说可能很熟悉。
+
+##### 动画方案
+
+如果要为元素设置动画，则浏览器必须在每个帧之间运行这些操作。大多数显示器每秒刷新屏幕 60 次（60 fps），当屏幕每帧都在变化，人眼会觉得动画很流畅。但是，如果动画丢失了中间一些帧，页面看起来就会卡顿。
+
+![](../assets/images/绘制-有动画的情况.jpg)
+
+即使渲染操作能跟上屏幕刷新，这些计算也会在主线程上运行，这意味着当你的应用程序运行 JavaScript 时动画可能会被阻塞。
+
+![](../assets/images/绘制-JS阻塞.jpg)
+
+我们可以将 JavaScript 操作**划分为小块**，并使用 `requestAnimationFrame()` 在每个帧上运行，如下图：
+
+![](../assets/images/将JavaScript操作划分为小块.png)
+
+我们也可以在 **Web Worker** 中运行 JavaScript 以避免阻塞主线程。
+
+> web worker 是**运行在后台的 JavaScript**，独立于其他脚本，不会影响页面的性能。您可以继续做任何愿意做的事情：点击、选取内容等等，而此时 web worker 在**后台运行**。
+>
+> 关于web worker的更多信息，请参考JS篇的**工作者线程**部分。
 
 
-重绘和回流
+
+#### 流程总结
+
+下面我们以一幅图总结浏览器渲染的整个过程：
+
+![](../assets/images/浏览器渲染流程总结.png)
+
+
+
+#### 发生回流/重绘
+
+如果（重新）执行上面的步骤3，即计算节点的位置和几何信息，这个过程称为回流。
+
+同理可得，重新执行上面的步骤4，这个过程称为重绘。
+
+##### 何时发生
+
+抓住“计算节点的位置和几何信息”这个特点，例如：
+
+- 添加或删除可见的DOM元素
+- 元素的位置发生变化
+- 元素的尺寸发生变化（包括外边距、内边框、边框大小、高度和宽度等）
+- 内容发生变化，比如文本变化或图片被另一个不同尺寸的图片所替代。
+- 页面一开始渲染的时候（这肯定避免不了）
+- 浏览器的窗口尺寸变化（因为回流是根据视口的大小来计算元素的位置和大小的）
+
+> 注意：回流一定会触发重绘，而重绘不一定会回流，这个结合上面的总结图片应该很好得出。
+
+#####  性能优化
+
+###### 浏览器层面
+
+由于每次重排都会造成额外的计算消耗，因此大多数浏览器都会通过**队列化**修改并批量执行来优化重排过程。浏览器会将修改操作放入到队列里，直到过了一段时间或者操作达到了一个阈值，才清空队列。
+
+但是如果你调用了获取布局信息的相关API，例如：
+
+```javascript
+offsetTop、offsetLeft、offsetWidth、offsetHeight
+scrollTop、scrollLeft、scrollWidth、scrollHeight
+clientTop、clientLeft、clientWidth、clientHeight
+getComputedStyle()
+getBoundingClientRect
+```
+
+这些操作会强制队列刷新，如果要利用他们，尽量将值缓存起来。
+
+###### 开发者层面
+
+- 合并多次对DOM和样式的修改，下面的代码可能会触发三次重绘（虽然浏览器可能为我们作了优化）。
+
+  ```javascript
+  const el = document.getElementById('test');
+  el.style.padding = '5px';
+  el.style.borderLeft = '1px';
+  el.style.borderRight = '2px'
+  ```
+
+- 修改DOM时使用文档片段（fragment），构建完成之后再注入DOM中。
+- 使用绝对定位时一些复杂的效果脱离文档流。
+
+
+
+## 输入一个URL到页面展示的流程
+
+### DNS解析
+
+将输入浏览器的URL进行DNS解析，去定位其真实的IP地址，为接下来发起TCP连接做准备。
+
+> 关于DNS的详细内容参见计算机网络篇
+
+### 发起TCP连接
+
+在客户端发送数据之前会发起**tcp三次握手**用以同步客户端和服务端的序列号和确认号。为发送请求报文做准备。
+
+### HTTP请求
+
+客户端根据域名得到相应ip以后开始**发送http请求**，HTTP请求分为三个部分：
+
+- TCP三次握手
+- http请求响应信息
+- 关闭TCP连接
+
+> 关于HTTP的详细内容参见计算机网络篇
+
+### 解析、渲染页面
+
+主要分为以下四个步骤：
+
+- DOM树的生成
+- CSS规则树的生成
+- 布局
+- 绘制
+
+对于这些步骤的详细信息请参阅<a href="#浏览器渲染流程">浏览器渲染流程</a>
+
+
+
+SEO(搜索引擎优化)
 
 event loop
 
 浏览器底层（并发）
+
