@@ -1,0 +1,10 @@
+{
+  "name": "multiple_entry",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "dev": "webpack-dev-server --open",
+    "build": "webpack"
+  },
+  "license": "MIT"
+}

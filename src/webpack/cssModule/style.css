@@ -1,0 +1,14 @@
+/* 局部模式 */
+.class1 {
+    background-color: #409EFF;
+}
+
+/* 全局模式 */
+:global(.class2) {
+    background-color: red;
+}
+
+
+div {
+    height: 200px;
+}
