@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:v-on="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="./MVVM.js"></script>
+  </head>
+  <body>
+    <div id="app">
+      <label>
+        <input type="text" v-model="user.name">
+      </label>
+      <button v-on:click="change">hello</button>
+      <div>
+        <div>{{user.name}}</div>
+        <div>{{user.age}}</div>
+        <div>{{user.hobby}}</div>
+        <div>{{myTest}}</div>
+        <div v-html="html"></div>
+      </div>
+    </div>
+
+    <script>
+      let vm = new MVVM({
+        el: "#app",
+        data: {
+          user: {
+            name: "yzl",
+            age: 20,
+            hobby: "coding"
+          },
+          html: '<h1>hello world</h1>'
+        },
+        computed: {
+          myTest() {
+            return this.user.name + "test";
+          }
+        },
+        methods: {
+          change() {
+            this.user.name = "23123";
+          }
+        }
+      })
+    </script>
+  </body>
+
+</html>
