@@ -1,0 +1,16 @@
+{
+  "name": "common_loaders",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "webpack --progress"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "webpack": "^5.3.2",
+    "webpack-cli": "^4.1.0",
+    "html-webpack-plugin": "^4.5.0"
+  },
+  "dependencies": {
+    "lodash": "^4.17.20"
+  }
+}
