@@ -407,7 +407,7 @@ XSS是跨站脚本攻击(Cross Site Scripting)，为不和层叠样式表(Cascad
 
 #### 避免拼接 HTML
 
-前端采用拼接 HTML 的方法比较危险，如果框架允许，使用 createElement、setAttribute 之类的方法实现。或者采用比较成熟的渲染框架，如 Vue/React 等。
+前端采用拼接 HTML 的方法比较危险，如果框架允许，使用 createElement、setAttribute 之类的方法实现。或者采用比较成熟的渲染框架，如 MVVM/React 等。
 
 #### 利用模板引擎
 
@@ -419,13 +419,13 @@ XSS是跨站脚本攻击(Cross Site Scripting)，为不和层叠样式表(Cascad
 
   - 可能存在遗漏encode，或采用了不正确的 encode 规则。
 
-- Vue、React 则将模板/jsx解析为树，在 renderer 里调用 DOM API，因而：
+- MVVM、React 则将模板/jsx解析为树，在 renderer 里调用 DOM API，因而：
 
   - 减少了 encode 的必要性，减轻程序员心智负担。
 
   - 减少了 encode 操作，减少了 XSS 隐患。
 
-- 但 Vue、React 也不是万能的，依然需要警惕：
+- 但 MVVM、React 也不是万能的，依然需要警惕：
   - prerender / SSR 的 hydrate 过程会生成 html ，需要小心测试其中是否有 XSS 漏洞
   - dangerouslySetInnerHTML、onload=字符串、href=字符串 等，都有可能造成 XSS 漏洞。
 
@@ -662,7 +662,7 @@ p::before{
 
 下面我们以一幅图总结浏览器渲染的整个过程：
 
-![](../assets/images/浏览器渲染流程总结.png)
+![](http://cdn.yuzzl.top/blog/20201031201457.png)
 
 
 
@@ -689,7 +689,7 @@ p::before{
 
 ###### 浏览器层面
 
-由于每次重排都会造成额外的计算消耗，因此大多数浏览器都会通过**队列化**修改并批量执行来优化重排过程。浏览器会将修改操作放入到队列里，直到过了一段时间或者操作达到了一个阈值，才清空队列。
+由于每次重绘都会造成额外的计算消耗，因此大多数浏览器都会通过**队列化**修改并批量执行来优化重排过程。浏览器会将修改操作放入到队列里，直到过了一段时间或者操作达到了一个阈值，才清空队列。
 
 但是如果你调用了获取布局信息的相关API，例如：
 
@@ -752,7 +752,181 @@ getBoundingClientRect
 
 对于这些步骤的详细信息请参阅<a href="#浏览器渲染流程">浏览器渲染流程</a>
 
+## 前端路由
 
+### 概念
+
+什么是路由？早期，路由其实是个**后端概念**，在服务端渲染（**SSR**）的app中，后端处理HTML，并返回它，像这样：
+
+```http
+http://www.my-school.edu.cn/art/2020/10/30/art_16_40029.html
+```
+
+我们可以通过不同的路径，请求不同的静态资源，这种方式就是路由。
+
+在后来我们有了**SPA**，被称为单页应用，单页应用不仅仅是在页面交互是无刷新的，连**页面跳转**都是**无刷新**的，为了实现单页应用，所以就有了前端路由。
+
+### 前端路由原理
+
+#### hashRouter
+
+##### hash值的变化不会让浏览器发起请求
+
+假设我们有个HTML：
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+  </head>
+  <body>
+    hello world
+  </body>
+</html>
+```
+
+使用本地服务器托管，访问页面：
+
+![](http://cdn.yuzzl.top/blog/20201101151513.png)
+
+可以看到页面正常显示了。
+
+这时我们往地址栏的url后加入一些内容：
+
+![](http://cdn.yuzzl.top/blog/20201101151633.png)
+
+回车，我们发现浏览器并没有刷新。即就是说hash 值的变化，并不会导致浏览器向服务器发出请求，浏览器不发出请求，也就不会刷新页面。
+
+基于浏览器的这个特性，我们可以用**hash模式**实现一个路由，首先我们来了解一下有关hash路由的API。
+
+##### hashChange事件
+
+HTML5 增加了 hashchange 事件，用于在 URL 散列值（ URL 最后#后面的部分）发生变化时通知开发者。这是因为开发者经常在 Ajax 应用程序中使用 URL 散列值存储状态信息或路由导航信息。  
+
+尝试在浏览器控制台运行以下代码：
+
+```javascript
+window.addEventListener("hashchange", (event) => {
+  console.log(`Old URL: ${event.oldURL}, New URL: ${event.newURL}`);
+});
+```
+
+![](http://cdn.yuzzl.top/blog/20201101152635.png)
+
+然后修改当前url的散列值，你会发现回调函数被触发了。
+
+![](http://cdn.yuzzl.top/blog/20201101152720.png)
+
+##### 预期的流程
+
+知道了上面的API，我们可以构建出如下的流程：
+
+- 旧地址为`http://localhost:63342/frontendRouter/#/page1`
+- 修改hash值，准备跳转到新地址`http://localhost:63342/frontendRouter/#/page2`，但是要注意跳转的类型：
+  - **刷新页面**，是不会触发`hashchange`的，我们可以使用`load`事件。
+  - 输入链接回车跳转，会触发`hashchange`。
+  - 浏览器的后退按钮，会触发`hashchange`
+
+- 根据我们的hash来匹配相应的页面。（这里的”页面“我们可以简单地看成一个HTML片段），如果匹配不到，我们执行重定向。
+- 替换相应的DOM。
+
+##### DEMO
+
+下面是一个简单的**hashRouterDEMO**:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script>
+      const myHashTable = {
+        page1: "<div>我是第一页</div>",
+        page2: "<div>我是第二页</div>",
+        default: "hello world"
+      }
+
+      window.addEventListener("load", () => {
+        const newHash = location.hash.split("#/")[1];
+        document.body.innerHTML = myHashTable.hasOwnProperty(newHash) ? myHashTable[newHash] : myHashTable["default"];
+      });
+
+      window.addEventListener("hashchange", (event) => {
+        console.log(`url Hash值被改变！Old URL: ${event.oldURL}, New URL: ${event.newURL}`);
+        const newHash = event.newURL.split("/#/")[1];
+        document.body.innerHTML = myHashTable.hasOwnProperty(newHash) ? myHashTable[newHash] : myHashTable["default"];
+      });
+    </script>
+  </head>
+  <body>
+    hello world
+  </body>
+</html>
+```
+
+#### HTML5 History API
+
+**history** 对象表示当前窗口首次使用以来用户的导航历史记录。因为 history 是 window 的属性，所以每个 window 都有自己的 history 对象。出于安全考虑，这个对象不会暴露用户访问过的 URL，但可以通过它在不知道实际 URL 的情况下前进和后退。
+
+##### go()
+
+`go()`方法可以在用户历史记录中沿任何方向导航，可以前进也可以后退。这个方法只接收一个参数，
+这个参数可以是一个整数，表示前进或后退多少步。负值表示在历史记录中后退（类似点击浏览器的“后
+退”按钮），而正值表示在历史记录中前进（类似点击浏览器的“前进”按钮）。  
+
+```javascript
+// 后退一页
+history.go(-1);
+// 前进一页
+history.go(1);
+// 前进两页
+history.go(2);  
+```
+
+##### back()  / forward()  
+
+它们是`go()`的语法糖。
+
+```javascript
+// 后退一页
+history.back();
+// 前进一页
+history.forward();
+```
+
+##### pushState()
+
+`pushState()`方法执行后，状态信息就会被推到历史记录中，浏览器地址栏也会改变以反映新的相对 URL（可以想象成一个“假的”URL）。  
+
+因为 `pushState()`会创建新的历史记录，所以也会相应地启用“后退”按钮。此时单击“后退”按钮，就会触发 window 对象上的 popstate 事件。
+
+##### 刷新白屏问题
+
+如果你使用一些前端框架和它的路由管理插件，那么有时会出现刷新白屏现象。
+
+这一现象的本质在于：我们使用`pushState()`创建的每一个**假的URL(可以看成一个“状态”)**并没有在服务器上对应一个**真实物理URL**。所谓的白屏其实就是404错误。
+
+![](http://cdn.yuzzl.top/blog/20201101185002.png)
+
+![](http://cdn.yuzzl.top/blog/20201101185026.png)
+
+如果服务端使用了**nginx**，那么我们可以这样配置来处理这个问题（方案就是将当前的url重定向到index.html下）：
+
+```nginx
+server {
+    listen       80;
+    server_name  xxxx.yuzzl.top;
+    root  xxxxxx;
+    
+    // 下面是重点！
+    location / {
+        try_files $uri $uri/  /index.html;
+    }
+}
+```
 
 # TODO
 
