@@ -152,7 +152,7 @@ CDN的全称是Content Delivery Network，即**内容分发网络**。CDN是构�
 
 结合下面这个真实案例，我们来了解一下CDN的整个流程，假定一个内容提供商**yuzzl.top**，雇用了第三方CDN公司**七牛云**来向他的客户提供资源。在**yuzzl.top**的网页上，每个资源都被指定了一个URL。
 
-![cdn流程](../assets/images/CDN流程.jpg)
+![](http://cdn.yuzzl.top/blog/20201101223427.png)
 
 接下来我们来介绍一下**集群选择策略**，这是任何CDN部署的核心。
 
@@ -189,7 +189,7 @@ CDN可以通过对其集群和客户之间的时延和丢包性能执行周期�
 
 #### 图解
 
-### ![强制缓存](../assets/images/强制缓存.png)
+ ![](http://cdn.yuzzl.top/blog/20201101223609.png)
 
 #### 实现相关
 
@@ -215,7 +215,7 @@ Expires: [一个 HTTP-日期 时间戳],  表示在此时候之后，响应过�
 
 #### 图解
 
-![协商缓存](../assets/images/协商缓存.png)
+![](http://cdn.yuzzl.top/blog/20201101223649.png)
 
 #### 实现相关
 
@@ -239,9 +239,9 @@ ETag是URL的tag，用来标示URL对象是否改变。这样可以应用于客�
 
 #### 缓存实践
 
-请看下图，这是访问jsdelivrCDN的moment.js库的请求头（之前已经访问过一次）地址为: https://cdn.jsdelivr.net/npm/moment@2.27.0/min/moment.min.js
+请看下面的报文。（访问jsdelivrCDN的moment.js库）（之前已经访问过一次）地址为: https://cdn.jsdelivr.net/npm/moment@2.27.0/min/moment.min.js
 
-![缓存实战](../assets/images/缓存实战.png)
+![](http://cdn.yuzzl.top/blog/20201101224115.png)
 
 详细的解释如下：
 
@@ -255,6 +255,8 @@ ETag是URL的tag，用来标示URL对象是否改变。这样可以应用于客�
 - **Etag** 和 **If-None-Match**：当浏览器请求上面的js文件时, 服务器根据A算出一个哈希e5ee-zUVI2arEgtR9ThZVMK3qTcnqNck并通过 ETag 返回给浏览器，浏览器把这个hash值和 A 同时缓存在本地，当下次再次向服务器请求A时，会通过类似 If-None-Match: "e5ee-zUVI2arEgtR9ThZVMK3qTcnqNck" 的请求头把ETag发送给服务器，服务器再次计算A的哈希值并和浏览器返回的值做比较，来判断是直接返回资源还是使用缓存。
 
 ## HTTP和HTTPS
+
+
 
 ## DOS攻击
 
@@ -353,7 +355,7 @@ Sec-WebSocket-Accept: 7d3Wyy9mojKdk/q0gH2A/xvwNV8=
 
 浏览器开发者模式抓包：
 
-![](../assets/images/websocket报文.png)
+![](http://cdn.yuzzl.top/blog/20201101224250.png)
 
 来看一下发起连接的报文：
 
@@ -368,9 +370,7 @@ Sec-WebSocket-Accept: 7d3Wyy9mojKdk/q0gH2A/xvwNV8=
 socket.send("hello world");
 ```
 
-![](../assets/images/websocket发送消息.jpg)
-
-
+![](http://cdn.yuzzl.top/blog/20201101224312.png)
 
 ### 实践：实现一个Websocket服务器
 
@@ -388,7 +388,7 @@ DNS解析其实就是用你的域名来定位真正的IP地址，就像拜访朋
 
 DNS解析本质上是一个递归查询的过程，例如下面的域名：
 
-```
+```http
 http://docs.yuzzl.top
 ```
 
@@ -426,7 +426,7 @@ HTTP/1 的请求和响应报文，都是由起始行，首部和实体正文（�
 
 下图中（HTTP1.x）红色部分因为0浏览器域名链接数的个数限制导致等待。
 
-![](../assets/images/域名链接数超出限制.png)
+![](http://cdn.yuzzl.top/blog/20201101224805.png)
 
 ##### HTTP2.x实现多流并行
 
@@ -448,7 +448,7 @@ HTTP/1 的请求和响应报文，都是由起始行，首部和实体正文（�
 
 ##### 图解多路复用
 
-![](../assets/images/多路复用.png)
+![](http://cdn.yuzzl.top/blog/v2-b1e608ddb7493608efea3e76912aabe1_b.png)
 
 
 
@@ -458,7 +458,7 @@ HTTP/1 的请求和响应报文，都是由起始行，首部和实体正文（�
 
 如下图，请求一发送了所有的头部字段，第二个请求则只需要发送差异数据，这样可以减少冗余数据，降低开销。
 
-![](../assets/images/HTTPS2.0头部压缩.png)
+![](http://cdn.yuzzl.top/blog/20201101224957.png)
 
 #### 服务端推送（server push）
 

@@ -24,7 +24,7 @@ https://developer.mozilla.org/zh-CN/docs/Learn/HTML/Multimedia_and_embedding/Res
 
 请求在发送时会有一个额外的头部**Origin**，如下面所示：
 
-```
+```http
 Origin: http://docs.yuzzl.top
 ```
 
@@ -32,13 +32,13 @@ Origin: http://docs.yuzzl.top
 
 如果服务器**决定响应请求**，那么它也会发送一个头部：
 
-```
+```http
 Access-Control-Allow-Origin: http://docs.yuzzl.top
 ```
 
 如果资源是公开的，那么可以如此做:
 
-```
+```http
 Access-Control-Allow-Origin: *
 ```
 
@@ -56,7 +56,7 @@ CORS 通过一种叫**预检请求**（ preflighted request）的服务器验证
 
 例如下面的请求报文(省略了一部分无关头部)：
 
-```
+```http
 OPTIONS /user/user_info HTTP/1.1
 Host: 47.106.202.255:8081
 Connection: keep-alive
@@ -75,7 +75,7 @@ Origin: http://oj.yuzzl.top
 
 例如下面的响应报文(省略了一部分无关头部)：
 
-```
+```http
 Access-Control-Allow-Credentials: true
 Access-Control-Allow-Headers: authorization, loading
 Access-Control-Allow-Methods: POST,GET,PUT,OPTIONS,DELETE
@@ -89,7 +89,7 @@ Access-Control-Max-Age: 3600
 
 默认情况下，跨源请求不提供凭据（ cookie、 HTTP 认证和客户端 SSL 证书）。可以通过将withCredentials 属性设置为 true 来表明请求会发送凭据。如果服务器允许带凭据的请求，那么可以在响应中包含如下 HTTP 头部：
 
-```
+```http
 Access-Control-Allow-Credentials: true
 ```
 
@@ -207,18 +207,6 @@ const handleResponse = (response) => {
 >
 > - 如果出现兼容性问题，它会正常加载src属性下的图片
 
-##### 实践
-
-来看这个案例。（来自MDN）
-
-![](../assets/images/响应式图片-1.jpg)
-
-![](../assets/images/响应式图片-2.jpg)
-
-![](../assets/images/响应式图片-3.jpg)
-
-
-
 #### Javascript启动优化
 
 ##### 仅发送用户所需的代码
@@ -280,17 +268,17 @@ gzip压缩比率在3到10倍左右，可以大大节省服务器的网络带宽�
 
 下图是gzip的工作流程：
 
-![](../assets/images/GZIP流程.jpg)
+![](http://cdn.yuzzl.top/blog/20201101225138.png)
 
 - 浏览器请求url，并在request header中设置属性accept-encoding:gzip。表明浏览器支持gzip，例如下图：
 
-  ![](../assets/images/GZIP_请求.jpg)
+  ![](http://cdn.yuzzl.top/blog/20201101225226.png)
 
 - 服务器收到浏览器发送的请求之后，判断浏览器是否支持gzip，如果支持gzip，则向浏览器传送压缩过的内容，不支持则向浏览器发送未经压缩的内容。
 
   如果支持，response headers返回**content-encoding:gzip**
 
-  ![](../assets/images/GZIP_响应.jpg)
+  ![](http://cdn.yuzzl.top/blog/20201101225238.png)
 
 - 浏览器接收到服务器的响应之后判断内容是否被压缩，如果被压缩则解压缩显示页面内容
 
@@ -407,8 +395,6 @@ server{
   > 提示：如上所述，异步脚本不应该在加载期间修改 DOM。
 
 - 自托管第三方脚本，缺点是自托管的脚本可能无法同步到最新版本。
-
-## MVVM/MVC
 
 ## XSS攻击
 
@@ -679,15 +665,13 @@ p::before{
 
 如果要为元素设置动画，则浏览器必须在每个帧之间运行这些操作。大多数显示器每秒刷新屏幕 60 次（60 fps），当屏幕每帧都在变化，人眼会觉得动画很流畅。但是，如果动画丢失了中间一些帧，页面看起来就会卡顿。
 
-![](../assets/images/绘制-有动画的情况.jpg)
-
 即使渲染操作能跟上屏幕刷新，这些计算也会在主线程上运行，这意味着当你的应用程序运行 JavaScript 时动画可能会被阻塞。
 
-![](../assets/images/绘制-JS阻塞.jpg)
+![](http://cdn.yuzzl.top/blog/16670367652ef2d6)
 
 我们可以将 JavaScript 操作**划分为小块**，并使用 `requestAnimationFrame()` 在每个帧上运行，如下图：
 
-![](../assets/images/将JavaScript操作划分为小块.png)
+![](http://cdn.yuzzl.top/blog/16670367a6c767bd)
 
 我们也可以在 **Web Worker** 中运行 JavaScript 以避免阻塞主线程。
 

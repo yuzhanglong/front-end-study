@@ -124,7 +124,7 @@ console.log("foo被执行");
 
 结合下图，我们得到以下信息：
 
-![image-20201021211232862](C:\Users\yuzhanglong\AppData\Roaming\Typora\typora-user-images\image-20201021211232862.png)
+![](http://cdn.yuzzl.top/blog/20201101225709.png)
 
 - 此时的调用栈（call stack）只有一个全局的**执行上下文**。
 
@@ -151,7 +151,7 @@ console.log("foo被执行");
 
 结合下图，我们得到以下信息：
 
-![image-20201021212817381](C:\Users\yuzhanglong\AppData\Roaming\Typora\typora-user-images\image-20201021212817381.png)
+![](http://cdn.yuzzl.top/blog/20201101225731.png)
 
 - 此时的调用栈的栈顶为当前执行上下文`foo`。
 
@@ -187,7 +187,7 @@ console.log("foo被执行");
 
 我们继续单步，执行我们的`bar()`:
 
-![image-20201021213229580](C:\Users\yuzhanglong\AppData\Roaming\Typora\typora-user-images\image-20201021213229580.png)
+![](http://cdn.yuzzl.top/blog/20201101225642.png)
 
 结合下图，我们得到以下信息：
 
@@ -213,7 +213,7 @@ console.log("foo被执行");
 
 ##### 更直观的表示
 
-![image-20201021234525185](C:\Users\yuzhanglong\AppData\Roaming\Typora\typora-user-images\image-20201021234525185.png)
+![](http://cdn.yuzzl.top/blog/20201101225756.png)
 
 ### 闭包的深入理解
 
@@ -680,7 +680,7 @@ console.log(dataToCopy); // <ref *1> { name: 'yzl', dataToCopy: [Circular *1] }
 
 很明显。我们造成了一个**循环引用**。如果我们对`dataToCopy`执行递归操作，那么它将陷入死循环。
 
-![image-20201023212433460](C:\Users\yuzhanglong\AppData\Roaming\Typora\typora-user-images\image-20201023212433460.png)
+![](http://cdn.yuzzl.top/blog/20201101225823.png)
 
 如何解决循环引用？我们可以使用`Map`这种数据结构来检测某个对象有没有被拷贝过。
 
@@ -920,23 +920,23 @@ debugger
 
 使用调试工具查看：
 
-![image-20201024134451606](C:\Users\yuzhanglong\AppData\Roaming\Typora\typora-user-images\image-20201024134451606.png)
+![](http://cdn.yuzzl.top/blog/20201101225851.png)
 
 每次调用构造函数创建一个新实例，这个实例的内部`[[Prototype]]`指针就会被赋值为**构造函数的原型对象**。脚本中没有访问这个`[[Prototype]]`特性的标准方式， 但主流的浏览器、nodejs会在每个对象上暴露`__proto__`属性，通过这个属性可以访问对象的原型。
 
 请看下图：
 
-![image-20201024141506692](C:\Users\yuzhanglong\AppData\Roaming\Typora\typora-user-images\image-20201024141506692.png)
+![](http://cdn.yuzzl.top/blog/20201101225909.png)
 
 也就是说，实例与**构造函数原型**之间**有直接的联系**，但实例与构造函数之间没有。
 
 另外，同一个函数的两个实例**共享一个原型对象**。
 
-![image-20201024141926875](C:\Users\yuzhanglong\AppData\Roaming\Typora\typora-user-images\image-20201024141926875.png)
+![](http://cdn.yuzzl.top/blog/20201101225928.png)
 
 总结一下上面的描述，可用下图来表示：
 
-![image-20201024142022564](C:\Users\yuzhanglong\AppData\Roaming\Typora\typora-user-images\image-20201024142022564.png)
+![](http://cdn.yuzzl.top/blog/20201101225942.png)
 
 #### 关于原型的一些API
 
@@ -1402,4 +1402,3 @@ event loop
 ## 垃圾回收
 
 ## 工作者线程
-
