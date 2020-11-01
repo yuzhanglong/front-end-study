@@ -113,24 +113,63 @@ img.src = "http://www.example.com/test?name=Nicholas";
 
 #### JSONP
 
-JSONP 调用是通过动态创建`<script>`元素并为 src 属性指定跨域 URL 实现的
+##### 介绍
 
-```javascript
-function handleResponse(response) {
-    console.log(`
-    You're at IP address ${response.ip}, which is in
-    ${response.city}, ${response.region_name}`);
-}
-let script = document.createElement("script");
-script.src = "http://freegeoip.net/json/?callback=handleResponse";
-document.body.insertBefore(script, document.body.firstChild);
-```
+**JSONP** 是“JSON with padding”的简写，是在 Web 服务上流行的一种 JSON 变体。   
+
+JSONP 是通过动态创建`<script>`元素并为 src 属性指定跨域 URL 实现的。
 
 - JSONP 是从不同的域拉取可执行代码。如果这个域并不可信，则可能在响应中加入恶意内容。
   此时除了完全删除 JSONP 没有其他办法。在使用不受控的 Web 服务时，一定要保证是可以信任的。  
+- 不好确定 JSONP 请求是否失败。虽然 HTML5 规定了`<script>`元素的 `onerror` 事件处理程序，但还没有被任何浏览器实现。为此，开发者经常使用计时器来决定是否放弃等待响应。
 
-- 不好确定 JSONP 请求是否失败。虽然 HTML5 规定了`<script>`元素的 `onerror` 事件
-  处理程序，但还没有被任何浏览器实现。为此，开发者经常使用计时器来决定是否放弃等待响应。  
+##### 实践
+
+下面是我从网上找到的一个JSONP API，用来获取本地天气。
+
+```http
+https://query.asilu.com/weather/baidu?callback=handleResponse
+```
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>JSONP测试</title>
+  </head>
+  <body>
+    <script>
+      const handleResponse = (response) => {
+        console.log(response);
+      }
+      
+      let script = document.createElement("script");
+      script.src = "https://query.asilu.com/weather/baidu?callback=handleResponse";
+      document.body.appendChild(script);
+    </script>
+  </body>
+</html>
+
+```
+
+上面的代码执行后，往**body**中插入了一个`<script>`标签，于是我们可以调用第三方接口，注意我们传入的query:**callback=handleResponse**，服务端会返回一个这样的文本：
+
+```javascript
+handleResponse({"city":"杭州","pm25":"66","weather":["数组的内容被省略了"]});
+```
+
+这下更明白JSONP实现的原理了吧，浏览器获取这串代码（js脚本），就会直接`handleResponse()` -- 也就是我们之前定义的：
+
+```javascript
+const handleResponse = (response) => {
+  console.log(response);
+}
+```
+
+最终，浏览器控制台打印了我们想要的JSON数据：
+
+![](http://cdn.yuzzl.top/blog/20201101205643.png)
 
 ## 性能优化
 
