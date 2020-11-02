@@ -2,6 +2,8 @@
 
 https://zhuanlan.zhihu.com/p/53703176
 
+https://www.bilibili.com/video/BV14k4y117LL
+
 ## MVVM
 
 ### 概念
@@ -777,41 +779,232 @@ class MVVM {
 }
 ```
 
+## Vue3.0特性
+
+#### DIFF算法优化
+
+vue2的虚拟DOM是**全量的对比**。
+
+例如下面的HTML节点：
+
+```html
+<div>
+    <p>passage</p>
+    <p>{{message}}</p>
+</div>
+```
+
+对应的虚拟DOM树：
+
+![](http://cdn.yuzzl.top/blog/20201101233800.png)
+
+当message更新时，我们遍历这颗树，逐一对比，然后做出更新。
+
+很明显，写死的数据`passage`永远不会变化，进行比较将是多余的。
+
+在Vue3.0中，我们使用**静态标记**，谁有标记就比较谁。
+
+![](http://cdn.yuzzl.top/blog/20201101234706.png)
+
+![](http://cdn.yuzzl.top/blog/20201102133131.png)
+
+#### 静态提升（hoistStatic）
+
+- **vue2**中无论元素是否参与更新，每次都会重新创建并渲染。
+
+- **vue3**中对于不参与更新的元素会进行**静态提升**，**只会被创建一次**，在渲染时**直接复用**即可。
+
+![](http://cdn.yuzzl.top/blog/20201102134357.png)
+
+![](http://cdn.yuzzl.top/blog/20201102133734.png)
+
+#### 事件侦听器缓存(cacheHandlers)
+
+默认情况下onClick会被视为动态绑定，我们每次都会追踪它的变化。
+
+但是由于是同一个函数，是不会有变化的，所以我们直接**缓存起来复用**即可。
+
+![](http://cdn.yuzzl.top/blog/20201102134637.png)
+
+![](http://cdn.yuzzl.top/blog/20201102134807.png)
+
+#### 组合式 API (Composition API)
+
+组合式API的使用和React的**hooks**非常像，它们都可以用来抽离重复的业务逻辑。
+
+##### 经典分页案例
+
+组合API的优势通常在一些重复的业务逻辑上体现，例如web开发少不了分页请求，
+
+##### ref()和reactive()
+
+`ref` 和 `reactive` 这两个API都是为了给JavaScript普通的数据类型赋予**响应式特性(reactivity）**。
+
+`ref()`接受一个内部值并返回一个**响应式**且可变的 ref 对象，通过执行`ref.value`可以获取值。
+
+下面是一个简单的计数器案例：
+
+```vue
+<template>
+  <div>
+    <p>{{ count }}</p>
+    <button @click="add">hello</button>
+  </div>
+</template>
+
+<script>
+import {ref} from "vue";
+
+export default {
+  name: 'App',
+  components: {},
+  setup() {
+    // 设置初始值为0
+    let count = ref(0);
+    const add = () => {
+      count.value++;
+    }
+    return {count, add};
+  }
+}
+</script>
+```
+
+`reactive()`同样返回对象的响应式副本。只不过它不能直接包装普通类型。
+
+```javascript
+<template>
+  <div>
+    <p>{{ count.value }}</p>
+    <button @click="count.add()">hello</button>
+  </div>
+</template>
+
+<script>
+import {reactive} from "vue";
+
+export default {
+  name: 'App',
+  components: {},
+  setup() {
+    // 设置初始值为0
+    let count = reactive({
+      value: 123,
+      add: () => {
+        count.value++;
+      }
+    });
+    return {count};
+  }
+}
+</script>
+```
+
+##### Reactive的本质
+
+###### 它是用Proxy包装的
+
+`reactive`的本质是使用了`proxy`进行包装，（关于proxy的语法在这里不再赘述，具体内容可以前往JavaScript篇的**代理与反射**一探究竟），我们可以打印`count`来看一下：
+
+![](http://cdn.yuzzl.top/blog/20201102181235.png)
+
+从Vue的源码中我们也可以看出来（重点关注红色方框中的内容）：
+
+![](http://cdn.yuzzl.top/blog/20201102181416.png)
+
+###### 它和data”殊途同归“
+
+还是前面的案例，我们在生命周期的`mounted()`中打印一下`this`：
+
+![](http://cdn.yuzzl.top/blog/20201102184303.png)
+
+我们可以看到我们定义的`count`，它的表现形式和`data`一模一样，都是`proxy`封装的一个对象。
+
+##### 递归监听和非递归监听
+
+###### 递归监听
+
+请看下面代码：
+
+```vue
+<template>
+  <div>
+    <p>{{ state.name }}</p>
+    <p>{{ state.father.name }}</p>
+    <p>{{ state.father.father.name }}</p>
+    <button @click="test">hello</button>
+  </div>
+</template>
+
+<script>
+import {reactive} from "vue";
+
+export default {
+  name: 'App',
+  components: {},
+  setup() {
+    let state = reactive({
+      name: "son",
+      father: {
+        name: "father",
+        father: {
+          name: "grandfather"
+        }
+      }
+    });
+    const test = () => {
+      state.father.father.name = "grandfather2";
+      console.log(state);
+      console.log(state.father);
+      console.log(state.father.father);
+    }
+    return {state, test};
+  },
+}
+</script>
+```
+
+当我们点击屏幕上的**Hello2**按钮时，**grandfather**变成了**grandfather2**。然后我们看看控制台打印的内容：
+
+![](http://cdn.yuzzl.top/blog/20201102203236.png)
+
+vue为每一个元素封装了`proxy`，也就是说它使用了**递归监听** -- 递归遍历reactive包裹的对象，将每个对象绑定上`proxy`，对于一些数据量比较大的情况势必会消耗性能。
+
+###### 非递归监听 -- shallowReactive()
+
+shallow意为“浅的”。它创建一个响应式代理，该代理跟踪其自身 property 的响应性，但不执行嵌套对象的深度响应式转换 (暴露原始值)。
+
+我们将上面代码的`reactive` 换成`shallowReactive`，然后看看控制台：
+
+![](http://cdn.yuzzl.top/blog/20201102203948.png)
+
+可以看到，`shallowReactive`只为**根元素**添加了代理，其它的都是普通的对象。
+
+由此我们可以推断出，只有**对根元素**的修改才会引起视图层的变化：
+
+**未对根元素修改**
+
+![](http://cdn.yuzzl.top/blog/20201102204720.png)
+
+**对根元素修改**
+
+![](http://cdn.yuzzl.top/blog/20201102204901.png)
+
+而且你会发现，如果我们对根元素修改之后修改了子元素，那么子元素也会同时被修改。
+
+##### toRow()
+
+`toRow()`返回代理的原始对象。
+
+假设有这样一个场景，我们需要对`reactive`包裹的内容进行一些加工、计算，会修改值，但是我们不希望这些值的修改在视图层上体现。
+
+
+
+
+
 ## TODO
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## 生命周期
+生命周期
 
 双向绑定
 
