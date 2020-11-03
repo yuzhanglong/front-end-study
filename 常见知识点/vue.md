@@ -834,7 +834,108 @@ vue2的虚拟DOM是**全量的对比**。
 
 ##### 经典分页案例
 
-组合API的优势通常在一些重复的业务逻辑上体现，例如web开发少不了分页请求，
+组合API的优势通常在一些重复的业务逻辑上体现，例如web开发少不了分页请求，来看下面接口的返回内容：
+
+![](http://cdn.yuzzl.top/blog/20201103235224.png)
+
+想想我们以前怎么做的 -- 在vue组件中写一个`methods`来请求数据，然后再将这些数据赋值到`data`，然后如果一个项目有几十个分页请求，重复的业务逻辑就会让人捉襟见肘。
+
+来看看我们的组合式API如何处理：
+
+**usePagination.js**
+
+```javascript
+import {reactive} from "vue";
+
+export const usePagination = (requestMethod, params) => {
+  let state = reactive({
+    data: {
+      items: [],
+      page: 0,
+      total: 0,
+      totalPage: 0,
+      count: 0
+    }
+  });
+  let changeCurrentPage = async () => {
+    try {
+      const response = await requestMethod(params);
+      console.log(response);
+      state.data = response.data;
+      console.log(state);
+    } catch (e) {
+      //TODO: 异常处理
+      console.log(e);
+    }
+  }
+  return {
+    state,
+    changeCurrentPage
+  }
+}
+```
+
+
+
+**App.vue**
+
+我们用`settimeout`来模拟网络请求。
+
+```javascript
+<template>
+  <div>
+    <p>{{ pagination }}</p>
+    <button @click="pagination.changeCurrentPage">改变页码</button>
+  </div>
+</template>
+
+<script>
+import {usePagination} from "./Composable/usePagination";
+
+export default {
+  name: 'App',
+  setup() {
+    const testPromise = () => {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve({
+            "code": "00000", "message": "success", "request": null, "data": {
+              "total": 13,
+              "count": 15,
+              "page": 0,
+              "totalPage": 1,
+              "items": [
+                {
+                  "id": 10011,
+                  "name": "最大连续和",
+                  "characterTags": ["DP"],
+                  "createTime": 1599539054591,
+                  "closed": false
+                }, {
+                  "id": 10012,
+                  "name": "字符串匹配",
+                  "characterTags": ["测试"],
+                  "createTime": 1596104002325,
+                  "closed": false
+                }
+              ]
+            }
+          });
+        }, 1000);
+      })
+    }
+    let pagination = usePagination(testPromise, {});
+    return {
+      pagination
+    }
+  },
+}
+</script>
+```
+
+我们只需要点击一下按钮，就可以做到自动换页（需要额外传入目标页码，这里省略了），并且无需再写网络请求代码，同时视图层做到了刷新，一行代码做到了上面的所有目标，并且我们的`usePagination.js`在任何组件中都可以使用。
+
+#### 响应性API
 
 ##### ref()和reactive()
 

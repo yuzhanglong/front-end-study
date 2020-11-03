@@ -2,11 +2,13 @@
 
 参考：
 
-https://www.webpackjs.com
-
 https://github.com/ruanyf/webpack-demos
 
-https://www.webpackjs.com/contribute/writing-a-loader/
+https://www.webpackjs.com/contribute/writing-a-loader
+
+https://zhuanlan.zhihu.com/p/44438844
+
+https://juejin.im/post/6844903544756109319
 
 ## 经典配置案例
 
@@ -485,7 +487,17 @@ module.exports = {
 }
 ```
 
+## Webpack构建流程
 
+Webpack 的运行流程是一个**串行**的过程，从启动到结束会依次执行以下流程：
+
+1. **初始化参数**：从配置文件和 Shell 语句中读取与合并参数，得出最终的参数。
+2. **开始编译**：用上一步得到的参数初始化 Compiler 对象，加载所有配置的插件，执行对象的 run 方法开始执行编译。
+3. **确定入口**：根据配置中的 entry 找出所有的入口文件。
+4. **编译模块**：从入口文件出发，调用所有配置的 Loader 对模块进行翻译，再找出该模块依赖的模块，再递归本步骤直到所有入口依赖的文件都经过了本步骤的处理。
+5. **完成模块编译**：在经过第4步使用 Loader 翻译完所有模块后，得到了每个模块被翻译后的最终内容以及它们之间的依赖关系。
+6. **输出资源**：根据入口和模块之间的依赖关系，组装成一个个包含多个模块的 Chunk，再把每个 Chunk 转换成一个单独的文件加入到输出列表，这步是可以修改输出内容的最后机会。
+7. **输出完成**：在确定好输出内容后，根据配置确定输出的路径和文件名，把文件内容写入到文件系统。
 
 ## Webpack热更新（HMR）原理
 
@@ -497,7 +509,11 @@ module.exports = {
 - 只更新变更内容，以节省宝贵的开发时间。
 - 调整样式更加快速 - 几乎相当于在浏览器调试器中更改样式。
 
-## loader
+## loader和Plugin
+
+### 实践：编写一个plugin
+
+TODO
 
 ### 实践：编写一个loader
 
@@ -567,9 +583,9 @@ module.exports = {
 
 加粗的单词将成为我们的选项参数。
 
-### Helloworld
+#### Helloworld
 
-请看下图，这是一个“hello world”版的**loader**，最终我们在浏览器控制台获得我们的图片资源`source`被转换成了“hello world”，然后按官方文档上的规定处理成字符串被导出。
+请看下图，这是一个hello world版的**loader**，最终我们在浏览器控制台获得我们的图片资源`source`被转换成了“hello world”，然后按官方文档上的规定处理成字符串被导出。
 
   ```javascript
 return `export default ${JSON.stringify(source)}`;
@@ -601,7 +617,6 @@ module.exports = function (source) {
   source = "hello world";
   return `export default ${JSON.stringify(source)}`;
 };
-
 ```
 
 ![](http://cdn.yuzzl.top/blog/20201103204340.png)
@@ -651,7 +666,7 @@ const encodeData = (content, generator, mimetype, encoding, resourcePath) => {
   return `data:${mimetype}${encoding ? `;${encoding}` : ''},${content.toString(encoding || undefined)}`;
 }
 
-
+// 这里不要用箭头函数，注意this的指向！
 module.exports = function (source) {
   // 获取选项
   const options = loaderUtils.getOptions(this) || {};
@@ -667,3 +682,32 @@ module.exports = function (source) {
 };
 ```
 
+## Webpack如何提高前端性能
+
+### 总述
+
+用webpack优化前端性能是指优化webpack的输出结果，让打包的最终结果在浏览器运行快速高效。
+
+### 代码级别的压缩
+
+这个前面的前端基础篇已经说过了，删除多余的代码、注释、简化代码的写法等等方式。可以利用webpack的`UglifyJsPlugin`和`ParallelUglifyPlugin`来压缩JS文件，  利用`cssnano`来压缩css。
+
+### CDN加速
+
+构建时修改静态资源路径。可以利用webpack对于`output`参数和各loader的`publicPath`参数来修改资源路径。
+
+### 公共代码提取
+
+使用`optimization.splitChunks`配置项，我们可以抽取公共代码。
+
+关于公共代码提取的详细内容请参考：<a href="#代码分离">代码分离</a>
+
+### TreeShaking
+
+**tree shaking**是一个术语，通常用于描述移除 JavaScript上下文中的未引用代码(dead-code)。将代码中永远不会走到的片段删除掉。（也就是我们常说的“**按需加载**”）。
+
+TODO：原理（这个技术其实变化非常大）
+
+### ScopeHoisting
+
+TODO

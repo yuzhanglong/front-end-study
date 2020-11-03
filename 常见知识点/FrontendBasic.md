@@ -50,7 +50,7 @@ Access-Control-Allow-Origin: *
 
 #### 预检请求  
 
-CORS 通过一种叫**预检请求**（ preflighted request）的服务器验证机制，允许使用自定义头部、除 GET 和 POST 之外的方法，以及不同请求体内容类型。在要发送涉及上述某种高级选项的请求时，会先向服务器发送一个“预检”请求。这个请求使用 OPTIONS 方法发送并包含以下头部。  
+CORS 通过一种叫**预检请求**（ preflighted request）的服务器验证机制，允许使用自定义头部、除 GET 、 POST、HEAD（这三个也被称为**简单请求**） 之外的方法，以及不同请求体内容类型。在要发送涉及上述某种高级选项的请求时，会先向服务器发送一个“预检”请求。这个请求使用 OPTIONS 方法发送并包含以下头部。  
 
 - **Origin**：与简单请求相同  
 
@@ -348,7 +348,10 @@ server {
 </script></body></html>
 ```
 
+> 提示： 我们可以使用**webpack**实现这一需求。关于webpack的详细内容，请参考webpack篇。
+
 #### GZIP
+
 说到资源的大小优化，一个经典的案例便是**GZIP**。
 
 ##### 总述
@@ -596,7 +599,7 @@ cookie数据**不是安全的**，任何人都可以获得，常见的XSRF攻击
 
 请看下图，这是我们访问**MDN官网**的COOKIE内容，可以看到一条COOKIE有10个参数。
 
-![](../assets/images/COOKIE内容.jpg)
+![](http://cdn.yuzzl.top/blog/20201103093213.png)
 
 下面介绍几个重要的参数：
 
