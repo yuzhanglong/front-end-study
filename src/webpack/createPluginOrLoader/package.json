@@ -1,0 +1,19 @@
+{
+  "name": "create_plugin_or_loader",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "webpack --progress"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "html-webpack-plugin": "^4.5.0",
+    "webpack": "^5.3.2",
+    "webpack-cli": "^4.1.0"
+  },
+  "devDependencies": {
+    "loader-utils": "^2.0.0",
+    "mime-types": "^2.1.27",
+    "schema-utils": "^3.0.0",
+    "url-loader": "^4.1.1"
+  }
+}

@@ -6,6 +6,8 @@ https://www.webpackjs.com
 
 https://github.com/ruanyf/webpack-demos
 
+https://www.webpackjs.com/contribute/writing-a-loader/
+
 ## 经典配置案例
 
 所用的案例实践代码都放在了`src/webpack`下。
@@ -494,4 +496,174 @@ module.exports = {
 - 保留在完全重新加载页面时丢失的应用程序状态。
 - 只更新变更内容，以节省宝贵的开发时间。
 - 调整样式更加快速 - 几乎相当于在浏览器调试器中更改样式。
+
+## loader
+
+### 实践：编写一个loader
+
+接下来我们来写一个简单的`url-loader` -- 它把项目中图片类型的文件转换成`base64`等格式。
+
+**务必**先访问`https://www.webpackjs.com/contribute/writing-a-loader`了解官方写给loader编写者的文档。
+
+#### 准备工作
+
+##### entry.js
+
+```javascript
+import img from './img-test.jpg';
+
+document.write('hello world!');
+console.log(img);
+```
+
+##### webpack.config.js
+
+```javascript
+/*
+ * File: webpack.config.js
+ * Description: 常见插件的使用
+ * Created: 2020-10-31 14:03:13
+ * Author: yuzhanglong
+ * Email: yuzl1123@163.com
+ */
+
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const path = require("path");
+module.exports = {
+  entry: "./src/entry.js",
+  output: {
+    filename: './bundle.js',
+  },
+  plugins: [
+    new HtmlWebpackPlugin(),
+  ],
+  module: {
+    rules: [
+      {
+        test: /\.(png|jpg|gif)$/i,
+        use: [
+          {
+            loader: path.resolve(__dirname, './src/loader.js'),
+          },
+        ],
+      },
+    ]
+  }
+}
+
+```
+
+然后准备一张图片，新建我们的`loader.js`,目录结构如图。
+
+![](http://cdn.yuzzl.top/blog/20201103201937.png)
+
+#### 需求分析
+
+我们的loader可能需要这些功能：
+
+- 文件转换大小限制（**limit**） -- 我们都知道，图片资源文件太大使用base64得不偿失（base64实际上扩大体积了），所以我们需要一个上限值。
+- 编码格式（**encoding**），调用者可以自定义格式，例如**utf-8**，甚至用户可以**自定义编码函数**（**generator**）。
+- 其他的loader（**fallback**），如果文件大小超出限制，我们可能需要调用其他的loader，这个loader也需要让用户决定。
+
+加粗的单词将成为我们的选项参数。
+
+### Helloworld
+
+请看下图，这是一个“hello world”版的**loader**，最终我们在浏览器控制台获得我们的图片资源`source`被转换成了“hello world”，然后按官方文档上的规定处理成字符串被导出。
+
+  ```javascript
+return `export default ${JSON.stringify(source)}`;
+  ```
+
+![image-20201103202618281](C:\Users\yuzhanglong\AppData\Roaming\Typora\typora-user-images\image-20201103202618281.png)
+
+#### 获取参数
+
+向外界暴露参数。需要用到官方提供的loader工具库。
+
+回顾前面的需求分析，我们要实现五个参数的处理。
+
+- limit - 大小限制
+- encoding - 转码类型
+- generator - 自定义转换
+- fallback - 备用loader
+
+下面是获取参数的案例，通过调用官方提供的getOptions，获取`webpack.config.js`这个loader下的可选参数。
+
+```javascript
+const loaderUtils = require("loader-utils");
+
+module.exports = function (source) {
+  // Loader Options
+  const options = loaderUtils.getOptions(this) || {};
+  console.log(options);
+  // 对资源应用一些转换……
+  source = "hello world";
+  return `export default ${JSON.stringify(source)}`;
+};
+
+```
+
+![](http://cdn.yuzzl.top/blog/20201103204340.png)
+
+#### 完成业务逻辑
+
+接下来就是完成业务逻辑了，内容如下：
+
+```javascript
+const path = require("path");
+const loaderUtils = require("loader-utils");
+const mime = require("mime-types");
+
+// 默认编码
+const DEFAULT_ENCODING = "base64";
+
+// 是否需要转换
+const shouldTransform = (limit, size) => {
+  // Boolean类型，返回自身即可
+  if (typeof limit === "boolean") {
+    return limit;
+  }
+  if (typeof limit === "string") {
+    return size <= parseInt(limit);
+  }
+  if (typeof limit === "number") {
+    return size <= limit;
+  }
+  return true;
+}
+
+// 获取文件MIME类型
+const getMimetype = (mimetype, resourcePath) => {
+  const resolvedMimeType = mime.contentType(path.extname(resourcePath));
+  if (resolvedMimeType) {
+    return "";
+  }
+  return resolvedMimeType.replace(/;\s+charset/i, ';charset');
+}
+
+// 转码文件
+const encodeData = (content, generator, mimetype, encoding, resourcePath) => {
+  if (generator) {
+    return generator(content, mimetype, encoding, resourcePath);
+  }
+  content = Buffer.from(content);
+  return `data:${mimetype}${encoding ? `;${encoding}` : ''},${content.toString(encoding || undefined)}`;
+}
+
+
+module.exports = function (source) {
+  // 获取选项
+  const options = loaderUtils.getOptions(this) || {};
+  // 我们需要转换
+  if (shouldTransform(options.limit, source.length)) {
+    // 获取路径
+    const resourcePath = this.resourcePath;
+    // 获取文件MIME
+    const mimetype = getMimetype(options.mimetype, resourcePath);
+    source = encodeData(source, options.generator, mimetype, options.encoding || DEFAULT_ENCODING, resourcePath);
+  }
+  return `export default ${JSON.stringify(source)}`;
+};
+```
 
