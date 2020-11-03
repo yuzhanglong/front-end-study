@@ -12,13 +12,17 @@ https://github.com/chenjigeng/blog/issues/4
 
 https://developer.mozilla.org/zh-CN/docs/Learn/HTML/Multimedia_and_embedding/Responsive_images
 
-## 跨源资源共享(CORS)
+https://segmentfault.com/a/1190000022398875
 
-### 总述
+## 跨域方案
+
+### 跨源资源共享(CORS)
+
+#### 总述
 
 通过 **XHR** 进行 **Ajax 通信**的一个主要限制是跨源安全策略。默认情况下， XHR 只能访问与发起请求的页面在同一个域内的资源。这个安全限制可以防止某些恶意行为。
 
-### CORS
+#### CORS
 
 跨源资源共享（ CORS， Cross-Origin Resource Sharing）定义了浏览器与服务器如何实现跨源通信。CORS 背后的基本思路就是使用自定义的 HTTP 头部允许浏览器和服务器相互了解，以确实请求或响应应该成功还是失败。  
 
@@ -44,7 +48,7 @@ Access-Control-Allow-Origin: *
 
 如果没有这个头部，或者有但源不匹配，则表明不会响应浏览器请求。否则，服务器就会处理这个请求。  
 
-### 预检请求  
+#### 预检请求  
 
 CORS 通过一种叫**预检请求**（ preflighted request）的服务器验证机制，允许使用自定义头部、除 GET 和 POST 之外的方法，以及不同请求体内容类型。在要发送涉及上述某种高级选项的请求时，会先向服务器发送一个“预检”请求。这个请求使用 OPTIONS 方法发送并包含以下头部。  
 
@@ -85,7 +89,7 @@ Access-Control-Max-Age: 3600
 
 我们可以发现，预检请求也是有缓存机制的。
 
-### 凭据请求
+#### 凭据请求
 
 默认情况下，跨源请求不提供凭据（ cookie、 HTTP 认证和客户端 SSL 证书）。可以通过将withCredentials 属性设置为 true 来表明请求会发送凭据。如果服务器允许带凭据的请求，那么可以在响应中包含如下 HTTP 头部：
 
@@ -95,9 +99,8 @@ Access-Control-Allow-Credentials: true
 
 假如我们发送了凭据请求但是响应没有这个头部，那么浏览器**不会将响应交给JavaScript调用**。（在XMLHTTPRequest的接口层面显示为 `status=0`，调用`onerror()`）
 
-### 替代性跨源技术
 
-#### 图片探测
+### 图片探测
 
 通过`<img>`标签来实现跨域通信，例如：
 
@@ -111,9 +114,9 @@ img.src = "http://www.example.com/test?name=Nicholas";
 
 图片探测频繁用于跟踪用户在页面上的点击操作或动态显示广告。当然它只能发送GET请求并且无法获取服务器的响应。
 
-#### JSONP
+### JSONP
 
-##### 介绍
+#### 介绍
 
 **JSONP** 是“JSON with padding”的简写，是在 Web 服务上流行的一种 JSON 变体。   
 
@@ -122,8 +125,10 @@ JSONP 是通过动态创建`<script>`元素并为 src 属性指定跨域 URL 实
 - JSONP 是从不同的域拉取可执行代码。如果这个域并不可信，则可能在响应中加入恶意内容。
   此时除了完全删除 JSONP 没有其他办法。在使用不受控的 Web 服务时，一定要保证是可以信任的。  
 - 不好确定 JSONP 请求是否失败。虽然 HTML5 规定了`<script>`元素的 `onerror` 事件处理程序，但还没有被任何浏览器实现。为此，开发者经常使用计时器来决定是否放弃等待响应。
+- JSONP不支持**POST**请求跨域。
+- 当你使用 **IE<=9, Opera<12, or Firefox<3.5** 或者更加老的浏览器，这个时候请使用 JSONP。
 
-##### 实践
+#### 实践
 
 下面是我从网上找到的一个JSONP API，用来获取本地天气。
 
@@ -170,6 +175,94 @@ const handleResponse = (response) => {
 最终，浏览器控制台打印了我们想要的JSON数据：
 
 ![](http://cdn.yuzzl.top/blog/20201101205643.png)
+
+### 正向代理
+
+我们可以利用服务端请求不会跨域的特性，让接口和当前站点同域。
+
+#### 描述
+
+##### 代理前
+
+![](http://cdn.yuzzl.top/blog/20201103085044.png)
+
+##### 代理后
+
+![](http://cdn.yuzzl.top/blog/20201103085156.png)
+
+#### 实践
+
+##### VueCLI
+
+```javascript
+module.exports = {
+  devServer: {
+    port: 8000,
+    proxy: {
+      "/api": {
+        target: "http://localhost:8080"
+      }
+    }
+  }
+};
+```
+
+##### webpack
+
+```javascript
+const path = require("path");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+
+module.exports = {
+  entry: {
+    index: "./index.js"
+  },
+  output: {
+    filename: "bundle.js",
+    path: path.resolve(__dirname, "dist")
+  },
+  devServer: {
+    port: 8000,
+    proxy: {
+      "/api": {
+        target: "http://localhost:8080"
+      }
+    }
+  },
+  plugins: [
+    new HtmlWebpackPlugin({
+      filename: "index.html",
+      template: "webpack.html"
+    })
+  ]
+};
+```
+
+### nginx反向代理
+
+#### 描述
+
+![](http://cdn.yuzzl.top/blog/20201103085830.png)
+
+本质上是配置了一个转发：
+
+```nginx
+server {
+        listen 80;
+        location /api {
+            proxy_pass http://localhost:8080;
+        }
+        location / {
+            proxy_pass http://localhost:8000;
+        }
+}
+```
+
+### PostMessage
+
+**postMessage**是**html5**引入的API,`postMessage()`方法允许来自不同源的脚本采用异步方式进行有效的通信,可以实现跨文本文档,多窗口,跨域消息传递.多用于窗口间数据通信,这也使它成为跨域通信的一种有效的解决方案。
+
+
 
 ## 性能优化
 
