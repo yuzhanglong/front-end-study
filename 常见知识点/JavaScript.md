@@ -8,6 +8,8 @@ https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects
 
 https://juejin.im/post/6844903584023183368
 
+http://www.conardli.top/blog/article/%E5%89%8D%E7%AB%AF%E5%B7%A5%E7%A8%8B%E5%8C%96/%E5%89%8D%E7%AB%AF%E5%B7%A5%E7%A8%8B%E5%8C%96-%E5%89%96%E6%9E%90npm%E7%9A%84%E5%8C%85%E7%AE%A1%E7%90%86%E6%9C%BA%E5%88%B6%EF%BC%88%E5%AE%8C%E6%95%B4%E7%89%88%EF%BC%89.html#_3-6-%E6%95%B4%E4%BD%93%E6%B5%81%E7%A8%8B
+
 ## 闭包
 
 ### 什么是闭包？
@@ -1381,11 +1383,11 @@ myFunction2[1]();
 
 
 
+## TODO
 
+Proxy和Object.defineProperty()
 
-## Proxy和Object.defineProperty()
-
-### Object.defineProperty()的缺陷
+Object.defineProperty()的缺陷
 
 重绘和回流
 
@@ -1399,6 +1401,6 @@ event loop
 
 事件委托
 
-## 垃圾回收
+垃圾回收
 
-## 工作者线程
+工作者线程

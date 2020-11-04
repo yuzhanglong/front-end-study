@@ -14,6 +14,8 @@ https://developer.mozilla.org/zh-CN/docs/Learn/HTML/Multimedia_and_embedding/Res
 
 https://segmentfault.com/a/1190000022398875
 
+https://www.zhihu.com/question/66629910/answer/273992383
+
 ## 跨域方案
 
 ### 跨源资源共享(CORS)
@@ -1046,6 +1048,203 @@ server {
     }
 }
 ```
+
+## NPM原理
+
+### 规范的版本管理方案 -- 语义化版本控制规范（SemVer）
+
+npm包 中的模块版本都需要遵循 SemVer规范——由 Github 起草的一个具有指导意义的，统一的版本号表示规则。实际上就是 Semantic Version（语义化版本）的缩写。
+
+具体信息这里不赘述，请查看官网：
+
+> SemVer规范官网： https://semver.org
+
+#### 如何控制版本号？
+
+##### 规约
+
+标准的版本号必须采用 `X.Y.Z`的格式，其中 X、Y 和 Z 为非负的整数，且禁止在数字前方补零。X 是**主版本号**（当你做了不兼容的 API 修改）、Y 是次版本号（当你做了向下兼容的功能性新增）、而 Z 为修订号（当你做了向下兼容的问题修正）。每个元素必须以数值来递增。例如：1.9.1 -> 1.10.0 -> 1.11.0。
+
+使用下面命令尝试查看一个库的版本号：
+
+```shell
+npm view axios versions
+```
+
+![](http://cdn.yuzzl.top/blog/20201104102455.png)
+
+##### 控制工具
+
+详细内容可以查看 semver文档：https://github.com/npm/node-semver
+
+```shell
+npm install semver
+```
+
+### 依赖管理 -- package.json
+
+#### 基本属性
+
+一些描述类的基本属性在这里不再赘述，都是见文知意的，例如版本号、介绍等信息。我们重点讲依赖配置。
+
+#### 依赖配置
+
+##### 总述
+
+依赖配置可以是这样：
+
+```json
+ "dependencies": {
+      "antd": "ant-design/ant-design#4.0.0-alpha.8",
+      "axios": "^1.2.0",
+      "test-js": "file:../test",
+      "test2-js": "http://cdn.com/test2-js.tar.gz",
+      "core-js": "^1.1.5",
+ }
+```
+
+依赖包的名称可以有以下几种方案：
+
+- 版本号，会从npm服务器下载
+- 下载地址，远程下载到本地
+- 本地路径（使用file协议）
+- GitHub路径
+
+##### devDependencies
+
+有一些包有可能你只是在开发环境中用到，这些依赖照样会在你本地进行 `npm install` 时被安装和管理，但是不会被安装到生产环境：
+
+```json
+ "devDependencies": {
+      "jest": "^24.3.1",
+      "eslint": "^6.1.0",
+ }
+```
+
+##### peerDependencies
+
+指定正在开发模块所依赖的版本以及用户安装的依赖包版本的兼容性。
+
+例如某个webpack loader的依赖：
+
+```json
+"peerDependencies": {
+    "webpack": "^4.0.0 || ^5.0.0",
+    "file-loader": "*"
+}
+```
+
+如果用户安装了`webpack3.0`，那么npm会给出一个警告。
+
+##### optionalDependencies
+
+某些场景下，依赖包可能不是强依赖的，这个依赖包的功能可有可无，当这个依赖包无法被获取到时，你希望 `npm install` 继续运行，而不会导致失败，你可以将这个依赖放到 `optionalDependencies` 中，注意 `optionalDependencies` 中的配置将会覆盖掉 `dependencies` 所以只需在一个地方进行配置。
+
+当然，引用 `optionalDependencies` 中安装的依赖时，一定要做好异常处理，否则在模块获取不到时会导致报错。
+
+##### bundledDependencies
+
+和以上几个不同，`bundledDependencies` 的值是一个数组，数组里可以指定一些模块，这些模块将在这个包发布时被一起打包。
+
+#### 目录相关
+
+##### 程序入口
+
+指定程序的**主入口文件**。
+
+```json
+{
+  "main": "lib/index.js",
+}
+```
+
+##### 命令行工具
+
+```json
+{
+    "bin": {
+    "conard": "./bin/index.js"
+  }
+}
+```
+
+##### 发布文件配置
+
+```json
+"files": [
+  "dist"
+]
+```
+
+#### 脚本配置
+
+##### scripts
+
+```json
+"scripts": {
+    "start": "npm run build -- -w",
+    "clean": "del-cli dist",
+    "build": "cross-env NODE_ENV=production babel src -d dist --copy-files",
+}
+```
+
+##### config
+
+用来配置环境变量。
+
+`config` 字段用于配置脚本中使用的环境变量，例如下面的配置，可以在脚本中使用`process.env.npm_package_config_port`进行获取。
+
+```json
+{
+  "config" : { "port" : "8080" }
+}
+```
+
+### npm install 原理
+
+#### 扁平结构依赖
+
+##### 优点
+
+默认情况下，执行`npm install`之后首先要确认的是**首层模块**，也就是 `dependencies` 和 `devDependencies` 属性中直接指定的模块。
+
+工程本身是整棵依赖树的根节点，每个首层依赖模块都是根节点下面的一棵**子树**，npm 会开启多进程从每个首层依赖模块开始**逐步寻找更深层级的节点**。
+
+可以看出来，如果我们在构造完我们的模块树之后直接选择安装，那么会产生大量的**重复依赖**。这也是旧版本npm被诟病的地方。
+
+从`npm3+`开始，有了模块的扁平化（dedupe）-- 它会遍历所有节点，逐个将模块放在根节点下面，也就是 `node-modules` 的第一层。当发现有**重复模块**时，则将其丢弃。
+
+来看下面的截图：
+
+![image-20201104201954144](C:\Users\yuzhanglong\AppData\Roaming\Typora\typora-user-images\image-20201104201954144.png)
+
+axios依赖`follow-redirects`，但是所有的依赖都在根节点下。
+
+##### 遇到冲突了怎么办？
+
+还是上面的图片案例，axios的依赖为，他表示**^1.10.0**版本及以上都可以兼容，所以npm为我们安装了最新版本。
+
+```json
+"dependencies": {
+   "follow-redirects": "^1.10.0"
+}
+```
+
+那么问题来了，假设我们的主项目需要`follow-redirect`的`1.9.1`版本，很明显与`axios`冲突了，我们尝试安装，来看看npm如何处理：
+
+![image-20201104202609758](C:\Users\yuzhanglong\AppData\Roaming\Typora\typora-user-images\image-20201104202609758.png)
+
+可以看到，根节点下面的依赖变成了我们的`follow-redirect@1.9.1`，同时，依赖`axios`下多了一个`node_modules`，这个里面的`follow-redirect@1.9.1`则是最新版本。axios在找模块的时候，会先从自己的`node_modules`下找，如果没有，则逐层向外。
+
+#### 依赖锁定
+
+执行完`npm install`之后，我们会发现多了个`package-lock.json`文件。
+
+实际开发中，经常会因为各种依赖不一致而产生奇怪的问题，或者在某些场景下，我们不希望依赖被更新，建议在开发中使用 `package-lock.json`。
+
+锁定依赖版本意味着在我们不手动执行更新的情况下，每次安装依赖都会安装固定版本。保证整个团队使用版本号一致的依赖。
+
+每次安装固定版本，无需计算依赖版本范围，大部分场景下能大大加速依赖安装时间。
 
 # TODO
 
