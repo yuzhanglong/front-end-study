@@ -344,7 +344,7 @@ function debounce(fn,delay){
 
 ### Symbol
 
-Symbol（符号）是 ECMAScript 6 新增的数据类型（js中原始数据类型 string number boolean null undefined symbol / object）。符号是原始值，且符号实例是唯一、不可变的。符号的用途是确保对象属性使用唯一标识符，不会发生属性冲突的危险。
+Symbol（符号）是 ECMAScript 6 新增的数据类型（js中原始数据类型有` string` `number` `boolean` `null` `undefined` `symbol` / `object`）。符号是原始值，且符号实例是唯一、不可变的。符号的用途是确保对象属性使用唯一标识符，不会发生属性冲突的危险。
 
 #### 特点
 
@@ -374,7 +374,7 @@ for(let key in obj){
 console.log(Object.getOwnPropertySymbols(obj)); // [ Symbol(my) ]
 ```
 
-但是，我们可以使用`Object.getOwnPropertySymbols(obj)`
+但是，我们可以使用`Object.getOwnPropertySymbols(obj)`这个API来获取。
 
 ##### Symbol.for()
 
@@ -387,6 +387,78 @@ let s5 = Symbol.for('aaa');
 console.log(s4 === s5); // false
 console.log(s3 === s5   // true
 ```
+
+#### 实践
+
+##### 私有属性
+
+```javascript
+// 私有属性
+const privateField = Symbol();
+
+class MyClass {
+  constructor() {
+    this[privateField] = 'hello world';
+  }
+
+  getField() {
+    return this[privateField];
+  }
+
+  setField(val) {
+    this[privateField] = val;
+  }
+}
+
+let myClass = new MyClass();
+
+console.log(myClass.getField());
+```
+
+##### 防止属性污染
+
+模拟一个`call`方法：
+
+```javascript
+// 私有属性
+const privateField = Symbol();
+
+class MyClass {
+  constructor() {
+    this[privateField] = 'hello world';
+  }
+
+  getField() {
+    return this[privateField];
+  }
+
+  setField(val) {
+    this[privateField] = val;
+  }
+}
+
+// 防止属性污染
+Function.prototype.myCall = function (context) {
+  // 用于防止 Function.prototype.myCall() 直接调用
+  if (typeof this !== 'function') {
+    return undefined;
+  }
+  context = context || global;
+  const fn = Symbol();
+  context[fn] = this;
+  const args = [...arguments].slice(1);
+  const result = context[fn](...args);
+  delete context[fn];
+  return result;
+}
+
+let myClass = new MyClass();
+
+console.log(myClass.getField());
+console.log(myClass.getField.myCall(myClass));
+```
+
+
 
 ### WeakMap
 
