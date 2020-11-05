@@ -591,7 +591,7 @@ module.exports = {
 return `export default ${JSON.stringify(source)}`;
   ```
 
-![image-20201103202618281](C:\Users\yuzhanglong\AppData\Roaming\Typora\typora-user-images\image-20201103202618281.png)
+![](http://cdn.yuzzl.top/blog/20201105215106.png)
 
 #### 获取参数
 
