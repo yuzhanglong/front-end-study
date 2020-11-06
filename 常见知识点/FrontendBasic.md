@@ -262,9 +262,91 @@ server {
 
 ### PostMessage
 
+#### 总述
+
 **postMessage**是**html5**引入的API,`postMessage()`方法允许来自不同源的脚本采用异步方式进行有效的通信,可以实现跨文本文档,多窗口,跨域消息传递.多用于窗口间数据通信,这也使它成为跨域通信的一种有效的解决方案。
 
+#### 实践
 
+我们现在有两个域，一个是本地域，还有一个是远程服务器（当然你也可以都在本地运行，只要确保他们不同源即可），其中：
+
+- 本地IP：`http://localhost:63342`
+
+- 远程IP：`http://182.254.197.28`
+
+##### 本地HTML
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>POST MESSAGE -- 本地</title>
+  </head>
+  <body>
+    <h4>主页面</h4>
+    <iframe id="iframe" src="http://182.254.197.28/"></iframe>
+    <script>
+      const iframe = document.getElementById('iframe');
+      iframe.onload = () => {
+        const data = {
+          name: 'yzl',
+          age: 20
+        };
+        // 向domain2传送跨域数据
+        iframe.contentWindow.postMessage(JSON.stringify(data), 'http://182.254.197.28/');
+      };
+      window.addEventListener('message', (e) => {
+        console.log('本地接收到数据: ' + e.data);
+      }, false);
+    </script>
+  </body>
+</html>
+
+```
+
+- 注意本地HTML中的`iframe`，它相当于在页面中**新增了一个窗口**，小窗口和窗口外是**跨域**的：
+
+![](http://cdn.yuzzl.top/blog/20201106111357.png)
+
+- onload钩子 -- 在小窗口加载完成时，向其发送消息，接下来我们来看看**小窗口的HTML**。
+
+##### 远程HTML
+
+```html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>hello world</title>
+    <script>
+      // 接收domain1的数据
+      window.addEventListener('message', (e) => {
+        console.log('182.254.197.28接收到数据:' + e.data)
+        const data = JSON.parse(e.data)
+        if (data) {
+          data.name = 'yuzhanglong'
+          data.age = 20
+          // 处理后再发回domain1
+          window.parent.postMessage(JSON.stringify(data), 'http://localhost:63342')
+        }
+      }, false)
+    </script>
+  </head>
+  <body>
+    hello world
+  </body>
+</html>
+```
+
+小窗口监听`message`事件，接收传来的消息，然后作出修改，返回给发送者，发送者同样可以通过监听`message`事件来接收消息。
+
+
+
+我们可以看到，打开本地页面，控制台打印了如下内容：
+
+![](http://cdn.yuzzl.top/blog/20201106111516.png)
 
 ## 性能优化
 
