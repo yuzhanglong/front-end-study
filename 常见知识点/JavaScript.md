@@ -227,11 +227,11 @@ console.log("foo被执行");
 
 ##### 所有的函数都是闭包
 
-根据函数创建的算法，我们看到 在ECMAScript中，**所有的函数都是闭包**，因为它们都是在创建的时候就保存了**上层上下文的作用域链**。（不管这个函数后续是否被执行，因为上面提到过，**[[scopes]]**在函数创建的时候就有了）。
+根据函数创建的算法，我们看到 在ECMAScript中，**所有的函数都是闭包**，因为它们都是在创建的时候就保存了**上层上下文的作用域链**。（不管这个函数后续是否被执行，因为上面提到过，`[[scopes]]`在函数创建的时候就有了）。
 
-##### 所有对象都引用一个[[scopes]]
+##### 所有对象都引用一个`[[scopes]]`
 
-在ECMAScript中，同一个父上下文中创建的闭包是**共用一个[[scopes]]属性**的。也就是说，某个闭包对其中[[scopes]]的变量做修改会影响到其他闭包对其变量的读取。
+在ECMAScript中，同一个父上下文中创建的闭包是**共用一个`[[scopes]]`属性**的。也就是说，某个闭包对其中`[[scopes]]`的变量做修改会影响到其他闭包对其变量的读取。
 
 例如下面这个经典案例：
 
@@ -924,7 +924,7 @@ function cloneFunction(func) {
 
 ### 实现方式
 
-每个函数都会创建一个 prototype 属性，这个属性是一个对象，包含应该由特定引用类型的实例共享的属性和方法。
+每个函数都会创建一个 `prototype` 属性，这个属性是一个对象，包含应该由特定引用类型的实例共享的属性和方法。
 
 我们先回顾一下构造函数方法的对象创建：
 
@@ -996,7 +996,7 @@ debugger
 
 ![](http://cdn.yuzzl.top/blog/20201101225851.png)
 
-每次调用构造函数创建一个新实例，这个实例的内部`[[Prototype]]`指针就会被赋值为**构造函数的原型对象**。脚本中没有访问这个`[[Prototype]]`特性的标准方式， 但主流的浏览器、nodejs会在每个对象上暴露`__proto__`属性，通过这个属性可以访问对象的原型。
+每次调用构造函数创建一个新实例，这个实例的内部`[[Prototype]]`指针就会被赋值为**构造函数的原型对象**。脚本中没有访问这个`[[Prototype]]`特性的标准方式， 但主流的浏览器、`nodejs`会在每个对象上暴露`__proto__`属性，通过这个属性可以访问对象的原型。
 
 请看下图：
 
@@ -1125,7 +1125,230 @@ console.log(user.hobby); // basketball
 - 对于`userName`属性，我们先在对象实例本身下查找，发现没有找到，然后沿着指针进入**原型对象**，找到了它的值。
 - 对于`hobby`属性，我们在对象实例本身下查找，发现存在，直接返回对应的值。
 
+## JS继承原理
 
+### 前置知识
+
+#### 函数签名
+
+一个函数签名 (或类型签名，或方法签名) 定义了函数或方法的输入与输出。
+
+一个签名可以包括：
+
+- 参数及其类型
+- 一个返回值及其类型
+- 可能的异常
+- 方法可用性的信息（public、static等）
+
+#### 接口继承和实现继承  
+
+很多面向对象语言都支持两种继承：接口继承和实现继承。前者只继承方法签名，后者继承实际的方法。接口继承在 ECMAScript 中是不可能的，因为函数没有签名。实现继承是 ECMAScript 唯一支持的继承方式，而这主要是通过**原型链**实现的。
+
+### 基本继承实现
+
+#### DEMO
+
+下面的代码可以实现一次继承：
+
+```javascript
+function SuperType() {
+  this.property = true;
+}
+
+SuperType.prototype.getSuperValue = function () {
+  return this.property;
+};
+
+function SubType() {
+  this.subproperty = false;
+}
+
+// 继承 SuperType
+SubType.prototype = new SuperType();
+SubType.prototype.getSubValue = function () {
+  return this.subproperty;
+};
+let instance = new SubType();
+console.log(instance.getSuperValue());
+```
+
+来看看它们之间的关系：
+
+![](http://cdn.yuzzl.top/blog/20201106194345.png)
+
+##### 实现继承的关键
+
+- 我们之前说过，一个对象在创建时会初始化一个`prototype`--默认原型 -- 指向原型对象。
+
+- 但这里的 `SubType` 没有使用默认原型，而是将其替换成了一个新的对象。  
+
+- 所以，`SubType` 的实例不仅能从 `SuperType` 的实例中继承属性和方法，而且还与 `SuperType` 的原型挂上了钩。  
+
+- 我们创建的新实例`instance`的`prototype`指向了`subType`的原型。
+
+#### 方法覆写
+
+```javascript
+// 继承 SuperType 忽略了上面的代码
+SubType.prototype = new SuperType();
+// 新方法
+SubType.prototype.getSubValue = function () {
+	return this.subproperty;
+};
+// 覆盖已有的方法
+SubType.prototype.getSuperValue = function () {
+	return false;
+};
+```
+
+#### 构造函数盗用
+
+##### 引用问题
+
+来看下面的继承代码，由于引用的原因，新增的实例会出现不期望的结果：
+
+```javascript
+function SuperType() {
+this.colors = ["red", "blue", "green"];
+}
+function SubType() {}
+// 继承 SuperType
+SubType.prototype = new SuperType();
+let instance1 = new SubType();
+instance1.colors.push("black");
+console.log(instance1.colors); // "red,blue,green,black"
+let instance2 = new SubType();
+console.log(instance2.colors); // "red,blue,green,black"(我们期望的是"red", "blue", "green")
+```
+
+##### 解决方案
+
+###### 代码
+
+这个解决方案叫做**盗用构造函数**，又称对象伪装或者**经典继承**。
+
+```javascript
+function SuperType() {
+  this.colors = ["red", "blue", "green"];
+}
+function SubType() {
+// 继承 SuperType
+	SuperType.call(this);
+}
+let instance1 = new SubType();
+instance1.colors.push("black");
+console.log(instance1.colors); // "red,blue,green,black"
+let instance2 = new SubType();
+console.log(instance2.colors); // "red,blue,green"
+```
+###### 本质
+通过使用 `call()`（或 `apply()`）方法， 使SuperType构造函数在为 SubType 的实例创建的新对象的上下文中执行。这相当于新的 SubType 对象上运行了`SuperType()`函数中的所有初始化代码。  
+
+##### 缺陷
+```javascript
+// 盗用构造函数的缺点
+SuperType.prototype.sayHello = function () {
+  console.log("hello world");
+}
+instance1.sayHello();
+```
+我们可以看到，盗用构造函数无法实现对**父类方法**的调用。
+
+##### 缺陷的本质
+这是一般构造函数的原型关系：
+![](http://cdn.yuzzl.top/blog/20201107195139.png)
+这是盗用构造函数的原型关系：
+![](http://cdn.yuzzl.top/blog/20201107195559.png)
+我们可以看到，一般构造函数改写原型为**父类的实例**，从而获得父类的所有方法、成员变量，但是盗用构造函数只是在自己的构造函数中执行父类的构造函数。它自己的原型还是默认的--子构造函数的原型。
+### 组合继承
+组合继承无非是上面两种继承的复合版，不再过多赘述，直接上代码：
+``` javascript
+// 组合继承
+function SuperType(name) {
+  this.name = name;
+  this.colors = ["red", "blue", "green"];
+}
+
+SuperType.prototype.sayName = function () {
+  console.log(this.name);
+};
+
+function SubType(name, age) {
+// 继承属性
+  SuperType.call(this, name);
+  this.age = age;
+}
+
+// 继承方法
+SubType.prototype = new SuperType();
+SubType.prototype.sayAge = function () {
+  console.log(this.age);
+};
+let instance1 = new SubType("Nicholas", 29);
+instance1.colors.push("black");
+console.log(instance1.colors); // "red,blue,green,black"
+instance1.sayName(); // "Nicholas";
+instance1.sayAge(); // 29
+let instance2 = new SubType("Greg", 27);
+console.log(instance2.colors); // "red,blue,green"
+instance2.sayName(); // "Greg";
+instance2.sayAge(); // 27
+```
+
+### 寄生式继承
+来看下面的代码：
+``` javascript
+// 寄生式继承
+// 类似于工厂模式
+function CreateAnother(original) {
+  // 通过调用函数创建一个新对象
+  let clone = Object(original);
+  // 以某种方式增强这个对象
+  clone.sayHi = function () {
+    console.log("hi");
+  };
+  // 返回这个对象
+  return clone;
+}
+
+let person = {
+  name: "Nicholas",
+  friends: ["Shelby", "Court", "Van"]
+};
+let anotherPerson = CreateAnother(person);
+anotherPerson.sayHi();
+```
+这个例子基于 `person` 对象返回了一个新对象。新返回的 `anotherPerson` 对象具有 `person` 的所有属性和方法，还有一个新方法叫 `sayHi()`。
+
+### 寄生式组合继承
+我们之前的组合继承貌似挺不错的，但是你会发现父类的构造函数调用了两次。
+如何解决此类问题？来看下面的代码：
+```
+// 寄生组合式继承
+function inheritPrototype(subType, superType) {
+  let prototype = Object(superType.prototype); // 创建对象, 使用Object包裹的原因是在堆中新增一个对象，即解除引用的影响
+  prototype.constructor = subType; // 增强对象
+  subType.prototype = prototype; // 赋值对象
+}
+function SuperType(name) {
+  this.name = name;
+  this.colors = ["red", "blue", "green"];
+}
+SuperType.prototype.sayName = function () {
+  console.log(this.name);
+};
+function SubType(name, age) {
+  SuperType.call(this, name);
+  this.age = age;
+}
+inheritPrototype(SubType, SuperType);
+SubType.prototype.sayAge = function () {
+  console.log(this.age);
+};
+let i = new SuperType("Jim");
+i.sayName();
+```
+这里解释一下`inheritPrototype`:c传入子类和父类，缓存父类的原型，修改父类的原型的构造函数，然后将这个缓存的原型赋给子类，这时候我们暂时无法执行父类的构造函数，但是我们之前介绍过**盗用构造函数**解决方案来了 -- 利用`call`在子类调用父类的构造函数即可。
 
 ## Promise A+ 规范
 
@@ -1476,3 +1699,4 @@ event loop
 垃圾回收
 
 工作者线程
+
