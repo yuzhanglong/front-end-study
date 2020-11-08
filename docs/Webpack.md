@@ -487,6 +487,10 @@ module.exports = {
 }
 ```
 
+### 探索Create React App
+
+TODO
+
 ## Webpack构建流程
 
 Webpack 的运行流程是一个**串行**的过程，从启动到结束会依次执行以下流程：
@@ -537,7 +541,7 @@ console.log(img);
 ```javascript
 /*
  * File: webpack.config.js
- * Description: 常见插件的使用
+ * Description: 编写一个loader
  * Created: 2020-10-31 14:03:13
  * Author: yuzhanglong
  * Email: yuzl1123@163.com
