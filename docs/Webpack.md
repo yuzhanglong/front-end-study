@@ -44,7 +44,7 @@ module.exports = {
 ```javascript
 module.exports = {
   entry: {
-    pageOne: './index.js',
+    pageOne: './basic_redux.js',
     pageTwo: './entry2.js',
   },
   output: {
@@ -365,7 +365,7 @@ document.body.appendChild(Component());
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
-  entry: "./src/index.js",
+  entry: "./src/basic_redux.js",
   output: {
     filename: './bundle.js',
   },
@@ -456,7 +456,7 @@ const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPl
 
 module.exports = {
   entry: {
-    index: './src/index.js',
+    index: './src/basic_redux.js',
     another: './src/another-module.js'
   },
   output: {

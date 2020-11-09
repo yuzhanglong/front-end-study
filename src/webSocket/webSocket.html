@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+  </head>
+  <body>
+    <button onclick="webSocket()">hello</button>
+    <script>
+      const SOCKET_URL = "wss://socket.idcd.com:1443";
+      const webSocket = () => {
+        // 浏览器会在初始化 WebSocket 对象之后立即创建连接
+        let socket = new WebSocket(SOCKET_URL);
+
+        // socket 连接成功 发送信息
+        socket.onopen = () => {
+          socket.send("hello world");
+          socket.close();
+        }
+      }
+    </script>
+  </body>
+</html>

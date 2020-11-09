@@ -217,7 +217,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
   entry: {
-    index: "./index.js"
+    index: "./basic_redux.js"
   },
   output: {
     filename: "bundle.js",
@@ -1303,7 +1303,7 @@ npm install semver
 
 ```json
 {
-  "main": "lib/index.js",
+  "main": "lib/basic_redux.js",
 }
 ```
 
@@ -1312,7 +1312,7 @@ npm install semver
 ```json
 {
     "bin": {
-    "conard": "./bin/index.js"
+    "conard": "./bin/basic_redux.js"
   }
 }
 ```
