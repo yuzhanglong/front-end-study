@@ -1,7 +1,8 @@
-import {ADD_NUMBER, SUB_NUMBER} from "./constant.js";
+import {ADD_NUMBER, REMOTE_DATA, SUB_NUMBER} from "./constant";
 
 const initialState = {
-  counter: 5
+  counter: 5,
+  remoteData: null
 }
 
 function reducer(state = initialState, action) {
@@ -10,6 +11,8 @@ function reducer(state = initialState, action) {
       return {...state, counter: state.counter + action.num};
     case SUB_NUMBER:
       return {...state, counter: state.counter - action.num};
+    case REMOTE_DATA:
+      return {...state, data: action.data}
     default:
       return state;
   }

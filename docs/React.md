@@ -260,6 +260,90 @@ export default Home;
 这个`connent`高阶组件工作顺利，但是会发现这个封装还不够完美 -- 我们的`connent`还是依赖着`store`这一业务代码，假如它是一个库的话，那么是不尽人意的，来看看如何优化。
 
 ##### 进一步封装
-我们使用`UseContext`钩子来处理：
-
+我们可以使用`UseContext`钩子来处理：
 ![](http://cdn.yuzzl.top/blog/20201109211250.png)
+
+#### React-redux源码浅析
+
+
+### Redux中间件
+redux有一个中间件的概念，这个中间件的目的是在`dispatch`/`action`和最终到达的`reducer`之间扩展自己的代码，例如日志记录、网络请求。
+
+#### redux-thunk
+
+##### 介绍及实践
+我们都知道Redux规定`action`是一个简单对象（`plain object`），如果我们需要action为函数，将它执行过程中的某个内容`dispatch`就好了，redux满足了我们这个要求，请看下图：
+- index.js
+![](http://cdn.yuzzl.top/blog/20201112185228.png)
+
+- 主要逻辑
+![](http://cdn.yuzzl.top/blog/20201112185931.png)
+
+##### 底层原理
+`redux-thunk`是一个**标准的redux中间件**，它的代码**只有14行**，（但是它有15.5k Star！！），来学习一下:
+```javascript
+function createThunkMiddleware(extraArgument) {
+  return ({ dispatch, getState }) => next => action => {
+    if (typeof action === 'function') {
+      return action(dispatch, getState, extraArgument);
+    }
+
+    return next(action);
+  };
+}
+
+const thunk = createThunkMiddleware();
+thunk.withExtraArgument = createThunkMiddleware;
+
+export default thunk;
+```
+这个中间件的核心功能无非就是就是接受所有传入的`action`, 如果它是**函数**，则执行之，我们可以利用浏览器调试的方法来实践一下：
+![](http://cdn.yuzzl.top/blog/20201112190749.png)
+![](http://cdn.yuzzl.top/blog/20201112190947.png)
+
+
+#### Redux中间件执行原理
+回顾一下初始化中间件的代码：
+```javascript
+import {applyMiddleware, createStore} from "redux";
+import reducer from "./reducer";
+import thunkMiddleware from 'redux-thunk'
+
+const store = createStore(reducer, applyMiddleware(thunkMiddleware))
+
+export default store;
+```
+中间件是通过`applyMiddleware`，传入`createStore`的，来看`applyMiddleware`的源码：
+
+```javascript
+export default function applyMiddleware(...middlewares) {
+  // applyMiddleware 返回一个函数
+  return createStore => (...args) => {
+    const store = createStore(...args)
+    let dispatch = () => {
+      throw new Error(
+        'Dispatching while constructing your middleware is not allowed. ' +
+          'Other middleware would not be applied to this dispatch.'
+      )
+    }
+
+
+    // 暴露给每个middleware的API
+    const middlewareAPI = {
+      getState: store.getState,
+      dispatch: (...args) => dispatch(...args)
+    }
+    
+    const chain = middlewares.map(middleware => middleware(middlewareAPI))
+    dispatch = compose(...chain)(store.dispatch)
+
+    return {
+      ...store,
+      dispatch
+    }
+  }
+}
+```
+
+我们进入`createStore`来看一下, 注意红色方框的部分，：
+![](http://cdn.yuzzl.top/blog/20201112194859.png)

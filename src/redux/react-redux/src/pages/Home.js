@@ -6,29 +6,31 @@
  * Email: yuzl1123@163.com
  */
 
-import React from "react";
+import React, {useEffect} from "react";
 import connect from "../utils/connect";
-import {subAction, addAction} from "../store/action"
+import {subAction, addAction, getHomeRequestAction} from "../store/action"
 
 const Home = (props) => {
-  console.log(props);
+  useEffect(() => {
+    props.getRemoteDataAction();
+  }, []);
   return (
     <div>
       <h1>home</h1>
       <h2>当前计数：{props.counter}</h2>
+      <h2>{props.remoteData?.temperature}</h2>
       <button onClick={() => props.addAction(1)}>add</button>
       <button onClick={() => props.addAction(10)}>add 10</button>
       <button onClick={() => props.subAction(1)}>minus</button>
     </div>
   )
 }
-
 const mapStateToProps = state => {
   return {
-    counter: state.counter
+    counter: state.counter,
+    remoteData: state.data
   }
 };
-
 const mapDispatchToProps = dispatch => {
   return {
     addAction: (num) => {
@@ -36,6 +38,9 @@ const mapDispatchToProps = dispatch => {
     },
     subAction: (num) => {
       dispatch(subAction(num));
+    },
+    getRemoteDataAction: () => {
+      dispatch(getHomeRequestAction);
     }
   }
 };
