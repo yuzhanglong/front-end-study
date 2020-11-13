@@ -1,5 +1,6 @@
 # React
-
+参考资料：
+https://mp.weixin.qq.com/s/3yoHo6UXI2VOPO9zWI2aCQ
 ## JSX本质
 
 #### 它是React.CreateElement()的语法糖
@@ -302,48 +303,102 @@ export default thunk;
 ![](http://cdn.yuzzl.top/blog/20201112190947.png)
 
 
-#### Redux中间件执行原理
+#### Redux中间件原理
 回顾一下初始化中间件的代码：
+这里我们导入两个中间件（一个是前面的redux-thunk，还有一个是一个简单的控制台打印）
 ```javascript
 import {applyMiddleware, createStore} from "redux";
 import reducer from "./reducer";
-import thunkMiddleware from 'redux-thunk'
+import thunkMiddleware from 'redux-thunk';
 
-const store = createStore(reducer, applyMiddleware(thunkMiddleware))
+const loggerMiddleware = middlewareAPI => next => action => {
+  console.log('start dispatch: ', action)
+  let result = next(action);
+  console.log('next state: ', store.getState())
+  return result
+}
+
+const middlewares = applyMiddleware(thunkMiddleware, loggerMiddleware);
+
+const store = createStore(reducer, middlewares);
 
 export default store;
+
 ```
-中间件是通过`applyMiddleware`，传入`createStore`的，来看`applyMiddleware`的源码：
+下面我们进入源码来看看`createStore`的整个过程，为了方便感受，我们使用Chrome的调试工具。
+
+![](http://cdn.yuzzl.top/blog/20201112224425.png)
+忽略掉一些边界处理、异常处理，首先程序走到了红框处，当`preloadedState`为`function`时，将`enhancer`指向它。然后执行`enhancer`(绿色部分), 也就是执行`const middlewares = applyMiddleware(thunkMiddleware, loggerMiddleware)`的返回值。
+
+我们单步进入`enhancer` (也就是执行`enhancer(createStore)`),返回一个函数:
+
+![](http://cdn.yuzzl.top/blog/20201112225322.png)
+
+再次单步进入，=也就是执行`enhancer(createStore)(reducer, preloadedState)`:
+
+![](http://cdn.yuzzl.top/blog/20201112234317.png)
+我们又执行了一次`createStore`, 第一个参数为`void 0`, 第二个参数为`arguments`,也就是`reducer`和`preloadedState(null)`, 再次单步进入，这次我们主要执行**红框部分**的逻辑：
+
+![](http://cdn.yuzzl.top/blog/20201112235443.png)
+
+可以看到，这个函数返回了`store`的一套API，例如我们熟悉的`dispatch`、`subscribe`：
+
+![](http://cdn.yuzzl.top/blog/20201112235830.png)
+
+继续往下执行，这里是最核心的部分，主要有三部分，先看下图:
+
+![](http://cdn.yuzzl.top/blog/20201113103927.png)
+
+
+- （①处）初始化为中间件提供的API:`middlewareAPI`
+- （②处）遍历传入的中间件，并以`middlewareAPI`为参数调用他们，一个标准中间件的结构长这样（为了便于理解我使用`function`而不是箭头函数），最后返回一个由一个个函数组成的数组，数组的每一项便是红框里面的内容：
+
+![](http://cdn.yuzzl.top/blog/20201113105831.png)
+
+![](http://cdn.yuzzl.top/blog/20201113102845.png)
+
+
+- （③处）利用`compose`将上面数组的`middlewares`链接到一起，构成一个新的函数, 来看`compose`:
 
 ```javascript
-export default function applyMiddleware(...middlewares) {
-  // applyMiddleware 返回一个函数
-  return createStore => (...args) => {
-    const store = createStore(...args)
-    let dispatch = () => {
-      throw new Error(
-        'Dispatching while constructing your middleware is not allowed. ' +
-          'Other middleware would not be applied to this dispatch.'
-      )
-    }
+function compose() {
+  // 省略了边界条件判断的代码，下面的代码是关键
+  // funcs 可以看成前面传入的chain
 
-
-    // 暴露给每个middleware的API
-    const middlewareAPI = {
-      getState: store.getState,
-      dispatch: (...args) => dispatch(...args)
-    }
-    
-    const chain = middlewares.map(middleware => middleware(middlewareAPI))
-    dispatch = compose(...chain)(store.dispatch)
-
-    return {
-      ...store,
-      dispatch
-    }
-  }
+  return funcs.reduce(function (a, b) {
+    return function () {
+      return a(b.apply(void 0, arguments));
+    };
+  });
 }
 ```
+首先我们需要知道`reduce`的语法，他其实就是为数组的每一项调用`reducer`，它是一个函数，两个参数的意义分别为：
 
-我们进入`createStore`来看一下, 注意红色方框的部分，：
-![](http://cdn.yuzzl.top/blog/20201112194859.png)
+- 上一次调用`reducer`的返回值
+- 本次遍历到的内容
+
+上面的代码返回一个新的**函数** -- 这个函数一旦被执行，将链式地调用每一个传入的函数，也就是执行这一行代码：
+```javascript
+return a(b.apply(void 0, arguments));
+```
+如果有多个函数，那么我们很容易的到下面的执行链 -- 将所有的中间件**自右向左**链式调用,后一个函数的返回值作为前一个函数的参数：
+
+```javascript
+函数1(函数2(函数3 ... (参数)))
+```
+
+- （④处）执行这个链式的函数，参数为`store.dispatch`, 并返回一个新的函数F(x)：
+
+![](http://cdn.yuzzl.top/blog/20201113105943.png)
+
+我们令最里面那个红框为`f(action)`, 则最终返回的函数为：
+
+```javascript
+F(action) = f(f(action)))
+```
+这个函数会覆盖原来的`dispatch`暴露给用户，以后用户一旦调用`dispatch(action)`即`F(action)`, 就会链式地调用每一个`f(action)`，我们拿刚才说到的`redux-thunk`源码再次体会一下：
+
+![](http://cdn.yuzzl.top/blog/20201113110357.png)
+
+用户一旦调用`dispatch(action)`, 执行红框部分，`redux-thunk` 执行这个函数式的`action` ,并传入redux提供的`dispatch`，我们的`action`就可以在函数中执行这个`dispatch`来进行`store`的更新。
+
