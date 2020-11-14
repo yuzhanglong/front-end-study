@@ -265,7 +265,7 @@ export default Home;
 ![](http://cdn.yuzzl.top/blog/20201109211250.png)
 
 #### React-redux源码浅析
-
+TODO
 
 ### Redux中间件
 redux有一个中间件的概念，这个中间件的目的是在`dispatch`/`action`和最终到达的`reducer`之间扩展自己的代码，例如日志记录、网络请求。
@@ -273,8 +273,8 @@ redux有一个中间件的概念，这个中间件的目的是在`dispatch`/`act
 #### redux-thunk
 
 ##### 介绍及实践
-我们都知道Redux规定`action`是一个简单对象（`plain object`），如果我们需要action为函数，将它执行过程中的某个内容`dispatch`就好了，redux满足了我们这个要求，请看下图：
-- index.js
+我们都知道Redux规定`action`是一个简单对象（`plain object`），如果我们需要`action`为函数，将它执行过程中的某个内容`dispatch`就好了，redux满足了我们这个要求，请看下图：
+- main.js
 ![](http://cdn.yuzzl.top/blog/20201112185228.png)
 
 - 主要逻辑
@@ -305,7 +305,7 @@ export default thunk;
 
 #### Redux中间件原理
 回顾一下初始化中间件的代码：
-这里我们导入两个中间件（一个是前面的redux-thunk，还有一个是一个简单的控制台打印）
+这里我们导入两个中间件（一个是`redux-thunk`，还有一个是一个简单的控制台打印）
 ```javascript
 import {applyMiddleware, createStore} from "redux";
 import reducer from "./reducer";
@@ -323,8 +323,8 @@ const middlewares = applyMiddleware(thunkMiddleware, loggerMiddleware);
 const store = createStore(reducer, middlewares);
 
 export default store;
-
 ```
+
 下面我们进入源码来看看`createStore`的整个过程，为了方便感受，我们使用Chrome的调试工具。
 
 ![](http://cdn.yuzzl.top/blog/20201112224425.png)
@@ -387,7 +387,7 @@ return a(b.apply(void 0, arguments));
 函数1(函数2(函数3 ... (参数)))
 ```
 
-- （④处）执行这个链式的函数，参数为`store.dispatch`, 并返回一个新的函数F(x)：
+- （④处）执行这个链式的函数，参数为`store.dispatch`, 并返回一个新的函数`F(x)`：
 
 ![](http://cdn.yuzzl.top/blog/20201113105943.png)
 
@@ -396,9 +396,10 @@ return a(b.apply(void 0, arguments));
 ```javascript
 F(action) = f(f(action)))
 ```
-这个函数会覆盖原来的`dispatch`暴露给用户，以后用户一旦调用`dispatch(action)`即`F(action)`, 就会链式地调用每一个`f(action)`，我们拿刚才说到的`redux-thunk`源码再次体会一下：
+这个函数会覆盖原来的`dispatch`暴露给用户，以后用户一旦调用`dispatch(action)`即`F(action)`, 就会链式地调用每一个`f(action)`，我们拿`redux-thunk`源码再次体会一下：
 
 ![](http://cdn.yuzzl.top/blog/20201113110357.png)
 
 用户一旦调用`dispatch(action)`, 执行红框部分，`redux-thunk` 执行这个函数式的`action` ,并传入redux提供的`dispatch`，我们的`action`就可以在函数中执行这个`dispatch`来进行`store`的更新。
 
+如果传入的`action`不是函数，那么我们将它传给下一个中间件。

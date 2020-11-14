@@ -1,7 +1,7 @@
 # 前端基础
 
 https://zhuanlan.zhihu.com/p/24764131
-
+https://mp.weixin.qq.com/s/6Cc5RMw3pAHEUM58KLB-MQ
 https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/optimize-encoding-and-transfer?hl=zh-cn
 
 https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/eliminate-downloads?hl=zh-cn
@@ -1395,7 +1395,170 @@ axios依赖`follow-redirects`，但是所有的依赖都在根节点下。
 
 每次安装固定版本，无需计算依赖版本范围，大部分场景下能大大加速依赖安装时间。
 
-# TODO
+## 前端模块化
+### commonJS
+
+#### 引用关系
+`exports`、`module.exports`、`require`是CommonJS规范的核心，下图表示了模块间的引用关系：
+
+![](http://cdn.yuzzl.top/blog/20201113204858.png)
+
+#### require的返回值是exports的浅拷贝
+
+使用`setTimeout`, 我们可以发现require的返回值是`exports`的浅拷贝。
+
+![](http://cdn.yuzzl.top/blog/20201113203257.png)
+
+#### module.exports和exports
+
+CommonJS中没有`module.exports`的概念，为了实现模块的导出，Node中使用的是`Module`类，每一个模块都是`Module`的一个实例，也就是`module`，它才是导出的真正实现者。
+
+也就是说，**他们的关系：module对象的exports属性是exports对象的一个引用**。
+我们来实践证明之：
+
+没有修改`module.exports`::
+
+![](http://cdn.yuzzl.top/blog/20201113205848.png)
+
+
+
+当`module.exports`被修改:
+
+![](http://cdn.yuzzl.top/blog/20201113211123.png)
+
+
+**一句话总结**：
+
+NodeJS是通过`module.exports`来实现模块化的，为了迎合`commonJS`规范，`module.exports`默认指向了`exports`, 如果将`module.exports`指向了一个新的值，name最终导出的就是`module.exports`指向的内容。
+
+#### 模块加载
+
+##### 模块在被第一次引入时，模块中的js代码会被运行一次
+
+![](http://cdn.yuzzl.top/blog/20201113222813.png)
+
+##### 模块被多次引入时，会缓存，最终只加载（运行）一次
+
+![](http://cdn.yuzzl.top/blog/20201113223149.png)
+
+因为每个`module`对象都有一个`loaded`属性，用来判断是否被加载过。
+
+从NodeJS源码中也可以看出来：
+
+![](http://cdn.yuzzl.top/blog/20201114085813.png)
+
+
+##### 循环引用问题
+
+模块之间的依赖关系可以看成一种数据结构：图，Nodejs采用了**深度优先搜索**来处理加载顺序，我们在后面会去NodeJS这块的源码一探究竟。
+
+##### 缺点
+
+CommonJS加载模块是**同步**的，在一个CJS模块中，加载，实例化，执行是一次完成的，中间没有停顿。从文件系统中加载文件花费的时间远远小于从网络下载(浏览器环境下)。
+
+![](http://cdn.yuzzl.top/blog/12_cjs_require-500x298.png)
+
+
+
+### ES Module
+`exports`、`module.exports`、`require`是ES Module规范的核心，具体的使用这里不再赘述，下面只介绍几个重点：
+
+#### import()动态导入
+通过`import()`我们可以做到模块的动态加载：
+```javascript
+const Component = () => {
+  let element = document.createElement('div');
+  let button = document.createElement('button');
+  let br = document.createElement('br');
+
+  button.innerHTML = '单击我加载 print.js';
+  element.innerHTML = "hello world~";
+  element.appendChild(br);
+  element.appendChild(button);
+  button.onclick = () => import('./print')
+    .then((m) => {
+      m.default();
+    });
+  return element;
+}
+
+document.body.appendChild(Component());
+```
+
+还可以将**变量**用于模块路径：
+```javascript
+import(`${path}/foo.js`);
+```
+
+
+#### ES Module是异步的
+
+我们都知道在`script`标签上加上`async`属性, 主线程就不会被阻塞。
+
+```html
+<script src="main.js" type="module"></script>
+<!-- 这个js文件的代码不会被阻塞执行 -->
+<script src="main.js"></script>
+```
+设置了`type=module`的代码，相当于在`script`标签上也加上了 `async` 属性。
+
+
+#### 加载原理
+
+推荐一篇优秀文章：https://hacks.mozilla.org/2018/03/es-modules-a-cartoon-deep-dive 它非常详细地解释了ES Module的加载原理，下面内容的部分图片资源来自该网站。
+
+下面简要地描述ES Module的加载原理。
+
+##### 查找和拉取文件
+
+在HTML中，开发者通过`script`标签告诉加载器。通过导入声明的模块标识符。
+
+当加载器开始拉取一个URL时候，它会将这个URL放入一个`module map`（模块映射表）中，并且标记为`fetching`。然后他会发起请求，进入**下一个文件的拉取**。
+
+![](http://cdn.yuzzl.top/blog/15_module_map.png)
+
+如果另外的模块依赖了同样的文件，加载器将会查看模块映射表中的每个URL，如果它看到了**fetching**的存在，它会直接进入下一个URL。（我们可以理解为**缓存**）
+
+##### 解析
+
+文件加载完之后浏览器将为它生成一个**解析记录**，所谓解析记录我们可以理解为**模块的名片**。
+
+![](http://cdn.yuzzl.top/blog/25_file_to_module_record.png)
+
+##### 模块连接与实例化
+
+JS引擎为模块创造一个**环境记录**（environment record）来管理模块记录中的变量。将每一个exports指向内存的某个位置。**export**连接完成之后，再处理**import**（有先后顺序的原因：首先连接导出就能保证之后所有的导入都能够和它所匹配的导出相连），它们也会指向相对应的位置，如下图：
+
+![](http://cdn.yuzzl.top/blog/30_live_bindings_01-768x316.png)
+
+注意，在导出环节导出的内容是原内容的一份**拷贝**（区别于浅拷贝），也就是说，你如果在`import`部分修改某个值，那么`export`部分不会发生变化，反而会报错，我们来实践一下：
+
+![](http://cdn.yuzzl.top/blog/20201114100520.png)
+
+通过上图我们可以发现，拷贝的结果是由`const`修饰的，我们无法直接修改。
+
+不过，模块导出方可以随时改变导出值：
+
+![](http://cdn.yuzzl.top/blog/31_cjs_variable-768x174.png)
+
+测试一下：
+
+![](http://cdn.yuzzl.top/blog/20201114100852.png)
+
+##### 执行
+
+最后，JS引擎自顶向下执行代码，向内存中的地址填值。
+
+###### 副作用问题
+
+如果模块执行的过程中发送了网络请求（这是一个副作用）, 因为潜在的副作用，你只希望模块执行一次。但是和实例化连接过程多次进行结果严格一直不同，每次的执行都会有不同的结果。
+
+这也是我们为什么有模块映射表的原因。模块映射表通过唯一的URL只为模块添加一条模块记录。这就保证了每个模块只执行一次。
+
+
+
+
+## TODO
 
 SEO(搜索引擎优化)
 
