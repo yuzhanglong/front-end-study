@@ -458,6 +458,16 @@ console.log(myClass.getField());
 console.log(myClass.getField.myCall(myClass));
 ```
 
+在`vue-router`的源码中也有相关的使用，请看下面代码：
+
+```javascript
+export const routerKey = /*#__PURE__*/ PolySymbol(
+  __DEV__ ? 'router' : 'r'
+) as InjectionKey<Router>
+
+app.provide(routerKey, router)
+```
+
 
 
 ### WeakMap
@@ -1683,8 +1693,6 @@ myFunction2[1]();
 Proxy和Object.defineProperty()
 
 Object.defineProperty()的缺陷
-
-重绘和回流
 
 event loop
 

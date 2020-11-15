@@ -3,7 +3,7 @@
 https://mp.weixin.qq.com/s/3yoHo6UXI2VOPO9zWI2aCQ
 ## JSX本质
 
-#### 它是React.CreateElement()的语法糖
+#### React.CreateElement()的语法糖
 
 JSX是`React.CreateElement()`的语法糖，来看看官网对这个API的解释：
 
@@ -282,6 +282,7 @@ redux有一个中间件的概念，这个中间件的目的是在`dispatch`/`act
 
 ##### 底层原理
 `redux-thunk`是一个**标准的redux中间件**，它的代码**只有14行**，（但是它有15.5k Star！！），来学习一下:
+
 ```javascript
 function createThunkMiddleware(extraArgument) {
   return ({ dispatch, getState }) => next => action => {
@@ -400,6 +401,110 @@ F(action) = f(f(action)))
 
 ![](http://cdn.yuzzl.top/blog/20201113110357.png)
 
-用户一旦调用`dispatch(action)`, 执行红框部分，`redux-thunk` 执行这个函数式的`action` ,并传入redux提供的`dispatch`，我们的`action`就可以在函数中执行这个`dispatch`来进行`store`的更新。
+用户一旦调用`dispatch(action)`, 执行红框部分，redux-thunk 执行这个函数式的`action` ,并传入redux提供的`dispatch`，我们的`action`就可以在函数中执行这个`dispatch`来进行`store`的更新。
 
 如果传入的`action`不是函数，那么我们将它传给下一个中间件。
+
+## Hook
+
+基础hook的具体用法在这里不在赘述，请自行查阅官方文档。
+
+### useReducer不是Redux
+
+虽然`useReducer`的一些操作很像redux，但是组件之间是无法进行状态共享的。
+
+请看下图，两个组件`Home`和`Hello`之间并不共享状态。
+
+![](http://cdn.yuzzl.top//blog/20201115211604.png)
+
+### 实现性能优化
+
+#### 利用useCallback
+
+在将一个组件中的函数，传递给子元素进行使用时，使用`useCallback `进行处理，来看下图：
+
+![](http://cdn.yuzzl.top//blog/20201115224417.png)
+
+上面的代码中，按下**test按钮**会导致了父组件重新渲染，一般情况下，`addOne`和`addTwo`会被重新定义，导致子组件也被重新渲染。
+
+在使用了`useCallback`之后，由于`memo`的特性（比较`props`的前后变化），`addTwo`没有被重新定义，也就不会重新渲染。
+
+#### 利用useMemo
+
+请看下面的代码：
+
+```jsx
+import React, {useState} from "react";
+
+const cal = (count) => {
+  console.log("执行计算");
+  let total = 0;
+  for (let i = 1; i <= count; i++) {
+    total += i;
+  }
+  return total;
+}
+
+const TryUseMemo = () => {
+  const [count, setCount] = useState(10);
+  const [show, setShow] = useState(false);
+  let total = cal(count);
+  return (
+    <div>
+      <h2>total:{total}</h2>
+      <button onClick={() => setCount(count + 1)}>add</button>
+      <button onClick={() => setShow(!show)}>change</button>
+    </div>
+  )
+}
+
+export default TryUseMemo
+```
+
+`count`和`show`发生改变，`TryUseMemo`会重新刷新，导致`total`重新计算，但是在改变`show`的时候计算结果并不会发生变化（也就是说无需重复计算），我们可以使用`useMemo`处理这种性能优化：
+
+```jsx
+import React, {useMemo, useState} from "react";
+
+const cal = (count) => {
+  console.log("执行计算");
+  let total = 0;
+  for (let i = 1; i <= count; i++) {
+    total += i;
+  }
+  return total;
+}
+
+const TryUseMemo = () => {
+  const [count, setCount] = useState(10);
+  const [show, setShow] = useState(false);
+  let total = useMemo(() => cal(count), [count]);
+  return (
+    <div>
+      <h2>total:{total}</h2>
+      <button onClick={() => setCount(count + 1)}>add</button>
+      <button onClick={() => setShow(!show)}>change</button>
+    </div>
+  )
+}
+
+export default TryUseMemo
+```
+
+按下**change**按钮之后，【**执行计算**】文本不会被打印。
+
+相对于`useCallback`，`useMemo`的返回值可以是多样的，更加灵活，前者只能是函数，我们可以用`useMemo`来实现`useCallback`:
+
+```javascript
+const foo = useMemo(() => {
+	return () => {
+		console.log("hello!");
+    setCount(count + 1);
+	}
+})
+```
+
+### Hook底层原理
+
+TODO
+
