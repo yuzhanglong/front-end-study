@@ -1555,7 +1555,117 @@ JS引擎为模块创造一个**环境记录**（environment record）来管理�
 
 这也是我们为什么有模块映射表的原因。模块映射表通过唯一的URL只为模块添加一条模块记录。这就保证了每个模块只执行一次。
 
+## 事件循环（Event Loop）
 
+### 浏览器的事件循环
+
+#### 案例
+
+来看下面代码：
+
+```javascript
+const name = "yzl";
+
+console.log(name);
+
+function sum(num1, num2) {
+  return num1 + num2;
+}
+
+function bar() {
+  return sum(20, 30);
+}
+
+setTimeout(() => {
+  console.log("hello");
+}, 1000);
+
+const result = bar();
+```
+
+- 第三行，执行`console.log(name)`，函数会被放入调用栈中执行。
+- 第十三行，执行`setTimeout()`，函数入栈，执行立即结束，不会阻塞。
+- 第十七行，执行`bar()`，`bar`压栈，同时进入`bar`中，执行`sum`，`sum`压栈。
+- 最后，弹出`sum`和`bar`，执行完成。
+
+调用`setTimeout`，它本质上调用了**web api**，它的主体会被加入到某个队列中等待执行。
+
+#### 宏任务和微任务
+
+事件循环中并非只维护着一个队列，事实上是有两个队列：
+
+- **宏任务队列**（macrotask queue）：ajax、`setTimeout`、`setInterval`、DOM监听、UI Rendering等
+- **微任务队列**（microtask queue）：Promise的then回调、 Mutation Observer API、`queueMicrotask()`等。
+
+那么事件循环对于两个队列的优先级是怎么样的呢？
+
+- main script中的代码优先执行（编写的顶层script代码）
+
+- 在执行任何一个宏任务之前（不是队列，是一个宏任务），都会先查看微任务队列中是否有任务需要执行
+
+- - 也就是宏任务执行之前，必须保证微任务队列是空的
+  - 如果不为空，那么就优先执行微任务队列中的任务（回调）
+
+来看下面的代码：
+
+```javascript
+setTimeout(function () {
+  console.log("set1");
+
+  new Promise(function (resolve) {
+    resolve();
+  }).then(function () {
+    new Promise(function (resolve) {
+      resolve();
+    }).then(function () {
+      console.log("then4");
+    });
+    console.log("then2");
+  });
+});
+
+
+new Promise(function (resolve) {
+  console.log("pr1");
+  resolve();
+}).then(function () {
+  console.log("then1");
+});
+
+setTimeout(function () {
+  console.log("set2");
+});
+
+console.log(2);
+
+queueMicrotask(() => {
+  console.log("queueMicrotask1")
+});
+
+new Promise(function (resolve) {
+  resolve();
+}).then(function () {
+  console.log("then3");
+});
+```
+
+所以结果为：
+
+```shell
+pr1
+2
+then1
+queueMicrotask1
+then3
+set1
+then2
+then4
+set2
+```
+
+### NodeJS的事件循环
+
+TODO
 
 
 ## TODO
