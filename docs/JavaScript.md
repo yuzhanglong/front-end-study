@@ -468,7 +468,64 @@ export const routerKey = /*#__PURE__*/ PolySymbol(
 app.provide(routerKey, router)
 ```
 
+##### 防止XSS攻击
 
+我们都知道，React元素是一个`plain object`:
+
+```javascript
+let el = {
+  type: 'marquee',
+  props: {
+    bgcolor: '#ffa7c4',
+    children: 'hi',
+  },
+  key: null,
+  ref: null,
+  $$typeof: Symbol.for('react.element'),
+}
+```
+
+如果你的服务器有允许用户存储任意 JSON 对象的漏洞，而前端需要一个字符串，这可能会发生一个问题：
+
+```javascript
+// 服务端允许用户存储 JSON
+let expectedTextButGotJSON = {
+  type: 'div',
+  props: {
+    dangerouslySetInnerHTML: {
+      __html: '/* 把你想的搁着 */'
+    },
+  },
+  // ...
+};
+let message = { text: expectedTextButGotJSON };
+```
+
+然后在某段JSX中使用了它：
+
+```jsx
+// React 0.13 中有风险
+<p>
+  {message.text}
+</p>
+```
+
+但是React在之后的版本中使用了`Symbol`标记React元素：
+
+```javascript
+let el = {
+  type: 'marquee',
+  props: {
+    bgcolor: '#ffa7c4',
+    children: 'hi',
+  },
+  key: null,
+  ref: null,
+  $$typeof: Symbol.for('react.element'),
+}
+```
+
+因为JSON不支持 `Symbol` 类型。**所以即使服务器存在用JSON作为文本返回安全漏洞，JSON 里也不包含 `Symbol.for('react.element')`**。React 会检测 `element.$$typeof`，如果元素丢失或者无效，会拒绝处理该元素。
 
 ### WeakMap
 
