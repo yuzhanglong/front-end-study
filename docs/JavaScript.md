@@ -493,7 +493,7 @@ let expectedTextButGotJSON = {
   type: 'div',
   props: {
     dangerouslySetInnerHTML: {
-      __html: '/* 把你想的搁着 */'
+      __html: 'code we do not want'
     },
   },
   // ...

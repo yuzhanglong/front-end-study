@@ -1,10 +1,11 @@
 import React from 'react';
-import TryUseMemo from "./TryUseMemo/TryUseMemo";
+import EnhanceAuth from "./TryEnhanceCmp/EnhanceAuth";
+
 
 const App = () => {
   return (
     <div className="App">
-     <TryUseMemo/>
+      <EnhanceAuth/>
     </div>
   );
 }

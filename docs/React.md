@@ -504,7 +504,274 @@ const foo = useMemo(() => {
 })
 ```
 
+### useRef和useImperativeHandle
+
+现在我们要实现这样一个案例，一个input和一个button，做到按下button让input聚焦，另外，input位于子组件，button位于父组件。
+
+针对此需求，我们采用`useRef`，`useRef`是React为我们提供的访问DOM的方式。
+
+```jsx
+import React, {useRef} from "react";
+
+const MyInput = React.forwardRef((props, ref) => {
+  return <input type={"text"} ref={ref}/>
+})
+
+const TryUseImperativeHandle = () => {
+  const inputRef = useRef();
+  return (
+    <div>
+      <MyInput ref={inputRef}/>
+      <button onClick={() => inputRef.current.focus()}>focus!</button>
+    </div>
+  )
+}
+
+export default TryUseImperativeHandle;
+```
+
+值得注意的是，通过`inputRef`，我们可以对`MyInput`进行所有的DOM操作，但有时组件只希望暴露`focus`给调用者，而把其他功能私有化，这时候我们就需要用到`useImperativeHandle`，来看下面代码：
+
+```jsx
+import React, {useImperativeHandle, useRef} from "react";
+
+const MyInput = React.forwardRef((props, ref) => {
+  const myRef = useRef();
+  useImperativeHandle(ref, () => {
+    return {
+      focus: () => {
+        myRef.current.focus();
+      }
+    }
+  })
+  return <input type={"text"} ref={myRef}/>
+})
+
+
+const TryUseImperativeHandle = () => {
+  const inputRef = useRef();
+  return (
+    <div>
+      <MyInput ref={inputRef}/>
+      <button onClick={() => inputRef.current.focus()}>focus!</button>
+    </div>
+  )
+}
+
+export default TryUseImperativeHandle;
+```
+
+执行`inputRef.current.focus()`，我们会走到**第八行**，执行里面的内容。
+
+
+
 ### Hook底层原理
 
 TODO
+
+
+
+## 组件化
+
+### Protals
+
+某些情况下，我们希望渲染的内容独立于父组件，甚至是独立于当前挂载的DOM元素中。
+
+一个经典案例：antd的**Modal对话框**组件。
+
+此时我们可以使用**Protals**。
+
+![](http://cdn.yuzzl.top//blog/20201116232803.png)
+
+
+
+### 高阶组件
+
+#### 扩展props
+
+```jsx
+import React from "react";
+
+const enhanceAge = (Wrapper) => {
+  return (props) => {
+    return (
+      <Wrapper {...props} age={20}/>
+    )
+  }
+}
+
+const User = (props) =>{
+ return (
+   <div>
+     <div>name:{props.name}</div>
+     <div>age:{props.age}</div>
+   </div>
+ )
+}
+
+const En = enhanceAge(User);
+
+const EnhanceProps = (props) => {
+  return (
+    <div>
+      <En name={"yzl"}/>
+    </div>
+  )
+}
+
+export default EnhanceProps;
+```
+
+上面的代码为**User**组件扩展了**age**的prop。
+
+#### 鉴权
+
+```jsx
+import React from "react";
+
+const Login = () => {
+  return <h2>请登录</h2>
+}
+
+const enhanceAuth = (WrapperCmp) => {
+  return (props) => {
+    const {isLogin} = props;
+    if(isLogin){
+      return <WrapperCmp {...props}/>
+    }else {
+      return <Login/>
+    }
+  }
+}
+
+
+const Data = () => {
+  return (
+    <div>data</div>
+  )
+}
+
+const AuthData = enhanceAuth(Data);
+
+const EnhanceAuth = (props) => {
+  return (
+    <div>
+      <AuthData isLogin/>
+    </div>
+  )
+}
+
+export default EnhanceAuth;
+```
+
+在上面的代码中，`isLogin`如果为`false`，则渲染**Login**，否则渲染**Data**。
+
+#### ReactRouter的withRouter原理
+
+**React-Router**的源码的特点是逻辑比较分散（一个实现可能需要关联大量的文件），我将`withrouter`相关的代码全部放在一起来解释。
+
+```jsx
+// context工厂函数，为context添加了displayName，最终返回创建好的context
+const createNamedContext = name => {
+  const context = createContext();
+  context.displayName = name;
+  return context;
+};
+
+// 创建命名context
+const RouterContext = createNamedContext("Router");
+
+
+function withRouter(Component) {
+  // 初始化名称
+  const displayName = `withRouter(${Component.displayName || Component.name})`;
+  const C = props => {
+    // 提取出ref以及剩下的props
+    const { wrappedComponentRef, ...remainingProps } = props;
+
+    return (
+      <RouterContext.Consumer>
+        {context => {
+          // 如果context不存在，会抛出异常
+          invariant(
+            context,
+            `You should not use <${displayName} /> outside a <Router>`
+          );
+          
+          // 将context传入component
+          return (
+            <Component
+              {...remainingProps}
+              {...context}
+              ref={wrappedComponentRef}
+            />
+          );
+        }}
+      </RouterContext.Consumer>
+    );
+  };
+
+  // 设置名称
+  C.displayName = displayName;
+  C.WrappedComponent = Component;
+	
+  // 这是调用了一个库，叫hoist-non-react-statics
+  // 当你给一个组件添加一个HOC时，
+  // 原来的组件会被一个container的组件包裹。
+  // 这意味着新的组件不会有原来组件任何静态方法。
+  return hoistStatics(C, Component);
+}
+
+export default withRouter;
+```
+
+**hoistStatics**的源码如下，其实就是把被包裹组件的静态方法绑定到container上：
+
+```javascript
+
+const defineProperty = Object.defineProperty;
+const getOwnPropertyNames = Object.getOwnPropertyNames;
+const getOwnPropertySymbols = Object.getOwnPropertySymbols;
+const getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
+const getPrototypeOf = Object.getPrototypeOf;
+const objectPrototype = Object.prototype;
+
+export default function hoistNonReactStatics(targetComponent, sourceComponent, excludelist) {
+    if (typeof sourceComponent !== 'string') { // don't hoist over string (html) components
+
+        if (objectPrototype) {
+            const inheritedComponent = getPrototypeOf(sourceComponent);
+            if (inheritedComponent && inheritedComponent !== objectPrototype) {
+                hoistNonReactStatics(targetComponent, inheritedComponent, excludelist);
+            }
+        }
+
+        let keys = getOwnPropertyNames(sourceComponent);
+
+        if (getOwnPropertySymbols) {
+            keys = keys.concat(getOwnPropertySymbols(sourceComponent));
+        }
+
+        const targetStatics = getStatics(targetComponent);
+        const sourceStatics = getStatics(sourceComponent);
+
+        for (let i = 0; i < keys.length; ++i) {
+            const key = keys[i];
+            if (!KNOWN_STATICS[key] &&
+                !(excludelist && excludelist[key]) &&
+                !(sourceStatics && sourceStatics[key]) &&
+                !(targetStatics && targetStatics[key])
+            ) {
+            		
+                const descriptor = getOwnPropertyDescriptor(sourceComponent, key);
+                try {
+                    // 利用defineProperty绑定静态方法到targetComponent下
+                    defineProperty(targetComponent, key, descriptor);
+                } catch (e) {}
+            }
+        }
+    }
+    return targetComponent;
+};
+```
 
