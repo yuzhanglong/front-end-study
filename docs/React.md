@@ -725,7 +725,7 @@ function withRouter(Component) {
 export default withRouter;
 ```
 
-**hoistStatics**的源码如下，其实就是把被包裹组件的静态方法绑定到container上：
+**hoistStatics**的源码如下，其实就是把被包裹组件的静态方法绑定到**container**上：
 
 ```javascript
 
@@ -774,4 +774,273 @@ export default function hoistNonReactStatics(targetComponent, sourceComponent, e
     return targetComponent;
 };
 ```
+
+## SetState
+
+### 为什么使用它
+
+- 如果我们直接修改**state**，React并不知道数据发生了变化，从而不会重新渲染。
+
+- React并没有实现`Object.defineProperty`（vue2），或者`Proxy`（vue3）的劫持功能来实现数据监听。
+
+- 所以我们必须使用`setState`。（注：我们能够在类中使用`setState`是继承的原因）
+
+### 它是异步的
+
+#### 原因
+
+- 保证性能 -- 如果每次调用`setState`都进行一次更新，那么`render`函数就会被频繁调用。界面重新渲染，这样效率是很低的。（多个`setState`在内部会合并）
+
+- 保证**state**和**props**的一致性。
+
+#### 获取setState之后的结果
+
+- 在`componentDidUpdate`中获取。
+- `setState`的回调函数。
+
+### setState同步的情况
+
+- 使用`setTimeout`，来看下面的代码：
+
+```javascript
+setTimeout(() => {
+	this.setState({
+		message:"hello world"
+	});
+	console.log(this.state.message);
+}, 0);
+```
+
+- 将代码放入原生的事件监听中。
+
+### 源码浅析
+
+TODO
+
+### 性能优化
+
+#### diff算法
+
+
+
+#### 嵌套Render
+
+##### 比较坏的情况
+
+来看下面这个**多组件嵌套**的代码：
+
+```jsx
+import React from "react";
+
+class Banner extends React.Component {
+  render() {
+    console.log("banner render!");
+    return (
+      <div>banner -- div</div>
+    )
+  }
+}
+
+const List = () => {
+  console.log("list render!");
+  return (
+    <ul>
+      <li>11</li>
+      <li>22</li>
+      <li>33</li>
+      <li>44</li>
+    </ul>
+  )
+}
+
+class Main extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      counter: 0
+    }
+  }
+
+  add() {
+    this.setState({
+      counter: this.state.counter + 1
+    })
+  }
+
+  render() {
+    console.log("Main render!");
+    return (
+      <div>
+        <div>current:{this.state.counter}</div>
+        <button onClick={() => this.add()}>add!</button>
+        <Banner/>
+        <List/>
+      </div>
+    )
+  }
+}
+export default Main;
+```
+
+运行之后，页面如图所示：
+
+![](http://cdn.yuzzl.top//blog/20201118000954.png)
+
+页面初次渲染，打印了如上图的内容，这很正常 -- 每个组件都得被render一次。
+
+但我们点击**add!**按钮时（add在Main组件中），三个组件也重新执行render了！其中后两个render是**没有必要**的，我只想改变**App**中的内容。
+
+![](http://cdn.yuzzl.top//blog/20201118001115.png)
+
+##### 使用pureComponent
+
+###### shouldComponentUpdate
+
+首先我们了解一下这个函数，`shouldComponentUpdate()`是react的一个生命周期函数，返回一个布尔值，来自定义是否render，也就是说，我们可以利用这个函数比较前后的props是否相同来决定是否render。
+
+但是如果有大量props的话，这是一个比较麻烦的操作。
+
+所以我们可以使用**PureComponent**：
+
+```jsx
+// 修改类组件的父类为React.PureComponent
+class Banner extends React.PureComponent {
+  render() {
+    console.log("banner render!");
+    return (
+      <div>banner -- div</div>
+    )
+  }
+}
+```
+
+
+
+![](http://cdn.yuzzl.top//blog/20201118002421.png)
+
+
+
+我们可以看到，banner没有重新render！
+
+##### 底层原理
+
+判断组件是否需要更新 -- 我们可以看到默认返回的是**true**（倒数第二行），如果你覆写了`shouldComponentUpdate`，那么会执行它，最终返回相应结果。
+
+```javascript
+function checkShouldComponentUpdate(
+  workInProgress,
+  ctor,
+  oldProps,
+  newProps,
+  oldState,
+  newState,
+  nextContext,
+) {
+  const instance = workInProgress.stateNode;
+  if (typeof instance.shouldComponentUpdate === 'function') {
+    const shouldUpdate = instance.shouldComponentUpdate(
+      newProps,
+      newState,
+      nextContext,
+    );
+    return shouldUpdate;
+  }
+
+  if (ctor.prototype && ctor.prototype.isPureReactComponent) {
+    return (
+      !shallowEqual(oldProps, newProps) || !shallowEqual(oldState, newState)
+    );
+  }
+
+  return true;
+}
+```
+
+再来看看PureComponent的代码：
+
+```javascript
+function PureComponent(props, context, updater) {
+  this.props = props;
+  this.context = context;
+  this.refs = emptyObject;
+  this.updater = updater || ReactNoopUpdateQueue;
+}
+
+const pureComponentPrototype = (PureComponent.prototype = new ComponentDummy());
+pureComponentPrototype.constructor = PureComponent;
+Object.assign(pureComponentPrototype, Component.prototype);
+
+// 注意这一行代码！！！
+pureComponentPrototype.isPureReactComponent = true;
+
+export {Component, PureComponent};
+```
+
+注意第12行，我们将原型上的isPureReactComponent置为`true`。
+
+此时，在`checkShouldComponentUpdate()`就会走到第二十行的if中：
+
+```javascript
+// 构造函数有原型且isPureReactComponent为true
+if (ctor.prototype && ctor.prototype.isPureReactComponent) {
+  return (
+    !shallowEqual(oldProps, newProps) || !shallowEqual(oldState, newState)
+  );
+}
+```
+
+再看看此时判断的核心`shallowEqual`，shallow意为“**浅的**”，说明这是一个浅层比较。
+
+```javascript
+function shallowEqual(objA: mixed, objB: mixed): boolean {
+  // 同一个对象
+  if (is(objA, objB)) {
+    return true;
+  }
+	
+  // 一个为对象，一个为空
+  if (
+    typeof objA !== 'object' ||
+    objA === null ||
+    typeof objB !== 'object' ||
+    objB === null
+  ) {
+    return false;
+  }
+	
+  // 获取a和b的keys
+  const keysA = Object.keys(objA);
+  const keysB = Object.keys(objB);
+
+  // 先判断长度，长度不同一定不同
+  if (keysA.length !== keysB.length) {
+    return false;
+  }
+
+  // 逐一判断
+  for (let i = 0; i < keysA.length; i++) {
+    if (
+      !hasOwnProperty.call(objB, keysA[i]) ||
+      !is(objA[keysA[i]], objB[keysA[i]])
+    ) {
+      return false;
+    }
+  }
+
+  return true;
+}
+```
+
+至此，我们彻底搞懂了**PureComponent**的原理。
+
+#### 利用hooks
+
+hooks优化方案见<a href="#实现性能优化">实现性能优化</a>
+
+
+
+
+
+
 
