@@ -817,15 +817,59 @@ setTimeout(() => {
 
 TODO
 
-### 性能优化
+## React性能优化
 
-#### diff算法
+### diff算法
 
+react通过render函数，产生新的DOM树，这个DOM树如果直接更新，会出现性能问题，所以我们要考虑减少大量的更新。
 
+#### 算法简述
 
-#### 嵌套Render
+React的diff算法复杂度为**O(n)**，整体方案如下：
 
-##### 比较坏的情况
+- 同层节点比较，不会跨节点比较
+- 不同类型的节点产生不同的树结构
+- 使用key来指定节点保持稳定。
+
+#### 几个情形
+
+##### 不同类型的节点产生不同的树结构
+
+来看下面的代码：
+
+![](http://cdn.yuzzl.top//blog/20201118203816.png)
+
+这里如果t发生改变，MyCpn会被**销毁**，不会进行复用。
+
+##### 同类型元素对比
+
+对于同类型的元素，React会**保留DOM节点**，仅比对以及更新有改变的属性。
+
+##### 子节点递归
+
+![](http://cdn.yuzzl.top//blog/20201118204722.png)
+
+React会同时遍历两个子节点的列表，有差异时会生成一个**mutation**，我们只要把这个**mutation**插入DOM即可。
+
+但是这种情况太理想了！如果是下面这种情况，那么就会带来不必要的渲染了（创建了3个mutation）！
+
+![](http://cdn.yuzzl.top//blog/20201118205033.png)
+
+这种情况下，**Key**的作用就体现了，我们可以使用key来匹配。
+
+![](http://cdn.yuzzl.top//blog/20201118210003.png)
+
+比较时，key为a的元素不变，添加了key为c的元素mutation，同时key为b的元素只进行位移，无需额外修改，最终。我们只创建了一个mutation。
+
+> 注意：
+>
+> - key必须唯一
+> - key不要用随机数 -- 在下一次重新渲染的时候，会重新生成
+> - 使用index作为key毫无意义
+
+### 嵌套Render优化
+
+#### 比较坏的情况
 
 来看下面这个**多组件嵌套**的代码：
 
@@ -893,9 +937,9 @@ export default Main;
 
 ![](http://cdn.yuzzl.top//blog/20201118001115.png)
 
-##### 使用pureComponent
+#### 使用pureComponent
 
-###### shouldComponentUpdate
+##### shouldComponentUpdate
 
 首先我们了解一下这个函数，`shouldComponentUpdate()`是react的一个生命周期函数，返回一个布尔值，来自定义是否render，也就是说，我们可以利用这个函数比较前后的props是否相同来决定是否render。
 
@@ -990,7 +1034,7 @@ if (ctor.prototype && ctor.prototype.isPureReactComponent) {
 }
 ```
 
-再看看此时判断的核心`shallowEqual`，shallow意为“**浅的**”，说明这是一个浅层比较。
+再看看此时判断的核心`shallowEqual`，shallow意为“**浅的**”，说明这是一个浅层比较，具体实现方案也非常容易看懂：
 
 ```javascript
 function shallowEqual(objA: mixed, objB: mixed): boolean {
@@ -1032,7 +1076,67 @@ function shallowEqual(objA: mixed, objB: mixed): boolean {
 }
 ```
 
-至此，我们彻底搞懂了**PureComponent**的原理。
+至此，我们彻底搞懂了**PureComponent**的原理，但是它只支持类组件，下面我们来介绍一下如何优化函数式组件。
+
+#### 使用Memo
+
+##### 实践
+
+我们把我们的List组件使用Memo包裹：
+
+![](http://cdn.yuzzl.top//blog/20201118194757.png)
+
+可以看到，按下**add**按钮之后，无关的**List**也不会重新渲染。
+
+##### 原理浅析
+
+来看一下**Memo**的源码，它返回一个对象(我们可以理解为Memo组件对象)，注意这个**compare**：
+
+```typescript
+export default function memo<Props>(
+  type: React$ElementType,
+  compare?: (oldProps: Props, newProps: Props) => boolean,
+) {
+  // 省略了一些开发环境的处理
+  return {
+    $$typeof: REACT_MEMO_TYPE,
+    type,
+    compare: compare === undefined ? null : compare,
+  };
+}
+```
+
+再看memo更新的部分：
+
+```typescript
+function updateMemoComponent(
+  current: Fiber | null,
+  workInProgress: Fiber,
+  Component: any,
+  nextProps: any,
+  updateExpirationTime,
+  renderExpirationTime: ExpirationTime,
+): null | Fiber {
+  // 只列出和嵌套渲染有关的核心部分
+  let currentChild = ((current.child: any): Fiber); 
+  if (updateExpirationTime < renderExpirationTime) {
+    const prevProps = currentChild.memoizedProps;
+    let compare = Component.compare;
+    compare = compare !== null ? compare : shallowEqual;
+    if (compare(prevProps, nextProps) && current.ref === workInProgress.ref) {
+      return bailoutOnAlreadyFinishedWork(
+        current,
+        workInProgress,
+        renderExpirationTime,
+      );
+    }
+  }
+}
+```
+
+**只列出和嵌套渲染有关的核心部分**，这里使用前面提到的Memo组件对象的**compare**进行比较，如果用户传入了**compare**，那就使用用户的，否则使用**shallowEqual**（前面也提到过了，是一个浅层比较），之后就不会执行重新渲染的逻辑。
+
+
 
 #### 利用hooks
 

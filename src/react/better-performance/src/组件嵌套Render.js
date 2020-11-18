@@ -1,4 +1,4 @@
-import React from "react";
+import React, {memo} from "react";
 
 class Banner extends React.PureComponent {
   render() {
@@ -9,17 +9,19 @@ class Banner extends React.PureComponent {
   }
 }
 
-const List = () => {
-  console.log("list render!");
-  return (
-    <ul>
-      <li>11</li>
-      <li>22</li>
-      <li>33</li>
-      <li>44</li>
-    </ul>
-  )
-}
+const List = memo(() => {
+    console.log("list render!");
+    return (
+      <ul>
+        <li>11</li>
+        <li>22</li>
+        <li>33</li>
+        <li>44</li>
+      </ul>
+    )
+  }
+)
+
 
 class Main extends React.PureComponent {
   constructor(props) {

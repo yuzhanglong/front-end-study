@@ -1,5 +1,5 @@
 import React from "react";
-import Main from "./组件嵌套Render";
+import Main from "./不同类型的节点产生不同的树结构";
 
 const App = () => {
   return (
