@@ -1667,6 +1667,168 @@ set2
 
 TODO
 
+## 前端国际化
+
+前端国际化是个很有意思的东西。在前端的国际化本质上是文本的替换，所以如果优雅地处理这种类型的文本替换就很关键。
+
+### Antd中的国际化
+
+**antd**是个UI组件库，基于React编写，国际化是它的一大特性。
+
+![](http://cdn.yuzzl.top//blog/20201119215426.png)
+
+#### ConfigProvider
+
+我们是使用**ConfigProvider**来配置全局信息的，来看下面的代码：
+
+```tsx
+export interface ConfigProviderProps {
+  const renderProvider = (context: ConfigConsumerProps, legacyLocale: Locale) => {
+    const {
+      // 省略其他props
+      locale
+    } = props;
+    
+    const childrenWithLocale =
+      locale === undefined ? (
+        childNode
+      ) : (
+        // reactContext Provider 生产者（其实是对LocaleContext.Provider进行了封装）
+        <LocaleProvider locale={locale || legacyLocale} _ANT_MARK__={ANT_MARK}>
+          {childNode}
+        </LocaleProvider>
+      );
+
+    return (
+      <SizeContextProvider size={componentSize}>
+        <ConfigContext.Provider value={config}>{childrenWithLocale}</ConfigContext.Provider>
+      </SizeContextProvider>
+    );
+  };
+
+  return (
+    <LocaleReceiver>
+      {(_, __, legacyLocale) => (
+        <ConfigConsumer>
+          {context => renderProvider(context, legacyLocale as Locale)}
+        </ConfigConsumer>
+      )}
+    </LocaleReceiver>
+  );
+};
+```
+
+**ConfigProvider**在渲染一些其它配置的组件时，添加了**LocaleContext.Provider**，那么被它包裹的组件就可以使用Consumer等API来获取值了，我们来看看**LocaleProvider**：
+
+```tsx
+// LocaleContext
+const LocaleContext = createContext<(Partial<Locale> & { exist?: boolean }) | undefined>(undefined);
+
+export default LocaleContext;
+
+// LocaleProvider，导入了上面的LocaleContext
+export default class LocaleProvider extends React.Component<LocaleProviderProps, any> {
+  render() {
+    const { locale, children } = this.props;
+
+    return (
+      <LocaleContext.Provider value={{ ...locale, exist: true }}>{children}</LocaleContext.Provider>
+    );
+  }
+}
+```
+
+**LocaleProvider**组件导入LocaleContext，并返回**LocaleContext.Provider**，对于一些需要国际化的组件，只需要外层包裹**LocaleContext.Consumer**即可拿到全局数据。
+
+#### LocalReceiver
+
+##### Class组件
+
+**LocalReceiver**功能就是获取全局数据了，为了直观感受，我们看一下一个国际化组件**DatePicker**的有关内容：
+
+![](http://cdn.yuzzl.top//blog/20201120002512.png)
+
+来看看**LocalReceiver**的核心代码：
+
+```tsx
+export interface LocaleReceiverProps {
+  componentName?: string;
+  defaultLocale?: object | Function;
+  children: (locale: object, localeCode?: string, fullLocale?: object) => React.ReactNode;
+}
+
+interface LocaleInterface {
+  [key: string]: any;
+}
+
+export interface LocaleReceiverContext {
+  antLocale?: LocaleInterface;
+}
+
+export default class LocaleReceiver extends React.Component<LocaleReceiverProps> {
+  static defaultProps = {
+    componentName: 'global',
+  };
+	
+  // 子组件 获取 LocaleContext，通过this.context就可以拿到共享的值
+  static contextType = LocaleContext;
+
+  getLocale() {
+    const { componentName, defaultLocale } = this.props;
+    const locale: object | Function =
+      defaultLocale || (defaultLocaleData as LocaleInterface)[componentName || 'global'];
+    const antLocale = this.context;
+    const localeFromContext = componentName && antLocale ? antLocale[componentName] : {};
+    return {
+      ...(typeof locale === 'function' ? locale() : locale),
+      ...(localeFromContext || {}),
+    };
+  }
+
+  getLocaleCode() {
+    const antLocale = this.context;
+    // && 都为真则返回后者 antdLocal.local 即 localeCode 是一个字符串，代表语言 例如 zh-cn
+    const localeCode = antLocale && antLocale.locale;
+    // 用户传入配置但是没有传入语言，使用默认
+    if (antLocale && antLocale.exist && !localeCode) {
+      return defaultLocaleData.locale;
+    }
+    return localeCode;
+  }
+	
+  // 渲染，值得注意的是这里返回了this.props.children
+  // 它要求传入一个函数，通过这个回调函数我们就可以让子组件拿到local
+  render() {
+    return this.props.children(this.getLocale(), this.getLocaleCode(), this.context);
+  }
+}
+```
+
+##### 自定义Hook
+
+另外也有国际化的自定义Hook，比上面的class组件代码简洁很多，利用**useContext**拿到全局数据。利用**useContext**执行性能优化 -- 如果某处用上了`componentLocale()`，那么这个函数不会由于组件的重新渲染而重新执行，除非`[componentName, defaultLocale, antLocale]`三者之一发生改变。
+
+```tsx
+type LocaleComponent = keyof Locale;
+export function useLocaleReceiver<T extends LocaleComponent>(
+  componentName: T,
+  defaultLocale?: Locale[T] | Function,
+): [Locale[T]] {
+  const antLocale = React.useContext(LocaleContext);
+
+  const componentLocale = React.useMemo(() => {
+    const locale = defaultLocale || defaultLocaleData[componentName || 'global'];
+    const localeFromContext = componentName && antLocale ? antLocale[componentName] : {};
+
+    return {
+      ...(typeof locale === 'function' ? (locale as Function)() : locale),
+      ...(localeFromContext || {}),
+    };
+  }, [componentName, defaultLocale, antLocale]);
+
+  return [componentLocale];
+}
+```
 
 ## TODO
 
