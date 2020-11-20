@@ -1669,7 +1669,7 @@ TODO
 
 ## 前端国际化
 
-前端国际化是个很有意思的东西。在前端的国际化本质上是文本的替换，所以如果优雅地处理这种类型的文本替换就很关键。
+前端国际化是个很有意思的东西。在前端的国际化本质上是文本的替换，所以如果优雅地处理这种类型的文本替换就很关键。通用的做法都是把文字资源统一管理，在页面中用id来占位，根据语言使用不同的资源去填充，或者设计一个特殊的注解之类的来区分不同语言的文字部分。
 
 ### Antd中的国际化
 
@@ -1806,7 +1806,7 @@ export default class LocaleReceiver extends React.Component<LocaleReceiverProps>
 
 ##### 自定义Hook
 
-另外也有国际化的自定义Hook，比上面的class组件代码简洁很多，利用**useContext**拿到全局数据。利用**useContext**执行性能优化 -- 如果某处用上了`componentLocale()`，那么这个函数不会由于组件的重新渲染而重新执行，除非`[componentName, defaultLocale, antLocale]`三者之一发生改变。
+另外也有国际化的自定义Hook，比上面的class组件代码简洁很多，利用**useContext**拿到全局数据。利用**useMemo**执行性能优化 -- 如果某处用上了`componentLocale()`，那么这个函数不会由于组件的重新渲染而重新执行，除非`[componentName, defaultLocale, antLocale]`三者之一发生改变。
 
 ```tsx
 type LocaleComponent = keyof Locale;
@@ -1829,6 +1829,98 @@ export function useLocaleReceiver<T extends LocaleComponent>(
   return [componentLocale];
 }
 ```
+
+## HTTP缓存
+
+### 流程
+
+浏览器加载一个页面的简单流程如下：
+
+- 浏览器先根据这个资源的http头信息来判断**是否命中强缓存**。如果命中则直接加在缓存中的资源，并不会将请求发送到服务器。
+- 如果未命中强缓存，则浏览器会将**资源加载请求**发送到服务器。**服务器来判断**浏览器本地缓存是否失效。若可以使用，则服务器并不会返回资源信息，浏览器**继续从缓存加载资源**。
+- 如果未命中协商缓存，则服务器会将完整的资源返回给浏览器，浏览器加载新资源，并更新缓存。
+
+### 强制缓存
+
+#### 图解
+
+![](http://cdn.yuzzl.top/blog/20201101223609.png)
+
+#### 实现相关
+
+强制缓存的实现依靠下面这几个请求头：
+
+##### Cache-Control
+
+这个首部可能的值如下：
+
+- **private** 客户端可以缓存
+- **public** 客户端和代理服务器都可以缓存
+- **max-age=x** 缓存内容将在x秒后失效
+- **no-cache** 需要使用对比缓存验证数据,强制向源服务器再次验证  (没有强制缓存)
+- **no-store** 所有内容都不会缓存，强制缓存和对比缓存都不会触发 (不缓存)
+
+##### Expires
+
+Expires: [一个 HTTP-日期 时间戳],  表示在此时候之后，响应过期。
+
+如果在`Cache-Control`响应头设置了 "max-age" 或者 "s-max-age" 指令，那么 `Expires` 头会被忽略。
+
+#### 实践
+
+接下来我们利用**NodeJS**搭建一个服务器，通过配置来感受强制缓存的实现。
+
+![](http://cdn.yuzzl.top/blog/20201120140152.png)
+
+在第一次刷新图片后再次刷新，Status Code: 显示为 **200 OK (from memory cache)**，五秒后刷新则重新向服务端请求。
+
+同样的道理，我们可以使用**expires**来实现同样的效果：
+
+![](http://cdn.yuzzl.top/blog/20201120142016.png)
+
+注意**Expires**头被忽略的情况：
+
+![](http://cdn.yuzzl.top/blog/20201120142253.png)
+
+### 对比缓存（协商缓存）
+
+#### 图解
+
+![](http://cdn.yuzzl.top/blog/20201101223649.png)
+
+#### 实现相关
+
+##### Last-Modified
+
+包含源头服务器认定的资源做出修改的日期及时间。 它通常被用作一个验证器来判断接收到的或者存储的资源是否彼此一致。
+
+##### If-Modified-Since
+
+服务器只在所请求的资源在给定的日期时间之后对内容进行过修改的情况下才会将资源返回，状态码为**200**。如果请求的资源从那时起未经修改，那么返回一个不带有消息主体的**304**响应
+
+##### ETag 
+
+ETag是URL的tag，用来标示URL对象是否改变。这样可以应用于客户端的缓存：服务器产生ETag，并在HTTP响应头中将其传送到客户端，服务器用它来判断页面是否被修改过，如果未修改返回304，无需传输整个对象。
+
+##### If-None-Match
+
+对于 GET 和 HEAD 请求方法来说，当且仅当服务器上没有任何资源的 ETag 属性值与这个首部中列出的相匹配的时候，服务器端会才返回所请求的资源，响应码为200。对于其他方法来说，当且仅当最终确认没有已存在的资源的  **ETag** 属性值与这个首部中所列出的相匹配的时候，才会对请求进行相应的处理。
+
+上面这些请求头的解释来自MDN文档，看完之后可能感到云里雾里的，下面我们来访问一个资源进行实践，会逐一详细讲解。
+
+#### 实践
+
+##### Last-Modified + If-Modified-Since
+
+下面的代码利用**Last-Modified**和**If-Modified-Since**来实现协商缓存，**Last-Modified**是服务端返回的，可以是当前时间，下次浏览器请求这个资源时就会把这个**Last-Modified**交给服务端，让服务端来进行验证。
+
+![](http://cdn.yuzzl.top/blog/20201120195300.png)
+
+##### ETag  + If-None-Match
+
+下面的代买利用**ETag  + If-None-Match**实现缓存，服务端将文件计算hash值放入Etag返回，下次用户再次访问时 If-None-Match会携带这个ETag ，服务端将新的文件计算hash，然后对比来判断是否304。
+
+![](http://cdn.yuzzl.top/blog/20201120200552.png)
 
 ## TODO
 

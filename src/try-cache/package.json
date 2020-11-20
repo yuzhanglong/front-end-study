@@ -1,0 +1,16 @@
+{
+  "name": "try-cache",
+  "version": "1.0.0",
+  "description": "缓存相关实践",
+  "main": "server-cache-control.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server-cache-control.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "koa": "^2.13.0"
+  }
+}
