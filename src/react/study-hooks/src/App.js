@@ -1,11 +1,11 @@
 import React from 'react';
-import EnhanceAuth from "./TryEnhanceCmp/EnhanceAuth";
+import DemoHooks from "./tinyHooks/DemoHooks";
 
 
 const App = () => {
   return (
     <div className="App">
-      <EnhanceAuth/>
+      <DemoHooks/>
     </div>
   );
 }

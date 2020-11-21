@@ -1,6 +1,11 @@
 # React
 参考资料：
 https://mp.weixin.qq.com/s/3yoHo6UXI2VOPO9zWI2aCQ
+
+https://juejin.cn/post/6844903592831238157
+
+https://github.com/brickspert/blog/issues/26
+
 ## JSX本质
 
 #### React.CreateElement()的语法糖
@@ -563,13 +568,150 @@ export default TryUseImperativeHandle;
 
 执行`inputRef.current.focus()`，我们会走到**第八行**，执行里面的内容。
 
+### Hook原理浅析
+
+#### requestIdleCallback
+
+在一帧里面，浏览器要做的事情有很多，请看下图：
+
+![](http://cdn.yuzzl.top/blog/162d853396355715)
+
+- 用户事件的响应
+- JS代码的执行
+- 事件的一些响应
+
+- Raf --`requestAnimationCallback()`
+- 布局
+- 绘制
+- 其他耗时的操作
+
+当React决定要加载或者更新组件树时，会做很多事，比如调用各个组件的生命周期函数，计算和比对VDOM，最后更新DOM树，这整个过程是**同步**进行的。假如更新一个组件需要1毫秒，如果有200个组件要更新，那就需要200毫秒，在这200毫秒的更新过程中，浏览器那个唯一的主线程都在专心运行更新操作，无暇去做任何其他的事情。假如用户在某个输入框中输入一些东西，那么必然会造成一些卡顿。
+
+于是我们可以使用这个API：`requestIdleCallback()`，这个API会在浏览器处理上述事件之后再来执行回调。
+
+#### Fiber
+
+React把它的一些操作切分成一个个Fiber（可以理解为执行单元/碎片），利用`requestIdleCallback()`在空闲时间执行Fiber碎片，当然这个API是有兼容性问题的，React自行实现了一个方案。
+
+#### 试着写一个简单的hook
+
+先不管react的底层如何实现，其实根据hooks的逻辑我们可以实现一个简易版的，主要利用了闭包：
+
+为了方便起见, 我们令render函数为App入口的**render**。
+
+##### 简易版的useState 1.0
+
+```jsx
+// version 1 单个state，利用了闭包，但是全局只能使用一次
+let state = null;
+export const useState = (initialValue) => {
+  state = state || initialValue;
+  const setState = (newState) => {
+    state = newState;
+    render();
+  }
+  return [state, setState];
+}
+
+const DemoHooks = () => {
+  const [count, setCount] = useState(0);
+  return (
+    <div>
+      <div>
+        {count}
+      </div>
+      <button onClick={() => setCount(count + 1)}>add!</button>
+    </div>
+  )
+}
+
+export default DemoHooks;
+```
+
+维护一个全局`state`遍历，当`setState`被执行后重新`render`，但是可以发现我们只能使用一个`useState`。
+
+##### 简易版的useState 2.0
+
+利用数组，我们可以维护多个state：
+
+```jsx
+// version 2 可以支持多个state 这里存放的数据结构是数组，当然我们也可以使用链表
+let memorizedState = [];
+let currentPosition = 0;
+
+const doRender = () => {
+  currentPosition = 0;
+  render();
+}
+
+export const useState = (initialValue) => {
+  memorizedState[currentPosition] = memorizedState[currentPosition] || initialValue;
+  // 这里复制了currentPosition，保证一个useState对应正确的Position
+  const currentStatePos = currentPosition;
+  const setState = (newState) => {
+    memorizedState[currentStatePos] = newState;
+    doRender();
+  }
+  return [memorizedState[currentPosition++], setState];
+}
 
 
-### Hook底层原理
+const DemoHooks = () => {
+  const [count, setCount] = useState(0);
+  const [count2, setCount2] = useState("hello");
+  console.log(memorizedState);
+  return (
+    <div>
+      <div>
+        {count}
+      </div>
+      <div>
+        {count2}
+      </div>
+      <button onClick={() => setCount(count + 1)}>add!</button>
+      <button onClick={() => setCount2(count2 + "aaa")}>add-2!</button>
+    </div>
+  )
+}
 
-TODO
+export default DemoHooks;
+```
 
+执行流程描述如下：
 
+- 初始状态：`memorizedState`为空。
+- 首次渲染，`useState(0)`，`useState("hello")`先后被执行，此时 `memorizedState = [0, "hello"]`,  `currentPosition = 2`。
+- 按钮被单击，`setState`被执行，触发**render**。同时**currentPosition**被置为0，然后循环上面的操作。
+
+#### 真正的React实现
+
+虽然我们用数组基本实现了一个可用的 Hooks，了解了 Hooks 的原理，但在 React 中，实现方式却有一些差异的。
+
+- React 中是通过类似单链表的形式来代替数组的。通过 next 按顺序串联所有的 hook。
+
+  ```typescript
+  type Hooks = {
+  	memoizedState: any, // 指向当前渲染节点 Fiber
+    baseState: any, // 初始化 initialState， 已经每次 dispatch 之后 newState
+    baseUpdate: Update<any> | null,// 当前需要更新的 Update ，每次更新完之后，会赋值上一个 update，方便 react 在渲染错误的边缘，数据回溯
+    queue: UpdateQueue<any> | null,// UpdateQueue 通过
+    next: Hook | null, // link 到下一个 hooks，通过 next 串联每一 hooks
+  }
+   
+  type Effect = {
+    tag: HookEffectTag, // effectTag 标记当前 hook 作用在 life-cycles 的哪一个阶段
+    create: () => mixed, // 初始化 callback
+    destroy: (() => mixed) | null, // 卸载 callback
+    deps: Array<mixed> | null,
+    next: Effect, // 同上 
+  };
+  ```
+
+- memoizedState，cursor 是存在哪里的？如何和每个函数组件一一对应的？
+
+  我们知道，react 会生成一棵组件树（或Fiber 单链表），树中每个节点对应了一个组件，hooks 的数据就作为组件的一个信息，存储在这些节点上，伴随组件一起出生，一起死亡。
+
+![](http://cdn.yuzzl.top/blog/20201121182057.png)
 
 ## 组件化
 
@@ -728,7 +870,6 @@ export default withRouter;
 **hoistStatics**的源码如下，其实就是把被包裹组件的静态方法绑定到**container**上：
 
 ```javascript
-
 const defineProperty = Object.defineProperty;
 const getOwnPropertyNames = Object.getOwnPropertyNames;
 const getOwnPropertySymbols = Object.getOwnPropertySymbols;

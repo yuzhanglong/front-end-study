@@ -1416,7 +1416,7 @@ CommonJS中没有`module.exports`的概念，为了实现模块的导出，Node�
 也就是说，**他们的关系：module对象的exports属性是exports对象的一个引用**。
 我们来实践证明之：
 
-没有修改`module.exports`::
+没有修改`module.exports`：
 
 ![](http://cdn.yuzzl.top/blog/20201113205848.png)
 
