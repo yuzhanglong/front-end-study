@@ -513,6 +513,8 @@ Webpack 的运行流程是一个**串行**的过程，从启动到结束会依�
 - 只更新变更内容，以节省宝贵的开发时间。
 - 调整样式更加快速 - 几乎相当于在浏览器调试器中更改样式。
 
+### TODO
+
 ## loader和Plugin
 
 ### 实践：编写一个plugin
@@ -715,3 +717,158 @@ TODO：原理（这个技术其实变化非常大）
 ### ScopeHoisting
 
 TODO
+
+## SourceMap
+
+如果我们将代码发布到生产环境，这些代码必然经历过混淆和压缩，但是如果在生产环境下出现报错，我们根据浏览器的提示消息是无法找到错误来源的，我们期望有这样一个关系 -- 被混淆的代码的某行可以对应到开发环境的代码上，于是我们就需要**SourceMap**。
+
+### 实践
+
+#### webpack.config.js
+
+```javascript
+const path = require('path');
+
+module.exports = {
+  entry: './src/index.js',
+  devtool: 'source-map',
+  output: {
+    filename: 'bundle.js',
+    path: path.resolve(__dirname, 'dist')
+  }
+};
+```
+
+#### index.js
+
+```javascript
+let helloworld = "hello!!!!"
+console.log(helloworld);
+console.log(helloworld);
+console.log("hello");
+```
+
+#### bundle.js
+
+```javascript
+(()=>{let l="hello!!!!";console.log(l),console.log(l),console.log("hello")})();
+//# sourceMappingURL=bundle.js.map
+```
+
+`sourceMappingURL=bundle.js.map`指向的就是Map文件。
+
+#### sourceMap文件
+
+来看Map文件，下面以注释的形式给出解释。
+
+```javascript
+{
+  "version": 3, // SourceMap的版本，目前为3
+  "sources": [ // 转换前的文件，该项是一个数组，表示可能存在多个文件合并
+    "webpack://source-map/./src/index.js" 
+  ],
+  "names": [  // 转换前的文件，该项是一个数组，表示可能存在多个文件合并
+    "helloworld",
+    "console",
+    "log"
+  ],
+  "mappings": "MAAA,IAAIA,EAAa,YACjBC,QAAQC,IAAIF,GACZC,QAAQC,IAAIF,GACZC,QAAQC,IAAI,U",
+  //记录位置信息的字符串
+  "file": "bundle.js", //转换后的文件名
+  "sourcesContent": [
+    "let helloworld = \"hello!!!!\"\r\nconsole.log(helloworld);\r\nconsole.log(helloworld);\r\nconsole.log(\"hello\");\r\n"
+  //转换前的文件内容列表，与sources列表依次对应
+  ],
+  "sourceRoot": "" //转换前的文件所在的目录。如果与转换前的文件在同一目录，该项为空
+}
+```
+
+##### mappings属性
+
+Mapping属性有以下含义：
+
+- 以分号（;）标识编译后代码的每一行
+- 以逗号（,）标识编译后代码该行中的每一个映射位置
+- 以5组VLQ编码字段标识源码和编译后代码的具体映射信息，其中：
+  - 第一位，表示这个位置在（转换后的代码的）的第几列。
+  - 第二位，表示这个位置属于sources属性中的哪一个文件。
+  - 第三位，表示这个位置属于转换前代码的第几行。
+  - 第四位，表示这个位置属于转换前代码的第几列。
+  - 第五位，表示这个位置属于names属性中的哪一个变量。
+
+例如，上面的MAAA表示**转换后代码的第6列**，**sources属性的第一个文件**，**转换前代码第一行**，**转换前代码的第一列**，代表`let`。
+
+再比如，IAAIA表示**转换后代码的第4列**，**sources属性的第一个文件**，**转换前代码第一行**，**转换前代码的第4列**，对于第一个变量`helloworld`。
+
+##### VLQ编码
+
+来看mozilla官方提供的VLQ编码处理源码：
+
+```javascript
+const base64 = require("./base64");
+
+// A single base 64 digit can contain 6 bits of data. For the base 64 variable
+// length quantities we use in the source map spec, the first bit is the sign,
+// the next four bits are the actual value, and the 6th bit is the
+// continuation bit. The continuation bit tells us whether there are more
+// digits in this value following this digit.
+//
+//   Continuation
+//   |    Sign
+//   |    |
+//   V    V
+//   101011
+
+const VLQ_BASE_SHIFT = 5;
+
+// binary: 100000
+const VLQ_BASE = 1 << VLQ_BASE_SHIFT;
+
+// binary: 011111
+const VLQ_BASE_MASK = VLQ_BASE - 1;
+
+// binary: 100000
+const VLQ_CONTINUATION_BIT = VLQ_BASE;
+
+/**
+ * Converts from a two-complement value to a value where the sign bit is
+ * placed in the least significant bit.  For example, as decimals:
+ *   1 becomes 2 (10 binary), -1 becomes 3 (11 binary)
+ *   2 becomes 4 (100 binary), -2 becomes 5 (101 binary)
+ */
+function toVLQSigned(aValue) {
+  return aValue < 0 ? (-aValue << 1) + 1 : (aValue << 1) + 0;
+}
+
+/**
+ * Returns the base 64 VLQ encoded value.
+ */
+exports.encode = function base64VLQ_encode(aValue) {
+  let encoded = "";
+  let digit;
+
+  let vlq = toVLQSigned(aValue);
+
+  do {
+    digit = vlq & VLQ_BASE_MASK;
+    vlq >>>= VLQ_BASE_SHIFT;
+    if (vlq > 0) {
+      // There are still more digits in this value, so we must make sure the
+      // continuation bit is marked.
+      digit |= VLQ_CONTINUATION_BIT;
+    }
+    encoded += base64.encode(digit);
+  } while (vlq > 0);
+
+  return encoded;
+};
+```
+
+计算的过程如下，我们以16作为例子：
+
+- 调用`toVLQSigned`，向最右边补充符号位，16为正数，补充0
+- 从右边的最低位开始，将整个数每隔5位，进行分段。即向右移位，第一次为`100000 >>> 5 `，为**1**，第二次为`000001 >>> 5`，为**0** 
+- 将两段的顺序倒过来，即**00000**和**00001**
+- 在每一段的最前面添加一个"连续位"，除了最后一段为0，其他都为1，即变成**100000**和**000001**。
+- 最终将每一段base64编码。
+
