@@ -1559,113 +1559,191 @@ JS引擎为模块创造一个**环境记录**（environment record）来管理�
 
 ### 浏览器的事件循环
 
-#### 案例
+#### 规范
 
-来看下面代码：
+对于事件循环，HTML规范如此介绍道：
 
-```javascript
-const name = "yzl";
+> There must be at least one event loop per user agent, and at most one event loop per unit of related similar-origin browsing contexts.
+>
+> An event loop has one or more task queues.
+>
+> Each task is defined as coming from a specific task source.
 
-console.log(name);
-
-function sum(num1, num2) {
-  return num1 + num2;
-}
-
-function bar() {
-  return sum(20, 30);
-}
-
-setTimeout(() => {
-  console.log("hello");
-}, 1000);
-
-const result = bar();
-```
-
-- 第三行，执行`console.log(name)`，函数会被放入调用栈中执行。
-- 第十三行，执行`setTimeout()`，函数入栈，执行立即结束，不会阻塞。
-- 第十七行，执行`bar()`，`bar`压栈，同时进入`bar`中，执行`sum`，`sum`压栈。
-- 最后，弹出`sum`和`bar`，执行完成。
-
-调用`setTimeout`，它本质上调用了**web api**，它的主体会被加入到某个队列中等待执行。
+- 浏览器至少有一个事件循环
+- 一个事件循环至少有一个任务队列
+- 每个任务都有自己的分组，浏览器会为不同的任务组设置优先级。
 
 #### 宏任务和微任务
 
-事件循环中并非只维护着一个队列，事实上是有两个队列：
+浏览器的事件循环中并非只维护着一个队列，事实上是有两个队列：
 
-- **宏任务队列**（macrotask queue）：ajax、`setTimeout`、`setInterval`、DOM监听、UI Rendering等
+- **宏任务队列**（macrotask queue）：**ajax**、**setTimeout**、**setInterval**、**DOM监听**、**UI Rendering**等
 - **微任务队列**（microtask queue）：Promise的then回调、 Mutation Observer API、`queueMicrotask()`等。
 
-那么事件循环对于两个队列的优先级是怎么样的呢？
+#### 流程
 
-- main script中的代码优先执行（编写的顶层script代码）
+来看下图，它详细介绍了事件循环的处理过程：
 
-- 在执行任何一个宏任务之前（不是队列，是一个宏任务），都会先查看微任务队列中是否有任务需要执行
-
-- - 也就是宏任务执行之前，必须保证微任务队列是空的
-  - 如果不为空，那么就优先执行微任务队列中的任务（回调）
+![](http://cdn.yuzzl.top/blog/event-loop.jpg)
 
 来看下面的代码：
 
 ```javascript
-setTimeout(function () {
-  console.log("set1");
+console.log('start')
 
-  new Promise(function (resolve) {
-    resolve();
-  }).then(function () {
-    new Promise(function (resolve) {
-      resolve();
-    }).then(function () {
-      console.log("then4");
-    });
-    console.log("then2");
-  });
-});
+setTimeout(function() {
+  console.log('setTimeout')
+}, 0)
 
+Promise.resolve().then(function() {
+  console.log('promise1')
+}).then(function() {
+  console.log('promise2')
+})
 
-new Promise(function (resolve) {
-  console.log("pr1");
-  resolve();
-}).then(function () {
-  console.log("then1");
-});
+console.log('end')
+```
 
-setTimeout(function () {
-  console.log("set2");
-});
+分析一下过程：
 
-console.log(2);
+- 全局代码压栈，打印start。
+- setTimeout进入**macrotask queue**。
+- `Promise.then`后的回调进入**macrotask queue**。
+- 执行最后一行，打印end。
+- 全局代码执行完毕，接下来执行**microtask**的任务，打印promise1、promise2。
+- 这时microtask队列已经为空，从上面的流程图可以知道，接下来主线程会去做一些UI渲染工作（不一定会做），然后开始下一轮event loop，执行setTimeout的回调，打印出`setTimeout`。
 
-queueMicrotask(() => {
-  console.log("queueMicrotask1")
-});
+### Node的事件循环
 
-new Promise(function (resolve) {
-  resolve();
-}).then(function () {
-  console.log("then3");
+#### Node架构
+
+来看下面的架构图，其中：
+
+![](http://cdn.yuzzl.top/blog/640)
+
+- 应用层：  即 JavaScript 交互层，常见的就是 Node.js 的模块，比如 http，fs
+
+- V8引擎层： 即利用 V8 引擎来解析JavaScript 语法，进而和下层 API 交互
+
+- NodeAPI层： 为上层模块提供系统调用，一般是由 C 语言来实现，和操作系统进行交互 。
+
+- LIBUV层： 是跨平台的底层封装，实现了 事件循环、文件操作等，是 Node.js 实现异步的核心 。
+
+运行机制如下：
+
+- V8 引擎解析 JavaScript 脚本。
+- 解析后的代码，调用 Node API。
+- libuv 库负责 Node API 的执行。它将不同的任务分配给不同的线程，形成一个 Event Loop（事件循环），以异步的方式将任务的执行结果返回给 V8 引擎。
+- V8 引擎再将结果返回给用户。
+
+#### Event Loop 阶段
+
+##### 概览
+
+![](http://cdn.yuzzl.top/blog/20201123234446.png)
+
+**每个阶段都有一个FIFO队列来执行回调**。通常情况下，我们会按照队列的规则执行操作，操作完成则进入下一阶段。
+
+- **定时器**：本阶段执行已经被 `setTimeout()` 和 `setInterval()` 的调度回调函数。
+- **待定回调**：执行延迟到下一个循环迭代的 I/O 回调。
+- **idle, prepare**：仅系统内部使用。
+- **轮询**：检索新的 I/O 事件;执行与 I/O 相关的回调（几乎所有情况下，除了关闭的回调函数，那些由计时器和 `setImmediate()` 调度的之外），其余情况 node 将在适当的时候在此阻塞。
+- **检测**：`setImmediate()` 回调函数在这里执行。
+- **关闭的回调函数**：一些关闭的回调函数，如：`socket.on('close', ...)`。
+
+##### time阶段
+
+这是事件循环的第一个阶段，Node 会去检查有无已过期的**timer**，如果有则把它的回调压入**timer**的任务队列中等待执行，事实上，Node 并不能保证**timer**在预设时间到了就会立即执行，因为Node对**timer**的过期检查不一定靠谱，它会受机器上其它运行程序影响，或者那个时间点主线程不空闲。比如下面的代码，`setTimeout()` 和 `setImmediate()` 的执行顺序是不确定的。
+
+```javascript
+setTimeout(() => {
+  console.log("setTimeout");
+}, 0);
+
+setImmediate(() => {
+  console.log("setImmediate");
 });
 ```
 
-所以结果为：
+可以得到输出：
 
 ```shell
-pr1
-2
-then1
-queueMicrotask1
-then3
-set1
-then2
-then4
-set2
+$ node timeout_vs_immediate.js
+timeout
+immediate
+
+$ node timeout_vs_immediate.js
+immediate
+timeout
 ```
 
-### NodeJS的事件循环
+但如果把它们放到一个I/O回调里面，就一定是 `setImmediate()` 先执行。
 
-TODO
+```js
+// timeout_vs_immediate.js
+const fs = require('fs');
+
+fs.readFile(__filename, () => {
+  setTimeout(() => {
+    console.log('timeout');
+  }, 0);
+  setImmediate(() => {
+    console.log('immediate');
+  });
+});
+```
+
+可以得到输出：
+
+```shell
+$ node timeout_vs_immediate.js
+immediate
+timeout
+
+$ node timeout_vs_immediate.js
+immediate
+timeout
+```
+
+
+
+##### 轮询阶段
+
+**轮询**阶段有两个重要的功能：
+
+- 计算应该阻塞和轮询 I/O 的时间。
+
+- 然后，处理轮询队列里的事件。
+
+当事件循环进入**轮询阶段**且**没有被调度的计时器**时，将发生以下两种情况之一：
+
+- 如果轮询队列不是空的，事件循环将循环访问回调队列并同步执行它们，直到队列已用尽，或者达到了与系统相关的硬性限制。
+
+![](http://cdn.yuzzl.top/blog/20201124002219.png)
+
+- 如果轮询队列是空的，还有两件事发生：
+  - 如果脚本被 `setImmediate()` 调度，则事件循环将结束轮询阶段，并继续检查阶段以执行那些被调度的脚本。
+  - 如果脚本**未被** `setImmediate()`调度则事件循环将等待回调被添加到队列中，然后立即执行。（当然，等待的时间会有一个阈值），所以我们可以解释上面的`setImmediate()`必定先执行的原因了。
+
+一旦轮询队列为空，事件循环将检查已达到时间阈值的计时器。如果一个或多个计时器已准备就绪，则事件循环将绕回计时器阶段以执行这些计时器的回调。
+
+![](http://cdn.yuzzl.top/blog/20201124002109.png)
+
+#### 尝试一下
+
+我们用代码来理解一下，试解释下面的输出：
+
+![](http://cdn.yuzzl.top/blog/20201123161403.png)
+
+- 代码自上而下执行。打印1处
+- 执行`async1()`，打印2处
+- 执行`async2()`，打印3处，它下面的代码被加入事件队列中。
+- 执行`new Promise`，打印4处、5处。
+- `then`回调被加入事件队列中。
+- 执行6处。
+- 执行所有的`nextTick`。7处、8处。
+- Promise的`then`回调属于微任务队列的内容，执行它们。9处 10处
+- `setTimeout`属于宏任务队列的内容，执行它们，11处。但是13处由于有300的延时，于是放在了12之后。
 
 ## 前端国际化
 
