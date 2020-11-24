@@ -1622,19 +1622,11 @@ console.log('end')
 ![](http://cdn.yuzzl.top/blog/640)
 
 - 应用层：  即 JavaScript 交互层，常见的就是 Node.js 的模块，比如 http，fs
-
 - V8引擎层： 即利用 V8 引擎来解析JavaScript 语法，进而和下层 API 交互
-
 - NodeAPI层： 为上层模块提供系统调用，一般是由 C 语言来实现，和操作系统进行交互 。
-
 - LIBUV层： 是跨平台的底层封装，实现了 事件循环、文件操作等，是 Node.js 实现异步的核心 。
 
-运行机制如下：
 
-- V8 引擎解析 JavaScript 脚本。
-- 解析后的代码，调用 Node API。
-- libuv 库负责 Node API 的执行。它将不同的任务分配给不同的线程，形成一个 Event Loop（事件循环），以异步的方式将任务的执行结果返回给 V8 引擎。
-- V8 引擎再将结果返回给用户。
 
 #### Event Loop 阶段
 
@@ -1728,6 +1720,18 @@ timeout
 一旦轮询队列为空，事件循环将检查已达到时间阈值的计时器。如果一个或多个计时器已准备就绪，则事件循环将绕回计时器阶段以执行这些计时器的回调。
 
 ![](http://cdn.yuzzl.top/blog/20201124002109.png)
+
+#### process.nextTick()
+
+如果我们要立刻异步执行一个任务，可能会这样做：
+
+```javascript
+setTimeout(function () {
+ // TODO
+}, 0); 
+```
+
+我们上面说到过，定时器不太精确，而且定时器的查询需要动用红黑树，创建定时器对象、迭代操作。如果我们使用`process.nextTick()`就可以达到**O1**的级别。
 
 #### 尝试一下
 
