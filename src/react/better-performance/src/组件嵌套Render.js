@@ -1,52 +1,48 @@
 import React, {memo} from "react";
 
-class Banner extends React.PureComponent {
+class Footer extends React.PureComponent {
   render() {
-    console.log("banner render!");
+    console.log("Footer component render!");
     return (
-      <div>banner -- div</div>
+      <div>Footer组件</div>
     )
   }
 }
 
 const List = memo(() => {
-    console.log("list render!");
-    return (
-      <ul>
-        <li>11</li>
-        <li>22</li>
-        <li>33</li>
-        <li>44</li>
-      </ul>
-    )
-  }
-)
-
+  console.log("List component render!");
+  return (
+    <ul>
+      <li>Hello</li>
+      <li>world</li>
+    </ul>
+  )
+})
 
 class Main extends React.PureComponent {
   constructor(props) {
     super(props);
 
     this.state = {
-      counter: 0
+      count: 0
     }
   }
 
   add() {
+    console.log("add按钮被单击!");
     this.setState({
-      counter: this.state.counter + 1
+      count: this.state.count + 1
     })
   }
-
 
   render() {
     console.log("Main render!");
     return (
       <div>
-        <div>current:{this.state.counter}</div>
-        <button onClick={() => this.add()}>add!</button>
-        <Banner/>
+        <div>current:{this.state.count}</div>
+        <button onClick={() => this.add()}>add one</button>
         <List/>
+        <Footer/>
       </div>
     )
   }

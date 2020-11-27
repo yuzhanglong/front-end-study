@@ -1,10 +1,10 @@
 import React from "react";
-import Main from "./不同类型的节点产生不同的树结构";
+import DoNotUseInlineObject from "./避免使用内联对象";
 
 const App = () => {
   return (
     <div className="App">
-      <Main/>
+      <DoNotUseInlineObject/>
     </div>
   );
 }

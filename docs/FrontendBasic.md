@@ -2004,11 +2004,11 @@ ETag是URL的tag，用来标示URL对象是否改变。这样可以应用于客�
 
 ![](http://cdn.yuzzl.top/blog/20201120200552.png)
 
+
+
 ## TODO
 
 SEO(搜索引擎优化)
-
-event loop
 
 浏览器底层（并发）
 
