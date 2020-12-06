@@ -1,28 +1,29 @@
 /*
  * File: webpack.config.js
  * Description: webpack 热更新
- * Created: 2020-11-1 11:53:14
+ * Created: 2020-12-6 21:16:31
  * Author: yuzhanglong
  * Email: yuzl1123@163.com
  */
 
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require("path");
-const webpack = require('webpack');
 
 module.exports = {
-  entry: "./src/entry.js",
+  entry: {
+    app: "./src/index.js",
+  },
   output: {
-    filename: './bundle.js',
+    filename: '[name].bundle.js',
+    path: path.resolve(__dirname, 'dist')
   },
   plugins: [
-    new HtmlWebpackPlugin(),
-    new webpack.HotModuleReplacementPlugin()
+    new HtmlWebpackPlugin({
+      title: 'Hot Module Replacement'
+    })
   ],
+  devtool: 'source-map',
   devServer: {
-    contentBase: path.join(__dirname, "dist"),
-    port: 9000,
-    hot: true,
-    inline: false
+    hot: true
   }
 }
