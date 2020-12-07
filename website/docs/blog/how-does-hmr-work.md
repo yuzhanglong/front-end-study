@@ -4,6 +4,13 @@
 
 开发环境下的热更新是 webpack 的一个特色功能，其大大提高了开发者的工作效率 -- 我们修改代码的同时浏览器就可以执行更新操作，且会**保留当前状态**。本文将讲解 webpack 的热更新原理。
 
+:::tip
+- 建议读者尽量关注热更新的流程，并辅以源码加以理解。下面对于源码的分析只会列出**主干部分**的内容，具体细节及边界处理感兴趣可自行查阅。
+
+- 另外，webpack 的源码随着版本的更新**改动比较大**，文末参考资料的第一篇文章是去年十二月份写的，和现在（2020-12）对比有很多代码都发生了巨大的变化，再早一点的教程也是变化很大。但是总体的热更新流程是万变不离其宗的。
+:::
+
+
 本文的 webpack 配置如下所示：
 
 **webpack.config.js**
@@ -70,6 +77,8 @@ export default function printMe() {
 }
 ```
 
+
+
 ## 直观感受
 
 当我们修改 `print.js` 的内容时，我们能够看到的是控制台打印的内容更改了，说明热替换一切正常，这很明显。但是我们还可以看看 调试工具 network 选项卡的一些信息，在这里我们可以推测出一个大致的流程。
@@ -108,6 +117,7 @@ export default function printMe() {
 - 浏览器知晓需要更新时，利用之前的 hash 值，通过 ajax 请求获取新的 js 文件，然后执行一系列业务逻辑，让新的代码覆盖旧的代码。
 
 接下来我们结合源码，深入分析整个流程。
+
 
 ## 本地代码监听与编译
 
@@ -260,7 +270,7 @@ function reloadApp(_ref, _ref2) {
 }
 ```
 
-收到 `ok` 指令之后，浏览器会发送一个 `webpackHotUpdate` 事件。这个事件会在 `webpack/hot/dev-server` 中被接收：
+收到 `ok` 指令之后，浏览器会发送一个 `webpackHotUpdate` 事件。注意这里没有直接执行更新的逻辑。接受这个事件的代码在 `webpack/hot/dev-server.js` 下，这部分代码也会通过 webpack 打包到 `bundle.js` 中：
 
 ```javascript
 // node_modules/webpack/hot/dev-server.js
@@ -288,16 +298,18 @@ hotEmitter.on("webpackHotUpdate", function (currentHash) {
 log("info", "[HMR] Waiting for update signal from WDS...");
 ```
 
-在这里 **webpackHotUpdate** 被监听到，同时更新 hash 值。并执行`check()` 方法，`check()`方法就是热更新的的核心部分了。正常完成 check，则一次热更新流程完成。
+在这里 **webpackHotUpdate** 被监听到，同时更新 hash 值。并执行`check()` 方法，`check()` 方法就是热更新的的核心部分了。正常完成 check，则一次热更新流程完成。
 
 
 ## 执行更新 - check()
 
-### 来源
+### check() 的来源
 
-上面说到的 `check()` 方法就是执行更新的核心方法了。首先要知道这个方法是怎么来的。它来自`module.hot`, 可见某一个脚本将 `hot` 方法挂载到 `module` 上了。这是通过 `HotModuleReplacementPlugin` 来实现的。
+首先要知道 `check()` 这个方法是怎么来的。它来自`module.hot`, 可见某一个脚本将 `hot` 方法挂载到 `module` 上了。这是通过 `HotModuleReplacementPlugin` 来实现的。
 从浏览器的调试工具中我们可以看到相关的代码，这部分代码最终会被压缩、写入 `bundle.js` 中：
+
 ![](http://cdn.yuzzl.top/blog/20201206235811.png)
+
 
 :::tip
 在本文开头的 webpack 配置中，并没有导入 **HotModuleReplacementPlugin**，这是因为 webpack-dev-server 会判断是否导入这个 plugin，如果没有会自动帮助导入，我们从源码中也可以得知：
@@ -361,11 +373,13 @@ function hotCheck(applyOnUpdate) {
 	});
 }
 ```
-我们自上而下解析：
-- 首先设置状态为 check
-- 执行 `__webpack_require__.hmrM()`，这个函数其实就是向 `webpack-dev-server` 请求更新后的 资源清单（manifest，一个 json 文件）。
+### 请求资源清单
 
-我们在`jsonp chunk loading` 模块中可以看到源码，并结合下面注释可以很好理解：
+首先 check 会执行 `__webpack_require__.hmrM()`，这个函数其实就是向 `webpack-dev-server` 请求更新后的资源信息（即 manifest，一个 json 文件）。
+
+利用浏览器调试工具，我们可以在 `jsonp chunk loading` 模块中可以看到源码，结合下面注释很好理解：
+
+![](http://cdn.yuzzl.top/blog/20201207125230.png)
 
 ```javascript
 __webpack_require__.hmrM = () => {
@@ -374,21 +388,247 @@ __webpack_require__.hmrM = () => {
     
     // 调用 fetch，通过 字符串拼接获取url(baseurl + hash 值 + ".hot-update.json")
 	return fetch(__webpack_require__.p + __webpack_require__.hmrF()).then((response) => {
-		if(response.status === 404) return; // no update available
+		if(response.status === 404) return; // 404 没有找到
 		if(!response.ok) throw new Error("Failed to fetch update manifest " + response.statusText);
+        // 返回 资源信息 json
 		return response.json();
 	});
 };
 ```
+资源请求完成之后，将状态置为 **prepare**，接下来会去请求相应的 js 文件。上面这个函数返回一个 promise，在接下来的 then 回调中，我们可以拿到资源的信息 json 文件。
+
+### 请求新的 js 文件
+
+拿到需要请求的资源信息之后，我们会去请求新的 js 文件。回顾上面的 `module.hot.check()` 的源码，接下来返回了一个 `promise.all` 方法，这个方法的核心是 `__webpack_require__.hmrC` 函数。来看看它的实现，这部分的源码还是在 `json chunk loading` 模块中：
+
+```javascript
+__webpack_require__.hmrC.jsonp = function (
+  // 新的代码片段的编号
+	chunkIds,
+	removedChunks,
+	removedModules,
+	promises,
+	applyHandlers,
+	updatedModulesList
+) {
+  // 省略了一些细节代码
+  // 遍历获得的 chunk id
+	chunkIds.forEach(function (chunkId) {
+		if (
+			__webpack_require__.o(installedChunks, chunkId) &&
+			installedChunks[chunkId] !== undefined
+		) {
+      // 请求 js 资源
+			promises.push(loadUpdateChunk(chunkId, updatedModulesList));
+			currentUpdateChunks[chunkId] = true;
+		}
+	});
+};
+```
+
+上面的代码会执行 `loadUpdateChunk(chunkId, updatedModulesList)` 然后将其返回值放入 `promises` 数组中。这个函数就是用来执行请求 js 代码块的，它执行 `__webpack_require__.l()`：
+
+```javascript
+// 省略了一些错误处理回调代码
+function loadUpdateChunk(chunkId) {
+	return new Promise((resolve, reject) => {
+    
+    // 将 resolve 传入 waitingUpdateResolves 中
+    waitingUpdateResolves[chunkId] = resolve;
+
+    // 拼接更新 chunk 的 url
+		var url = __webpack_require__.p + __webpack_require__.hu(chunkId);
+
+    // 脚本读取完成，我们会走到这里
+    var loadingEnded = (event) => {
+			if(waitingUpdateResolves[chunkId]) {
+				waitingUpdateResolves[chunkId] = undefined
+				var errorType = event && (event.type === 'load' ? 'missing' : event.type);
+				var realSrc = event && event.target && event.target.src;
+				error.message = 'Loading hot update chunk ' + chunkId + ' failed.\n(' + errorType + ': ' + realSrc + ')';
+				error.name = 'ChunkLoadError';
+				error.type = errorType;
+				error.request = realSrc;
+				reject(error);
+			}
+		};
+    // 传入 url 和 loadingEnded 回调
+		__webpack_require__.l(url, loadingEnded);
+	});
+}
+```
+首先将 promise 的 `resolve` 传入 `waitingUpdateResolves` 数组中，用于后续处理。我们会在后面的内容中提到。
+
+再来看 `__webpack_require__.l`，它用来向服务器请求 js 代码，它的流程很简单，本质上是通过向 dom 插入 `script` 标签达到请求资源的目的，这种方案被称为 jsonp：
+
+```javascript
+__webpack_require__.l = (url, done, key) => {
+  // 只保留主干部分，省略边界处理的代码
+	var script, needAttach;
+
+	script = document.createElement('script');
+
+	script.charset = 'utf-8';
+
+	script.timeout = 120;
+
+	script.setAttribute("data-webpack", dataWebpackPrefix + key);
+
+	script.src = url;
+	
+	inProgress[url] = [done];
+
+  // script 加载完成的回调函数
+	var onScriptComplete = (prev, event) => {
+		script.parentNode && script.parentNode.removeChild(script);
+		doneFns && doneFns.forEach((fn) => fn(event));
+		if(prev) return prev(event);
+	}
+
+	script.onload = onScriptComplete.bind(null, script.onload);
+};
+```
+
+当脚本获取完成时候，我们会走到 `onScriptComplete()` 方法，这个方法会遍历 doneFns，这个方法就是我们传入的回调函数，也就是 `__webpack_require__.l()` 中的 `loadingEnded()`。
+
+### 模块替换 (apply)
+
+jsonp 获得的代码会在加载完成之后**立刻执行**。之后我们就可以进行模块替换（apply）了，来看我们拿到的 js 脚本长什么样：
+
+```javascript
+self.webpackHotUpdatehmr(143, {
+    569: (e,t,c)=>{
+        "use strict";
+        function o() {
+            console.log("hello world!")
+        }
+        c.r(t),
+        c.d(t, {
+            default: () => o
+        })
+    }
+}, (function(e) {
+    "use strict";
+    e.h = ()=>"f0fc968f5b65dea37ac3"
+}
+));
+```
+
+加载完成之后会调用 `self.webpackHotUpdatehmr()`，我们可以从 `jsonp chunk loading` 模块中找到它：
+
+```javascript
+// 删除部分细节的代码
+self["webpackHotUpdatehmr"] = (chunkId, moreModules, runtime) => {
+
+	currentUpdate[moduleId] = moreModules[moduleId];
 
 
+	if(waitingUpdateResolves[chunkId]) {
+		waitingUpdateResolves[chunkId]();
+		waitingUpdateResolves[chunkId] = undefined;
+	}
+};
+```
+
+这个函数首先将 `moreModules` 放入 `currentUpdate` 中，等待后续处理，然后从 `waitingUpdateResolves` 找到相应的 resolve 函数（我们上面提到过，在函数 `loadUpdateChunk(chunkId)` 中），resolve 函数 `loadUpdateChunk`返回的 promise，最终这个 promise 会被 `check()` 函数的 then 回调接受：
+
+```javascript
+return waitForBlockingPromises(function () {
+  if (applyOnUpdate) {
+    return internalApply(applyOnUpdate);
+  } else {
+    setStatus("ready");
+    return updatedModules;
+  }
+});
+```
+
+接下来执行 `waitForBlockingPromises`，它是一个递归函数：
+
+```javascript
+function waitForBlockingPromises(fn) {
+	if (blockingPromises.length === 0) return fn();
+	var blocker = blockingPromises;
+	blockingPromises = [];
+	return Promise.all(blocker).then(function () {
+		return waitForBlockingPromises(fn);
+	});
+}
+```
+
+如果 `blockingPromises` 为空，fn 会被执行，主要执行的是 `internalApply(applyOnUpdate)` 方法：
+
+```javascript
+// 只保留主干代码
+function internalApply(options) {
+	options = options || {};
+
+	var results = currentUpdateApplyHandlers.map(function (handler) {
+		return handler(options);
+	});
+	
+  setStatus("apply");
+  
+  // Now in "dispose" phase
+	setStatus("dispose");
+
+	results.forEach(function (result) {
+		if (result.dispose) result.dispose();
+	});
+
+	// Now in "apply" phase
+	setStatus("apply");
+
+	var outdatedModules = [];
+	results.forEach(function (result) {
+		if (result.apply) {
+			var modules = result.apply(reportError);
+			if (modules) {
+				for (var i = 0; i < modules.length; i++) {
+					outdatedModules.push(modules[i]);
+				}
+			}
+		}
+	});
+
+	return Promise.resolve(outdatedModules);
+}
+```
+
+这个方法分两次遍历 `result` 数组，分别执行每个元素的 `dispose` 方法和 `apply` 方法，前者用来移除旧模块，后者用来增添新的模块：
+
+apply方法主要做了这些事情，具体实现还是比较复杂的，可自行参阅源码，这部分涉及到了 webpack 打包原理。这里只列出主干部分：
+
+- 遍历新增的模块，并插入代码到一个 webpack 全局维护的对象中：
+
+```javascript
+for (var updateModuleId in appliedUpdate) {
+  if (__webpack_require__.o(appliedUpdate, updateModuleId)) {
+    __webpack_require__.m[updateModuleId] = appliedUpdate[updateModuleId];
+  }
+}
+```
+
+请看下图，可以看出全局的 `__webpack_require__.m` 维护了一个对象，通过编号可以找到对应的代码块，我们只要通过编号匹配然后替换即可：
+
+![](http://cdn.yuzzl.top/blog/20201207174111.png)
 
 
+- 接下来，通过 `__webpack_require__` 执行相应的代码块：
 
+```javascript
+// run new runtime modules
+for (var i = 0; i < currentUpdateRuntime.length; i++) {
+  currentUpdateRuntime[i](__webpack_require__);
+}
+```
 
+## 流程总结
 
+上述流程总结如下图：
 
+![](http://cdn.yuzzl.top/blog/20201207175642.png)
 
+## 参考资料
 
-
-
+[掘金 -- 轻松理解webpack热更新原理](https://juejin.cn/post/6844904008432222215#heading-10)
