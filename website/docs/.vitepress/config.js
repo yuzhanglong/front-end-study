@@ -31,6 +31,11 @@ function getBlogSidebar() {
     {
       text: 'webpack热更新(HMR)工作原理',
       link: '/blog/how-does-hmr-work'
+    },
+
+    {
+      text: '一些有趣的ES6案例分析',
+      link: '/blog/es6-examples'
     }
   ]
 }
