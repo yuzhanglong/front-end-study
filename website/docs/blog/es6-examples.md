@@ -1,5 +1,7 @@
 # 一些有趣的ES6案例分析
 
+[[toc]]
+
 ## Symbol
 
 ### React 利用 Symbol 防止 XSS 攻击
@@ -144,4 +146,130 @@ const element = document.getElementById('example');
 wm.set(element, 'some information');
 wm.get(element);
 ```
+
+## Proxy 和 Reflect
+
+### vue3.0 利用 Proxy+Reflect 实现数据劫持
+
+我们都知道 vue2 的数据劫持是 `defineProperty`，`defineProperty` 有一些缺点，例如一次只能操作一个对象的一个属性，要监听整个对象需要多层的递归。
+
+另外，`Object.defineProperty()` 无法监听数组类型属性的变化，vue 使用了一些比较 hack 的方法来实现它，但是还有一些缺陷，例如通过下标修改数组的情况仍无法监测。
+
+Proxy 非常优雅地解决了这些问题，我们以 vue3 的 `reactive()` API为例了解一下，来看看官方这个 test：
+
+:::tip
+
+- 下面的代码只列出主干部分的代码，更多细节可自行阅读源码。我们主要的目的是了解 Proxy 和 Reflect 的特性。
+
+- 响应式 API 的源码位于 `vue-next/packages/reactivity` 下。
+
+:::
+
+```typescript
+test('original value change should reflect in observed value (Object)', () => {
+  const original: any = {foo: 1}
+  const observed = reactive(original)
+  // set
+  original.bar = 1
+  expect(original.bar).toBe(1)
+  expect(observed.bar).toBe(1)
+  // delete
+  delete original.foo
+  expect('foo' in original).toBe(false)
+  expect('foo' in observed).toBe(false)
+});
+```
+
+首先调用 `reactive()`，将 `original` 响应化。
+
+```typescript
+// if trying to observe a readonly proxy, return the readonly version.
+if (target && (target as Target)[ReactiveFlags.IS_READONLY]) {
+  return target
+}
+return createReactiveObject(
+  target,
+  false,
+  mutableHandlers,
+  mutableCollectionHandlers
+)
+```
+
+这是核心方法，创建一个响应式对象，它最终返回一个 `proxy`：
+
+```typescript
+function createReactiveObject(
+  target: Target,
+  isReadonly: boolean,
+  baseHandlers: ProxyHandler<any>,
+  collectionHandlers: ProxyHandler<any>
+) {
+  // 其它的代码省略
+
+  // 核心部分
+  const proxy = new Proxy(
+    target,
+    targetType === TargetType.COLLECTION ? collectionHandlers : baseHandlers
+  )
+  proxyMap.set(target, proxy)
+  return proxy
+}
+```
+
+这里 new 了一个 `Proxy`，第一个参数传入的是要被代理的对象，第二个参数是一个对象， 对于每一个被代理的操作，需要提供一个对应的处理函数，该函数将拦截对应的操作，在这里是 `baseHandlers`：
+
+```typescript
+export const mutableHandlers: ProxyHandler<object> = {
+  get,
+  set,
+  deleteProperty,
+  has,
+  ownKeys
+}
+```
+
+可以看出这里重定义了 `get`、`set` 等方法，`get` 方法实际上调用了 `createGetter`：
+
+```typescript
+function createGetter(isReadonly = false, shallow = false) {
+  // 省略一些细节代码
+  return function get(target: Target, key: string | symbol, receiver: object) {
+
+    // 使用 Reflect.get 来调用系统内部(默认)的 get 方法
+    const res = Reflect.get(target, key, receiver)
+
+    return res
+  }
+}
+```
+
+注意这里的 `Reflect.get()` 这个 API 称为**反射**，Proxy对象的方法，就能在Reflect对象上找到对应的方法。这就让Proxy对象可以方便地调用对应的Reflect方法，完成**默认行为**。
+
+Reflect 的意义在于**保证原生行为能够正常执行**。
+
+再看 `set`，它本质上是调用 `createSetter()`：
+
+```typescript
+function createSetter(shallow = false) {
+  return function set(
+    target: object,
+    key: string | symbol,
+    value: unknown,
+    receiver: object
+  ): boolean {
+    const oldValue = (target as any)[key]
+    // 调用默认的 set 方法
+    const result = Reflect.set(target, key, value, receiver)
+    // 调用 `trigger()` 通知 订阅者更新
+    if (target === toRaw(receiver)) {
+      trigger(target, TriggerOpTypes.SET, key, value, oldValue)
+    }
+    return result
+  }
+}
+```
+
+我们在 `set` 方法中执行劫持 -- 首先我们调用 `Reflect.set`，也就是 `set` 方法的**默认行为**，接着补充额外的逻辑，例如通知订阅者的 `trigger()`。
+
+也就是当用户修改值，例如调用 `original.bar = 1` 时代码就会走到这个函数里，我们只需在这里实现我们的通知发布即可，具体的发布实现这里不展开，以后我会专门开一篇详细分析。
 
