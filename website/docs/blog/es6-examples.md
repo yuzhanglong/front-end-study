@@ -273,3 +273,194 @@ function createSetter(shallow = false) {
 
 也就是当用户修改值，例如调用 `original.bar = 1` 时代码就会走到这个函数里，我们只需在这里实现我们的通知发布即可，具体的发布实现这里不展开，以后我会专门开一篇详细分析。
 
+## Iterator 和 Generator
+
+下图很好地说明了两者之间的关系。
+
+![](http://cdn.yuzzl.top/blog/relationships.png)
+
+### 利用 Generator 让异步代码更加优雅
+
+我们都知道，异步代码可以用 `Promise` 来处理，能够有效地解决**回调地狱**问题：
+
+```javascript
+// 读取文件 A
+readFile(fileA)
+  .then(function (data) {
+    // 获取 A 内容
+    console.log(data.toString());
+  })
+  .then(function () {
+    // 读取 B
+    return readFile(fileB);
+  })
+  .then(function (data) {
+    // 获取 B 内容
+    console.log(data.toString());
+  })
+  .catch(function (err) {
+    console.log(err);
+  });
+```
+
+`Promise` 挺不错，但是也有一些问题，例如大量冗余的代码 -- 跟着一大堆 `then`，异步逻辑一多，代码会非常难以维护。
+
+我们可能会期望这样的代码，在 `console.log(result)` 中拿到结果"hello world"：
+
+```javascript
+function foo() {
+  // 利用 setTimeout 模拟网络请求
+  const res1 = new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve("hello world");
+    }, 1000);
+  });
+  const res2 = yield new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve("yzl!");
+    }, 1000);
+  });
+  // 这里是无法拿到 hello world 的
+  console.log(res1);
+  // 这里是无法拿到 yzl 的
+  console.log(res2);
+}
+```
+
+显然直接这样是不行的，于是我们可以利用生成器函数：
+
+```javascript
+function* bar() {
+  console.log('hi~');
+  // 利用 setTimeout 模拟网络请求
+  const res1 = yield new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve("hello world!");
+    }, 1000);
+  });
+  const res2 = yield new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve("yzl!");
+    }, 1000);
+  });
+  // 这里是无法拿到 hello world 的
+  console.log(res1);
+  // 这里是无法拿到 yzl 的
+  console.log(res2);
+}
+```
+
+如何执行这部分代码？我们只需要这样做：
+
+- 初始化生成器
+- 通过 `it1.next().value` 拿到第一个 `yield` 后面的内容，也就是第一个 `Promise` 对象。
+- 在调用 `Promise.then()`，在回调函数中拿到结果 `res`.
+- 在回调函数中调用 `iterator.next(res)`, next函数的参数即为上一个 `yield` 表达式的返回值，则 `res` 为 `hello world!`。
+- 以此类推处理第二个 `yield`。
+
+```javascript
+const iterator = bar();
+let it1 = iterator.next();
+
+it1.value.then(res => {
+  let it2 = iterator.next(res);
+  it2.value.then(res => {
+    iterator.next(res);
+  })
+});
+```
+
+看看效果：
+
+![](http://cdn.yuzzl.top/blog/20201211000706.png)
+
+`function* bar()` 中的内容算是比较优雅了（看着更像同步操作），但是依然有很大的问题：
+
+- 但是那坨分离出来的代码如何解决，也就是说，如何**自动执行 Generator 函数**？
+- 上面的代码只适用于2个 `Promise` 如果有很多的 `promise`，如何解决？
+
+来看下面的 `generatorRunner()`，它可以自动执行 Generator 函数，同时使用递归地方式处理多个 `Promise`：
+
+```javascript
+const generatorRunner = (fn) => {
+  let iterator = fn();
+
+  const next = (res = undefined) => {
+    let result = iterator.next(res);
+    if (result.done) {
+      return;
+    }
+    result.value.then(res => {
+      next(res);
+    });
+  }
+  next();
+}
+
+generatorRunner(bar);
+```
+
+看看效果：
+
+![](http://cdn.yuzzl.top/blog/20201211000618.png)
+
+这种能够自动执行 `Generator` 的函数我们又称为**Thunk函数**。当然，这是一个比较简单的版本，现在我们有类似的库，名为**Co**
+，[点击查看源码](https://github.com/tj/co/blob/master/index.js)。
+
+```javascript
+function co(gen) {
+  var ctx = this;
+  var args = slice.call(arguments, 1);
+  // 使用 promise 包裹，目的是防止 promise 的死循环，最终导致内存泄漏
+  return new Promise(function (resolve, reject) {
+
+    // 初始化生成器
+    if (typeof gen === 'function') gen = gen.apply(ctx, args);
+
+    // 不是函数，直接 resolve
+    if (!gen || typeof gen.next !== 'function') return resolve(gen);
+
+    // 执行 下面的 onFulfilled
+    onFulfilled();
+
+    function onFulfilled(res) {
+      var ret;
+      try {
+        ret = gen.next(res);
+      } catch (e) {
+        return reject(e);
+      }
+      // 这里的 next 是下面出现的 next 函数
+      next(ret);
+      return null;
+    }
+
+    function next(ret) {
+      // 如果 为 done 状态，我们直接 resolve
+      if (ret.done) return resolve(ret.value);
+      // 将 value 转成 promise，目的是防止 promise 的死循环，最终导致内存泄漏
+      // toPromise 请自行查阅源码
+      var value = toPromise.call(ctx, ret.value);
+      // 将 onFulfilled 传给 `value.then` 这个新的 promise，这其实就是一个递归
+      if (value && isPromise(value)) return value.then(onFulfilled, onRejected);
+
+      // 出错，reject
+      return onRejected(new TypeError('You may only yield a function, promise, generator, array, or object, '
+        + 'but the following object was passed: "' + String(ret.value) + '"'));
+    }
+
+    function onRejected(err) {
+      var ret;
+      try {
+        ret = gen.throw(err);
+      } catch (e) {
+        return reject(e);
+      }
+      next(ret);
+    }
+  });
+}
+```
+
+
+
