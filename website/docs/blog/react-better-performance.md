@@ -1,4 +1,8 @@
-# 探究React 性能优化
+# 深入探究React 性能优化
+
+[[toc]]
+
+## 总述
 
 React为设计高性能的React应用程序提供了很多优化，可以通过遵循一些最佳实践来实现。性能优化的关键在于是否能够减少**不必要的Render**，触发Render主要有下面的情况：
 
@@ -11,7 +15,9 @@ React为设计高性能的React应用程序提供了很多优化，可以通过�
 ## React.PureComponent
 
 ### 组件嵌套造成的额外渲染
+
 来看看下面这个例子：
+
 #### 案例
 
 来看下面这个组件嵌套的代码：
@@ -82,7 +88,8 @@ export default Main;
 
 ### 使用PureComponent
 
-设想一下，假如我们能够在List和Footer组件被渲染之前对比一下前后的`props`是否改变 、`state`是否改变，再决定是否渲染不就可以了吗？我们可以使用`shouldComponentUpdate`这个生命周期函数来实现，它返回一个布尔值，来定义是否render，下面是官方文档的截图：
+设想一下，假如我们能够在List和Footer组件被渲染之前对比一下前后的`props`是否改变 、`state`是否改变，再决定是否渲染不就可以了吗？我们可以使用`shouldComponentUpdate`
+这个生命周期函数来实现，它返回一个布尔值，来定义是否render，下面是官方文档的截图：
 
 ![](http://cdn.yuzzl.top/blog/20201126215938.png)
 
@@ -109,7 +116,8 @@ class Footer extends React.PureComponent {
 
 ![](http://cdn.yuzzl.top/blog/20201126221203.png)
 
-注意最后设置`isPureReactComponent`为**true**，React通过调用`checkShouldComponentUpdate`来判断，这个函数位于`packages/react-reconciler/src/ReactFiberClassComponent.js`下，注意下面的两个红框：
+注意最后设置`isPureReactComponent`为**true**，React通过调用`checkShouldComponentUpdate`
+来判断，这个函数位于`packages/react-reconciler/src/ReactFiberClassComponent.js`下，注意下面的两个红框：
 
 - 第一部分：判断开发者是否使用了`shouldComponentUpdate`，如果是，执行并返回结果。（ps.出现的`startPhaseTimer`貌似是一个计时功能，我们这里不做探讨）
 - 第二部分：如果这个组件是PureComponent，执行第二个红框的代码，也是核心部分了 -- 它通过调用`shallowEqual`比较**state**和**props**来决定是否需要更新。
@@ -124,7 +132,7 @@ function shallowEqual(objA: mixed, objB: mixed): boolean {
   if (is(objA, objB)) {
     return true;
   }
-	
+
   // object 和 null 的情况，也返回false
   if (
     typeof objA !== 'object' ||
@@ -134,7 +142,7 @@ function shallowEqual(objA: mixed, objB: mixed): boolean {
   ) {
     return false;
   }
-	
+
   // 拿出所有的keys
   const keysA = Object.keys(objA);
   const keysB = Object.keys(objB);
@@ -180,7 +188,7 @@ export default objectIs;
 ```javascript
 Object.is([1, 2], [1, 2])
 //false
-Object.is({a:231}, {a:231})
+Object.is({a: 231}, {a: 231})
 //false
 ```
 
@@ -269,12 +277,14 @@ class DoNotUseInlineObject extends React.PureComponent {
       cnt: 0
     }
   }
+
   add() {
     console.log("add按钮被单击!");
     this.setState({
       cnt: this.state.cnt + 1
     })
   }
+
   render() {
     return (
       <div>
@@ -296,8 +306,8 @@ export default DoNotUseInlineObject;
 
 ```javascript
 const oldInfo = {
-   name: "yzl",
-   age: 20
+  name: "yzl",
+  age: 20
 }
 const newInfo = {
   name: "yzl",
@@ -415,7 +425,7 @@ const ConditionalRenderingCmp = () => {
       setFlag(true);
     }, 1000);
   }, []);
-  
+
   return (
     <>
       {flag && <Header/>}
@@ -454,7 +464,8 @@ key是服务于react的diff算法的，正确的使用key可以发挥出diff算�
 
 ![](http://cdn.yuzzl.top//blog/20201118210003.png)
 
-比较时，key为a的元素不变，添加了key为c的元素mutation，同时key为b的元素只进行**位移**，无需额外修改，最终。我们只创建了一个mutation。当然，我们的key必须唯一！除了这个注意的地方，下面还有几个关于key的注意点。
+比较时，key为a的元素不变，添加了key为c的元素mutation，同时key为b的元素只进行**位移**
+，无需额外修改，最终。我们只创建了一个mutation。当然，我们的key必须唯一！除了这个注意的地方，下面还有几个关于key的注意点。
 
 #### key的注意点
 
@@ -511,7 +522,7 @@ const TryUseCallBack = () => {
 
   const addTwo = useCallback(() => {
     setCnt(cnt + 2);
-  },[cnt])
+  }, [cnt])
 
   console.log("main render!");
   return (
@@ -530,8 +541,6 @@ export default TryUseCallBack;
 ```
 
 ![](http://cdn.yuzzl.top/blog/20201127103935.png)
-
-
 
 - 点击第一个set按钮时，`addOne`被调用，cnt修改，导致**Main**组件重新render，addOne、addTwo被重新更新。
 - 点击第二个set按钮，道理一样。
@@ -598,7 +607,8 @@ const LazyLoad = () => {
 export default LazyLoad;
 ```
 
-**LazyLoad**组件有一个按钮，按下按钮显示**OtherComponent**组件，在现实中这可能是个登录业务 -- 用户登录则展示管理面板。在页面一打开时就把所有组件加载意义不大，且会导致加载缓慢，我们可以使用react提供的懒加载组件`React.lazy`。
+**LazyLoad**组件有一个按钮，按下按钮显示**OtherComponent**组件，在现实中这可能是个登录业务 --
+用户登录则展示管理面板。在页面一打开时就把所有组件加载意义不大，且会导致加载缓慢，我们可以使用react提供的懒加载组件`React.lazy`。
 
 ### 尝试React.lazy
 

@@ -1,10 +1,13 @@
 # webpack-loader & plugin 详解
 
+[[toc]]
+
 ## 总述
 
 本文将介绍并带你手写一个 **webpack-loader** 和一个 **webpack-plugin**，旨在更好地了解webpack的运行机制，以及满足我们的**好奇心**。
 
 本文的大纲如下：
+
 - 介绍 **loader**，**plugin** 的概念，并介绍使用方式。
 - 写一个 **url-loader**，这个loader会将图片等资源文件转换成 `base64` 表示。
 - 介绍 webpack **插件机制**。
@@ -14,7 +17,8 @@
 
 ### loader
 
-我们都知道，webpack 自身只理解 JavaScript， 通过 loader 我们可以将各种类型的文件转换成 webpack 可处理的模块，例如，将一个图片转换成 Base54 字符串，或者将 JSX 代码转换成 JavaScript代码... 
+我们都知道，webpack 自身只理解 JavaScript， 通过 loader 我们可以将各种类型的文件转换成 webpack 可处理的模块，例如，将一个图片转换成 Base54 字符串，或者将 JSX 代码转换成
+JavaScript代码...
 
 #### 案例
 
@@ -105,9 +109,11 @@ module.exports = {
   }
 }
 ```
+
 ##### 解释
 
-最终 webpack 打包的结果就是一个 js 文件， 没有任何的 .css 文件（当然，我们实际开发不会这样做），这是因为 .css 的内容全部被写入了 js 中，并且在执行的时候以**添加script标签**的方式来生成 css 样式，从打包后的代码我们也可以看出来：
+最终 webpack 打包的结果就是一个 js 文件， 没有任何的 .css 文件（当然，我们实际开发不会这样做），这是因为 .css 的内容全部被写入了 js 中，并且在执行的时候以**添加script标签**的方式来生成 css
+样式，从打包后的代码我们也可以看出来：
 
 ![](http://cdn.yuzzl.top/blog/20201130235941.png)
 
@@ -149,7 +155,6 @@ module.exports = {
 }
 ```
 
-
 ## 手写一个 loader
 
 接下来我们来写一个简单的`url-loader` -- 它把项目中图片类型的文件转换成`base64`等格式。
@@ -165,7 +170,6 @@ import img from './img-test.jpg';
 document.write('hello world!');
 console.log(img);
 ```
-
 
 ```javascript
 // webpack.config.js
@@ -325,12 +329,11 @@ webpack 的插件开发比 loader 要复杂的多，下面我们介绍一下它�
 
 tabable 是一个 webpack 的核心库。事实上，Webpack可以将其理解是一种基于**事件流**的编程范例。`tapable` 暴露出挂载 plugin 的方法，使我们能让 plugin 在 webpack 事件流上运行。
 
-
 ### tabable 和 webpack
 
 tabable 如何和 webpack 进行关联？我们可以进入 **html-webpack-plugin** 一探究竟，通过实际案例来感受。
 
-##### 利用 compiler 的 emit hook 
+##### 利用 compiler 的 emit hook
 
 html-webpack-plugin 利用 compiler 的 emit hook。emit 指 webpack 生成资源到 `output` 目录之前的阶段。在这里我们可以拿到编译好的内容。
 
@@ -377,15 +380,22 @@ module.exports = {
   getHtmlWebpackPluginHooks
 };
 ```
-全局所有的 `hook` 都被存储在这里，`htmlWebpackPluginHooksMap` 是一个 weakmap，它根据 `compilation` 来区分，为什么要区分多个？其实 html-webpack-plugin 是支持**多个 plugin 对象**的，我们可以渲染多份模板，像这样：
+
+全局所有的 `hook` 都被存储在这里，`htmlWebpackPluginHooksMap` 是一个 weakmap，它根据 `compilation` 来区分，为什么要区分多个？其实 html-webpack-plugin 是支持**
+多个 plugin 对象**的，我们可以渲染多份模板，像这样：
 
 ```javascript
 {
   entry: 'index.js',
-  output: {
+    output
+:
+  {
     path: __dirname + '/dist',
-    filename: 'index_bundle.js'
-  },
+      filename
+  :
+    'index_bundle.js'
+  }
+,
   plugins: [
     new HtmlWebpackPlugin(),
     new HtmlWebpackPlugin({
@@ -400,12 +410,22 @@ module.exports = {
 
 ```javascript
 {
-    beforeAssetTagGeneration: new AsyncSeriesWaterfallHook(['pluginArgs']),
-    alterAssetTags: new AsyncSeriesWaterfallHook(['pluginArgs']),
-    alterAssetTagGroups: new AsyncSeriesWaterfallHook(['pluginArgs']),
-    afterTemplateExecution: new AsyncSeriesWaterfallHook(['pluginArgs']),
-    beforeEmit: new AsyncSeriesWaterfallHook(['pluginArgs']),
-    afterEmit: new AsyncSeriesWaterfallHook(['pluginArgs'])
+  beforeAssetTagGeneration: new AsyncSeriesWaterfallHook(['pluginArgs']),
+    alterAssetTags
+:
+  new AsyncSeriesWaterfallHook(['pluginArgs']),
+    alterAssetTagGroups
+:
+  new AsyncSeriesWaterfallHook(['pluginArgs']),
+    afterTemplateExecution
+:
+  new AsyncSeriesWaterfallHook(['pluginArgs']),
+    beforeEmit
+:
+  new AsyncSeriesWaterfallHook(['pluginArgs']),
+    afterEmit
+:
+  new AsyncSeriesWaterfallHook(['pluginArgs'])
 }
 ```
 
@@ -435,12 +455,12 @@ yourHook.promise({
 
 > 提示：执行 hook 的方案不仅可以通过 promise ，具体可查阅 tabable 官方文档。
 
-
 ## 手写一个 plugin
 
 ### 需求分析
 
-很多使用 webpack 打包的项目都会使用 html-webpack-plugin，这是一个很强大的 html 模板生成插件，现在我们基于它来写一个 plugin，以实现向模板中插入 CDN 的 `<script>` 标签的功能，我们期望的效果如下：
+很多使用 webpack 打包的项目都会使用 html-webpack-plugin，这是一个很强大的 html 模板生成插件，现在我们基于它来写一个 plugin，以实现向模板中插入 CDN 的 `<script>`
+标签的功能，我们期望的效果如下：
 
 我们使用这个 plugin，并配置了三个 CDN 链接：
 
@@ -449,12 +469,12 @@ yourHook.promise({
 const HtmlExternalsWebpackPlugin = require('html-externals-webpack-plugin');
 module.exports = {
   plugins: [
-        // inserts externals into html
-        isEnvProduction && new HtmlExternalsWebpackPlugin(HtmlWebpackPlugin, [
-          'https://cdn.jsdelivr.net/npm/react@16.13.1/umd/react.production.min.js',
-          'https://cdn.jsdelivr.net/npm/react-dom@16.13.1/umd/react-dom.production.min.js',
-          'https://cdn.jsdelivr.net/npm/react-router@5.2.0/umd/react-router.min.js',
-        ])
+    // inserts externals into html
+    isEnvProduction && new HtmlExternalsWebpackPlugin(HtmlWebpackPlugin, [
+      'https://cdn.jsdelivr.net/npm/react@16.13.1/umd/react.production.min.js',
+      'https://cdn.jsdelivr.net/npm/react-dom@16.13.1/umd/react-dom.production.min.js',
+      'https://cdn.jsdelivr.net/npm/react-router@5.2.0/umd/react-router.min.js',
+    ])
   ]
 }
 ```
@@ -504,14 +524,24 @@ module.exports = XXXXXXWebpackPlugin;
 我们前面提到，我们的 plugin 是基于 html-webpack-plugin 的，所以`constructorz` 中需要传入 html-webpack-plugin 的实例， 以及用户的 CDN 配置：
 
 ```typescript
-constructor(htmlWebpackPlugin: HtmlExternalsWebpackPlugin, scriptSources: string[]) {
-    // TODO: 你的业务逻辑
-    this.htmlWebpackPlugin = htmlWebpackPlugin;
-    this.scriptSources = scriptSources;
+constructor(htmlWebpackPlugin
+:
+HtmlExternalsWebpackPlugin, scriptSources
+:
+string[]
+)
+{
+  // TODO: 你的业务逻辑
+  this.htmlWebpackPlugin = htmlWebpackPlugin;
+  this.scriptSources = scriptSources;
 }
 
-apply(compiler: Compiler) {
-    // TODO: 你的业务逻辑
+apply(compiler
+:
+Compiler
+)
+{
+  // TODO: 你的业务逻辑
 }
 ```
 
@@ -600,7 +630,6 @@ class HtmlExternalsWebpackPlugin {
 ```
 
 至此，这个 plugin 编写完成，其实只要理解了流程，编写难度也不算大，源码请参阅 [Github](https://github.com/yuzhanglong/html-externals-webpack-plugin)。
-
 
 ## 参考资料
 
