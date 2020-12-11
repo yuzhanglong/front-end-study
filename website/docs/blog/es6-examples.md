@@ -462,5 +462,11 @@ function co(gen) {
 }
 ```
 
+### 利用基于 generator 的 redux-saga 执行具有副作用的函数
 
+我们都知道 Redux 规定 `action` 必须是一个简单对象（`plain object`）。 但是我们可能需要 `action` 是一个函数（这种需求是很强烈的，例如网络请求），将它执行过程中的某个内容 `dispatch`
+，然后实现更新。
 
+redux 有一些中间件提供了一些解决方案，例如 `redux-thunk` 和 `redux-saga`，其中，`redux-saga` 是基于 generator 的一个不错的实践，结合下图，来看看它的用法。
+
+![](http://cdn.yuzzl.top/blog/20201211132141.png)

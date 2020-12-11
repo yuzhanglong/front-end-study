@@ -1,4 +1,4 @@
-import {REMOTE_DATA, ADD_NUMBER, SUB_NUMBER} from "./constant";
+import {REMOTE_DATA, ADD_NUMBER, SUB_NUMBER, GET_REMOTE_DATA} from "./constant";
 import axios from "axios";
 
 export const addAction = (num) => {
@@ -15,7 +15,7 @@ export const subAction = (num) => {
   }
 }
 
-export const remoteAction = (data) => {
+export const changeHomeDataAction = (data) => {
   return {
     type: REMOTE_DATA,
     data
@@ -23,13 +23,20 @@ export const remoteAction = (data) => {
 }
 
 
+export const remoteDataAction = () => {
+  return {
+    type: GET_REMOTE_DATA
+  }
+}
+
+
 export const getHomeRequestAction = (dispatch) => {
   axios({
-    url: "http://api.k780.com/?app=weather.today&weaid=1&appkey=10003&sign=b59bc3ef6191eb9f747dd4e83c99f2a4&format=json"
+    url: "http://47.106.202.255:8081"
   })
     .then((res) => {
-      dispatch(remoteAction(res.data.result))
-    })
-
+      dispatch(changeHomeDataAction(res.data.message))
+    });
 }
+
 

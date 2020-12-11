@@ -1,16 +1,17 @@
-import {applyMiddleware, createStore} from "redux";
+import {applyMiddleware, compose, createStore} from "redux";
 import reducer from "./reducer";
 import thunkMiddleware from 'redux-thunk';
+import createSagaMiddleware from "redux-saga";
+import mySaga from "../saga/sagas";
 
-const loggerMiddleware = middlewareAPI => next => action => {
-  console.log('start dispatch: ', action)
-  let result = next(action);
-  console.log('next state: ', store.getState())
-  return result
-}
+const composeEnhancers = (typeof window !== 'undefined' && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) || compose;
 
-const middlewares = applyMiddleware(thunkMiddleware, loggerMiddleware);
+const sagaMiddleware = createSagaMiddleware()
 
-const store = createStore(reducer, middlewares);
+const middlewares = applyMiddleware(thunkMiddleware, sagaMiddleware);
+
+const store = createStore(reducer, composeEnhancers(middlewares));
+
+sagaMiddleware.run(mySaga);
 
 export default store;

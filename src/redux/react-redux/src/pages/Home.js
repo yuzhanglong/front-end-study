@@ -8,7 +8,7 @@
 
 import React, {useEffect} from "react";
 import connect from "../utils/connect";
-import {subAction, addAction, getHomeRequestAction} from "../store/action"
+import {subAction, addAction, remoteDataAction} from "../store/action"
 
 const Home = (props) => {
   useEffect(() => {
@@ -18,7 +18,7 @@ const Home = (props) => {
     <div>
       <h1>home</h1>
       <h2>当前计数：{props.counter}</h2>
-      <h2>{props.remoteData?.temperature}</h2>
+      <h2>{props.remoteData}</h2>
       <button onClick={() => props.addAction(1)}>add</button>
       <button onClick={() => props.addAction(10)}>add 10</button>
       <button onClick={() => props.subAction(1)}>minus</button>
@@ -40,7 +40,8 @@ const mapDispatchToProps = dispatch => {
       dispatch(subAction(num));
     },
     getRemoteDataAction: () => {
-      dispatch(getHomeRequestAction);
+      console.log("home dispatch!!");
+      dispatch(remoteDataAction());
     }
   }
 };
