@@ -277,7 +277,7 @@ function createSetter(shallow = false) {
 
 下图很好地说明了两者之间的关系。
 
-![](http://cdn.yuzzl.top/blog/relationships.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/relationships.png">![](http://cdn.yuzzl.top/blog/relationships.png)</a>
 
 ### 利用 Generator 让异步代码更加优雅
 
@@ -372,7 +372,7 @@ it1.value.then(res => {
 
 看看效果：
 
-![](http://cdn.yuzzl.top/blog/20201211000706.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201211000706.png">![](http://cdn.yuzzl.top/blog/20201211000706.png)</a>
 
 `function* bar()` 中的内容算是比较优雅了（看着更像同步操作），但是依然有很大的问题：
 
@@ -402,7 +402,7 @@ generatorRunner(bar);
 
 看看效果：
 
-![](http://cdn.yuzzl.top/blog/20201211000618.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201211000618.png">![](http://cdn.yuzzl.top/blog/20201211000618.png)</a>
 
 这种能够自动执行 `Generator` 的函数我们又称为**Thunk函数**。当然，这是一个比较简单的版本，现在我们有类似的库，名为**Co**
 ，[点击查看源码](https://github.com/tj/co/blob/master/index.js)。
@@ -469,4 +469,4 @@ function co(gen) {
 
 redux 有一些中间件提供了一些解决方案，例如 `redux-thunk` 和 `redux-saga`，其中，`redux-saga` 是基于 generator 的一个不错的实践，结合下图，来看看它的用法。
 
-![](http://cdn.yuzzl.top/blog/20201211132141.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201211132141.png">![](http://cdn.yuzzl.top/blog/20201211132141.png)</a>

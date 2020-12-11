@@ -78,20 +78,20 @@ export default Main;
 
 运行之后，页面如图所示：
 
-![](http://cdn.yuzzl.top/blog/20201126214822.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201126214822.png">![](http://cdn.yuzzl.top/blog/20201126214822.png)</a>
 
 页面初次渲染，打印了如上图的内容，这很正常 -- 每个组件都得被render一次。
 
 但当我们点击Main组件中的**add按钮**时（如下图），三个组件被重新render了！但是**Footer组件**、**list组件**的render是毫无必要的。
 
-![](http://cdn.yuzzl.top/blog/20201126215106.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201126215106.png">![](http://cdn.yuzzl.top/blog/20201126215106.png)</a>
 
 ### 使用PureComponent
 
 设想一下，假如我们能够在List和Footer组件被渲染之前对比一下前后的`props`是否改变 、`state`是否改变，再决定是否渲染不就可以了吗？我们可以使用`shouldComponentUpdate`
 这个生命周期函数来实现，它返回一个布尔值，来定义是否render，下面是官方文档的截图：
 
-![](http://cdn.yuzzl.top/blog/20201126215938.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201126215938.png">![](http://cdn.yuzzl.top/blog/20201126215938.png)</a>
 
 但是如果我们每个文件都写一遍，那么实在太麻烦了，所以我们可以使用**PureComponent**，下面我们尝试修改上面的Footer组件。
 
@@ -108,13 +108,13 @@ class Footer extends React.PureComponent {
 
 从下图中可以看出，Footer组件没有被重新渲染，美中不足的是，List组件（它是一个函数式组件）仍然发生了渲染，我们下面会解决它。
 
-![](http://cdn.yuzzl.top/blog/20201126220259.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201126220259.png">![](http://cdn.yuzzl.top/blog/20201126220259.png)</a>
 
 ### PureComponent原理
 
 根据上面的描述，我们可以猜出`PureComponent`的原理无非就是比较前后props、state是否改变，我们先看看``PureComponent``：
 
-![](http://cdn.yuzzl.top/blog/20201126221203.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201126221203.png">![](http://cdn.yuzzl.top/blog/20201126221203.png)</a>
 
 注意最后设置`isPureReactComponent`为**true**，React通过调用`checkShouldComponentUpdate`
 来判断，这个函数位于`packages/react-reconciler/src/ReactFiberClassComponent.js`下，注意下面的两个红框：
@@ -122,7 +122,7 @@ class Footer extends React.PureComponent {
 - 第一部分：判断开发者是否使用了`shouldComponentUpdate`，如果是，执行并返回结果。（ps.出现的`startPhaseTimer`貌似是一个计时功能，我们这里不做探讨）
 - 第二部分：如果这个组件是PureComponent，执行第二个红框的代码，也是核心部分了 -- 它通过调用`shallowEqual`比较**state**和**props**来决定是否需要更新。
 
-![](http://cdn.yuzzl.top/blog/20201126223041.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201126223041.png">![](http://cdn.yuzzl.top/blog/20201126223041.png)</a>
 
 来看看`shallowEqual`，它位于`packages/shared/shallowEqual.js`，下面以注释的形式给出解析：
 
@@ -214,7 +214,7 @@ const List = memo(() => {
 
 来看看效果：
 
-![](http://cdn.yuzzl.top/blog/20201126230938.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201126230938.png">![](http://cdn.yuzzl.top/blog/20201126230938.png)</a>
 
 可以看出，在`PureComponent`、`Memo`的配合下，计数器的更新值引起Main组件渲染，其他的组件没有出现无意义的渲染。
 
@@ -222,11 +222,11 @@ const List = memo(() => {
 
 下面是Memo的代码：
 
-![](http://cdn.yuzzl.top/blog/20201126231940.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201126231940.png">![](http://cdn.yuzzl.top/blog/20201126231940.png)</a>
 
 在`packages/react-reconciler/src/ReactFiberBeginWork.js`下有如下代码,：
 
-![](http://cdn.yuzzl.top/blog/20201126232603.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201126232603.png">![](http://cdn.yuzzl.top/blog/20201126232603.png)</a>
 
 注意红框的部分，`compare`在这里被执行 ，如果用户传入`compare`，则执行用户的逻辑，否则执行我们上面刚刚提到的`shallowEqual`。
 
@@ -325,13 +325,13 @@ one === one // true
 
 触发User组件的props比较，本质上是调用`shallowEqual`:
 
-![](http://cdn.yuzzl.top/blog/20201127235342.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201127235342.png">![](http://cdn.yuzzl.top/blog/20201127235342.png)</a>
 
 一直单步执行，直到这个地方，结果返回了一个false：
 
-![](http://cdn.yuzzl.top/blog/20201127235625.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201127235625.png">![](http://cdn.yuzzl.top/blog/20201127235625.png)</a>
 
-![](http://cdn.yuzzl.top/blog/20201127235812.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201127235812.png">![](http://cdn.yuzzl.top/blog/20201127235812.png)</a>
 
 究其原因，其实是`objA`和`ObjB`**引用**的对象不同。
 
@@ -366,7 +366,7 @@ export default DoNotUseInlineObject;
 
 可以看出，这里判断为`true`了，这是因为`objA`和`ObjB`**引用**了同一个对象`userInfo`。
 
-![](http://cdn.yuzzl.top/blog/20201128000351.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201128000351.png">![](http://cdn.yuzzl.top/blog/20201128000351.png)</a>
 
 ### React优化条件渲染
 
@@ -401,7 +401,7 @@ export default ConditionalRenderingCmp;
 
 这里会发生什么性能问题呢？要回答此问题，我们必须知道React中Diff算法针对同层节点是采用**同时遍历**来进行对比的，也就是说，当上面代码的flag改变，两个组件树进行diff，过程如下：
 
-![](http://cdn.yuzzl.top/blog/20201127010356.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201127010356.png">![](http://cdn.yuzzl.top/blog/20201127010356.png)</a>
 
 - flag vs Header，不同，生成mutation。
 - Header vs Content，不同，生成mutation。
@@ -409,7 +409,7 @@ export default ConditionalRenderingCmp;
 
 但如果我们使用后者的方法，那么，diff将变成这样：
 
-![](http://cdn.yuzzl.top/blog/20201127010650.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201127010650.png">![](http://cdn.yuzzl.top/blog/20201127010650.png)</a>
 
 本质上是diff时，**header**和一个**null节点**进行比较，从而让下面得兄弟元素进行比较时是相等的，从而带来了性能优化。
 
@@ -440,11 +440,11 @@ const ConditionalRenderingCmp = () => {
 
 优化之前的版本，我们可以看到**三个div都重新执行了DOM操作**（观察深色区域）：
 
-![](http://cdn.yuzzl.top/blog/20201127005120.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201127005120.png">![](http://cdn.yuzzl.top/blog/20201127005120.png)</a>
 
 优化之后的版本，注意**只有header进行了DOM操作**：
 
-![](http://cdn.yuzzl.top/blog/20201127004928.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201127004928.png">![](http://cdn.yuzzl.top/blog/20201127004928.png)</a>
 
 ### 正确地使用key
 
@@ -454,15 +454,15 @@ key是服务于react的diff算法的，正确的使用key可以发挥出diff算�
 
 对于下面的DOM结构，React会同时遍历两个子节点的列表，有差异时会生成一个**mutation**。
 
-![](http://cdn.yuzzl.top//blog/20201118204722.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top//blog/20201118204722.png">![](http://cdn.yuzzl.top//blog/20201118204722.png)</a>
 
 但是这种情况太理想了！如果是下面这种情况，那么就会带来不必要的DOM操作了（创建了较多的mutation）！
 
-![](http://cdn.yuzzl.top//blog/20201118205033.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top//blog/20201118205033.png">![](http://cdn.yuzzl.top//blog/20201118205033.png)</a>
 
 这种情况下，**Key**的作用就体现了，我们可以使用key来匹配。
 
-![](http://cdn.yuzzl.top//blog/20201118210003.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top//blog/20201118210003.png">![](http://cdn.yuzzl.top//blog/20201118210003.png)</a>
 
 比较时，key为a的元素不变，添加了key为c的元素mutation，同时key为b的元素只进行**位移**
 ，无需额外修改，最终。我们只创建了一个mutation。当然，我们的key必须唯一！除了这个注意的地方，下面还有几个关于key的注意点。
@@ -540,7 +540,7 @@ const TryUseCallBack = () => {
 export default TryUseCallBack;
 ```
 
-![](http://cdn.yuzzl.top/blog/20201127103935.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201127103935.png">![](http://cdn.yuzzl.top/blog/20201127103935.png)</a>
 
 - 点击第一个set按钮时，`addOne`被调用，cnt修改，导致**Main**组件重新render，addOne、addTwo被重新更新。
 - 点击第二个set按钮，道理一样。
@@ -579,7 +579,7 @@ export default TryUseMemo;
 
 按下**setFlag**按钮之后，函数`getTenBigger`并没有重新定义，第五行的打印也就不会执行。它只在`cnt`改变之后才会重新定义：
 
-![](http://cdn.yuzzl.top/blog/20201127110810.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201127110810.png">![](http://cdn.yuzzl.top/blog/20201127110810.png)</a>
 
 相对于`useCallback`，`useMemo`的返回值可以是多样的，更加灵活，前者只能是函数。
 
@@ -639,11 +639,11 @@ export default LazyLoad;
 
 使用懒加载前：
 
-![](http://cdn.yuzzl.top/blog/20201127200219.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201127200219.png">![](http://cdn.yuzzl.top/blog/20201127200219.png)</a>
 
 使用懒加载后：
 
-![](http://cdn.yuzzl.top/blog/20201127200315.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201127200315.png">![](http://cdn.yuzzl.top/blog/20201127200315.png)</a>
 
 红色方框的js文件只有在**按钮被单击**时才会加载。
 
@@ -709,7 +709,7 @@ export function lazy<T, R>(ctor: () => Thenable<T, R>): LazyComponent<T> {
 
 在`packages/react-reconciler/src/ReactFiberBeginWork.js`下有一个`mountLazyComponent`函数，我们一眼可以看出红框部分是加载lazy组件的关键代码：
 
-![](http://cdn.yuzzl.top/blog/20201127203611.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201127203611.png">![](http://cdn.yuzzl.top/blog/20201127203611.png)</a>
 
 它的代码如下：
 

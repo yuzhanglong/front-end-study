@@ -87,7 +87,7 @@ export default function printMe() {
 
 让我们启动项目，页面初次刷新，我们得到了 `app.bundle.js` 的入口js文件，值得注意的是，浏览器还和开发服务器保持了一个 **websocket** 连接，根据传输的信息我们可以肯定这和热更新密切相关。
 
-![](http://cdn.yuzzl.top/blog/20201206212847.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201206212847.png">![](http://cdn.yuzzl.top/blog/20201206212847.png)</a>
 
 现在我们修改 print.js 的内容，然后等待热更新加载。
 
@@ -95,7 +95,7 @@ export default function printMe() {
 
 - 一个json文件
 
-![](http://cdn.yuzzl.top/blog/20201206213214.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201206213214.png">![](http://cdn.yuzzl.top/blog/20201206213214.png)</a>
 
 - 一个js文件
 
@@ -103,13 +103,13 @@ export default function printMe() {
 
 同时，观察代码发现，返回的内容是一个函数，可知这个js文件可以在适当地位置被执行, 这种通过函数通信的方式也称为 **JSONP**。
 
-![](http://cdn.yuzzl.top/blog/20201206213232.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201206213232.png">![](http://cdn.yuzzl.top/blog/20201206213232.png)</a>
 
 - websocket 连接内容的变化
 
 我们可以看到 websocket 的信息也添加了一些内容，而且第一次生成的 hash 值刚好是新请求到的 js 文件的 hash 值。新生成的 hash 值应该是下一次热更新的文件。
 
-![](http://cdn.yuzzl.top/blog/20201206213907.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201206213907.png">![](http://cdn.yuzzl.top/blog/20201206213907.png)</a>
 
 我们不难得出这样的一个大致的流程：
 
@@ -313,7 +313,7 @@ log("info", "[HMR] Waiting for update signal from WDS...");
 首先要知道 `check()` 这个方法是怎么来的。它来自`module.hot`, 可见某一个脚本将 `hot` 方法挂载到 `module` 上了。这是通过 `HotModuleReplacementPlugin` 来实现的。
 从浏览器的调试工具中我们可以看到相关的代码，这部分代码最终会被压缩、写入 `bundle.js` 中：
 
-![](http://cdn.yuzzl.top/blog/20201206235811.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201206235811.png">![](http://cdn.yuzzl.top/blog/20201206235811.png)</a>
 
 :::tip 在本文开头的 webpack 配置中，并没有导入 **HotModuleReplacementPlugin**，这是因为 webpack-dev-server 会判断是否导入这个
 plugin，如果没有会自动帮助导入，我们从源码中也可以得知：
@@ -387,7 +387,7 @@ function hotCheck(applyOnUpdate) {
 
 利用浏览器调试工具，我们可以在 `jsonp chunk loading` 模块中可以看到源码，结合下面注释很好理解：
 
-![](http://cdn.yuzzl.top/blog/20201207125230.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201207125230.png">![](http://cdn.yuzzl.top/blog/20201207125230.png)</a>
 
 ```javascript
 __webpack_require__.hmrM = () => {
@@ -628,7 +628,7 @@ for (var updateModuleId in appliedUpdate) {
 
 请看下图，可以看出全局的 `__webpack_require__.m` 维护了一个对象，通过编号可以找到对应的代码块，我们只要通过编号匹配然后替换即可：
 
-![](http://cdn.yuzzl.top/blog/20201207174111.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201207174111.png">![](http://cdn.yuzzl.top/blog/20201207174111.png)</a>
 
 - 接下来，通过 `__webpack_require__` 执行相应的代码块：
 
@@ -643,7 +643,7 @@ for (var i = 0; i < currentUpdateRuntime.length; i++) {
 
 上述流程总结如下图：
 
-![](http://cdn.yuzzl.top/blog/20201207175642.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201207175642.png">![](http://cdn.yuzzl.top/blog/20201207175642.png)</a>
 
 ## 参考资料
 

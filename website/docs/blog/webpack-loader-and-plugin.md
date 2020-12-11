@@ -33,7 +33,7 @@ JavaScript代码...
 
 ##### 目录结构
 
-![](http://cdn.yuzzl.top/blog/20201031131256.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201031131256.png">![](http://cdn.yuzzl.top/blog/20201031131256.png)</a>
 
 ##### 配置
 
@@ -115,7 +115,7 @@ module.exports = {
 最终 webpack 打包的结果就是一个 js 文件， 没有任何的 .css 文件（当然，我们实际开发不会这样做），这是因为 .css 的内容全部被写入了 js 中，并且在执行的时候以**添加script标签**的方式来生成 css
 样式，从打包后的代码我们也可以看出来：
 
-![](http://cdn.yuzzl.top/blog/20201130235941.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201130235941.png">![](http://cdn.yuzzl.top/blog/20201130235941.png)</a>
 
 这就是 loader 的功能。
 
@@ -129,7 +129,7 @@ plugin 用来执行更复杂的任务，例如包优化，打包资源管理和�
 
 #### 目录结构
 
-![](http://cdn.yuzzl.top/blog/20201031150540.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201031150540.png">![](http://cdn.yuzzl.top/blog/20201031150540.png)</a>
 
 #### 配置
 
@@ -210,7 +210,7 @@ module.exports = {
 
 然后准备一张图片，新建我们的`loader.js`,目录结构如图。
 
-![](http://cdn.yuzzl.top/blog/20201103201937.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201103201937.png">![](http://cdn.yuzzl.top/blog/20201103201937.png)</a>
 
 ### 需求分析
 
@@ -226,7 +226,7 @@ module.exports = {
 
 请看下图，这是一个hello world版的**loader**，最终我们在浏览器控制台获得我们的图片资源`source`被转换成了“hello world”，然后按官方文档上的规定处理成字符串被导出。
 
-![](http://cdn.yuzzl.top/blog/20201105215106.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201105215106.png">![](http://cdn.yuzzl.top/blog/20201105215106.png)</a>
 
 ```javascript
 return `export default ${JSON.stringify(source)}`;
@@ -258,7 +258,7 @@ module.exports = function (source) {
 };
 ```
 
-![](http://cdn.yuzzl.top/blog/20201103204340.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201103204340.png">![](http://cdn.yuzzl.top/blog/20201103204340.png)</a>
 
 ### 完成业务逻辑
 
@@ -337,7 +337,7 @@ tabable 如何和 webpack 进行关联？我们可以进入 **html-webpack-plugi
 
 html-webpack-plugin 利用 compiler 的 emit hook。emit 指 webpack 生成资源到 `output` 目录之前的阶段。在这里我们可以拿到编译好的内容。
 
-![](http://cdn.yuzzl.top/blog/20201202002211.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201202002211.png">![](http://cdn.yuzzl.top/blog/20201202002211.png)</a>
 
 ##### 利用自定义hook
 
@@ -345,11 +345,11 @@ html-webpack-plugin 利用 compiler 的 emit hook。emit 指 webpack 生成资�
 
 html-webpack-plugin 的基本流程如下图：
 
-![](http://cdn.yuzzl.top/blog/flow.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/flow.png">![](http://cdn.yuzzl.top/blog/flow.png)</a>
 
 举个例子。来看源码，下图的业务是获取Favicon公共路径 Promise，执行 `then` 方法可以接收到 `faviconPath`，然后再返回 `beforeAssetTagGeneration` 的钩子，这就是自定义 hook：
 
-![](http://cdn.yuzzl.top/blog/20201202162156.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201202162156.png">![](http://cdn.yuzzl.top/blog/20201202162156.png)</a>
 
 进入 getHtmlWebpackPluginHooks 来看一下：
 
