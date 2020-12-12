@@ -6,7 +6,7 @@
 
 React为设计高性能的React应用程序提供了很多优化，可以通过遵循一些最佳实践来实现。性能优化的关键在于是否能够减少**不必要的Render**，触发Render主要有下面的情况：
 
-- 发生**setState。**
+- 发生**setState**。
 - **props**的改变。
 - 使用`forceUpdate`。
 
