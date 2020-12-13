@@ -232,8 +232,7 @@ console.log("foo被执行");
 
 ##### 所有的函数都是闭包
 
-根据函数创建的算法，我们看到 在ECMAScript中，**所有的函数都是闭包**，因为它们都是在创建的时候就保存了**上层上下文的作用域链**。（不管这个函数后续是否被执行，因为上面提到过，`[[scopes]]`
-在函数创建的时候就有了）。
+根据函数创建的算法，我们看到 在ECMAScript中，**所有的函数都是闭包**，因为它们都是在创建的时候就保存了**上层上下文的作用域链**。（不管这个函数后续是否被执行，因为上面提到过，`[[scopes]]`在函数创建的时候就有了）。
 
 ##### 所有对象都引用一个`[[scopes]]`
 
@@ -256,8 +255,8 @@ data[2](); // 3, 而不是2
 
 // 原理
 data[0].[[scopes]] === data[1].[[scopes]] === data[2].[[scopes]] === Scopes = [
-  ... // 其它变量对象
-    {data: [...], k: 3} // 活动对象
+   ... // 其它变量对象
+  {data: [...], k: 3} // 活动对象
 ]
 ```
 
@@ -282,52 +281,26 @@ data[2](); // 2
 // 原理
 data[0].[[Scope]] === [
   ... // 其它变量对象
-    父级上下文中的活动对象AO
-:
-{
-  data: [...], k
-:
-  3
-}
-,
-_helper上下文中的活动对象AO: {
-  x: 0
-}
-]
-;
+  父级上下文中的活动对象AO: {data: [...], k: 3},
+  _helper上下文中的活动对象AO: {x: 0}
+];
 
 data[1].[[Scope]] === [
   ... // 其它变量对象
-    父级上下文中的活动对象AO
-:
-{
-  data: [...], k
-:
-  3
-}
-,
-_helper上下文中的活动对象AO: {
-  x: 1
-}
-]
-;
+  父级上下文中的活动对象AO: {data: [...], k: 3},
+  _helper上下文中的活动对象AO: {x: 1}
+];
 
 data[2].[[Scope]] === [
   ... // 其它变量对象
-    父级上下文中的活动对象AO
-:
-{
-  data: [...], k
-:
-  3
-}
-,
-_helper上下文中的活动对象AO: {
-  x: 2
-}
-]
-;
+  父级上下文中的活动对象AO: {data: [...], k: 3},
+  _helper上下文中的活动对象AO: {x: 2}
+];
 ```
+
+
+
+
 
 ### 使用场景
 
@@ -370,277 +343,6 @@ function debounce(fn, delay) {
     }
   }
 }
-```
-
-## ES6新类型
-
-### Symbol
-
-Symbol（符号）是 ECMAScript 6 新增的数据类型（js中原始数据类型有` string` `number` `boolean` `null` `undefined` `symbol` / `object`
-）。符号是原始值，且符号实例是唯一、不可变的。符号的用途是确保对象属性使用唯一标识符，不会发生属性冲突的危险。
-
-#### 特点
-
-##### 独一无二
-
-Symbol之间永远不相等。
-
-```javascript
-let s1 = Symbol('my'); // 描述这个symbol 内部会将描述符 toString
-let s2 = Symbol('my');
-console.log(s1 === s2); // false
-```
-
-##### 不可枚举性
-
-Symbol是不可以枚举的，例如下面的代码，for循环不会进入循环体。
-
-```javascript
-let obj = {
-  [s2]: 1 // 如果这个属性是用symbol 来声明的，不可枚举
-}
-
-for (let key in obj) {
-  console.log(obj[key]);
-}
-
-console.log(Object.getOwnPropertySymbols(obj)); // [ Symbol(my) ]
-```
-
-但是，我们可以使用`Object.getOwnPropertySymbols(obj)`这个API来获取。
-
-##### Symbol.for()
-
-```javascript
-let s1 = Symbol('my');
-// Symbol.for
-let s3 = Symbol.for('aaa');
-let s4 = Symbol.for('bbb');
-let s5 = Symbol.for('aaa');
-console.log(s4 === s5); // false
-console.log(s3 === s5);   // true
-```
-
-#### 实践
-
-##### 私有属性
-
-```javascript
-// 私有属性
-const privateField = Symbol();
-
-class MyClass {
-  constructor() {
-    this[privateField] = 'hello world';
-  }
-
-  getField() {
-    return this[privateField];
-  }
-
-  setField(val) {
-    this[privateField] = val;
-  }
-}
-
-let myClass = new MyClass();
-
-console.log(myClass.getField());
-```
-
-### WeakMap
-
-#### 介绍
-
-ECMAScript 6 新增的“弱映射”（ WeakMap）是一种新的集合类型，为这门语言带来了增强的键/值对存储机制。 WeakMap 是 Map 的“兄弟”类型，其 API 也是 Map 的子集。 WeakMap
-中的“weak”（弱），描述的是 JavaScript 垃圾回收程序对待“弱映射”中键的方式。
-
-#### 弱键
-
-WeakMap的特点就在于它的**弱映射**。它的键不属于正式的引用，不会阻止垃圾回收。
-
-```javascript
-const wm = new WeakMap();
-wm.set({}, "val");
-```
-
-`set()`方法初始化了一个新对象并将它用作一个字符串的键。因为**没有指向这个对象的其他引用**
-，所以当这行代码执行完成后，这个对象键就会被当作垃圾回收。然后，这个键/值对就从弱映射中消失了，使其成为一个空映射。在这个例子中，因为值也没有被引用，所以这对键/值被破坏以后，值本身也会成为垃圾回收的目标。
-
-```javascript
-const wm = new WeakMap();
-const container = {
-  key: {}
-};
-wm.set(container.key, "val");
-
-function removeReference() {
-  container.key = null;
-}
-```
-
-这一次， `container` 对象维护着一个对弱映射键的引用，因此这个对象键不会成为垃圾回收的目标。不过，如果调用了 `removeReference()`，就会摧毁键对象的最后一个引用，垃圾回收程序就可以把这个键/值对清理掉。
-
-#### 实践
-
-##### DOM 节点元数据
-
-````javascript
-const m = new Map();
-const loginButton = document.querySelector('#login');
-// 给这个节点关联一些元数据
-m.set(loginButton, {disabled: true});
-````
-
-假设在上面的代码执行后，页面被 JavaScript 改变了，原来的登录按钮从 DOM 树中被删掉了。但由于映射中还保存着按钮的引用，所以对应的 DOM 节点仍然会逗留在内存中，除非明确将其从映射中删除或者等到映射本身被销毁。
-
-我们使用弱映射,那么当节点从 DOM 树中被删除后，垃圾回收程序就可以**立即释放其内存**（假设没有其他地方引用这个对象）
-
-```javascript
-const wm = new WeakMap();
-const loginButton = document.querySelector('#login');
-// 给这个节点关联一些元数据
-wm.set(loginButton, {disabled: true});
-```
-
-### 代理和反射
-
-#### 代理模式实践
-
-##### 跟踪属性访问
-
-通过捕获 `get`、 `set` 和 `has` 等操作，可以知道对象属性什么时候被访问、被查询。把实现相应捕获器的某个对象代理放到应用中，可以监控这个对象何时在何处被访问过。（例如埋点统计操作行为）
-
-```javascript
-const user = {
-  name: 'Jake'
-};
-const proxy = new Proxy(user, {
-  get(target, property, receiver) {
-    console.log(`Getting ${property}`);
-    return Reflect.get(...arguments);
-  },
-  set(target, property, value, receiver) {
-    console.log(`Setting ${property}=${value}`);
-    return Reflect.set(...arguments);
-  }
-});
-// 访问用户名称
-console.log(proxy.name);
-proxy.age = 10;
-console.log(proxy.age);
-```
-
-##### 属性隐藏
-
-请看下面的代码，如果用户访问的`key`为`foo`或者`bar`，那么我们会返回一个`undefined`:
-
-```javascript
-const hiddenProperties = ['foo', 'bar'];
-const targetObject = {
-  foo: 1,
-  bar: 2,
-  baz: 3
-};
-
-const proxy = new Proxy(targetObject, {
-  get(target, property) {
-    if (hiddenProperties.includes(property)) {
-      return undefined;
-    } else {
-      return Reflect.get(...arguments);
-    }
-  },
-  has(target, property) {
-    if (hiddenProperties.includes(property)) {
-      return false;
-    } else {
-      return Reflect.has(...arguments);
-    }
-  }
-});
-console.log(proxy.foo); // undefined
-console.log(proxy.bar); // undefined
-console.log(proxy.baz); // 3
-// has()
-console.log('foo' in proxy); // false
-console.log('bar' in proxy); // false
-console.log('baz' in proxy); // true
-```
-
-##### 作为验证器
-
-所有赋值操作都会触发`set()`捕获器，我们可以根据所赋的值决定是否继续赋值。
-
-下面的代码展示了如果传入的类型为`number`，我们才执行赋值操作。
-
-```javascript
-const target = {
-  onlyNumbersGoHere: 0
-};
-const proxy = new Proxy(target, {
-  set(target, property, value) {
-    if (typeof value !== 'number') {
-      return false;
-    } else {
-      return Reflect.set(...arguments);
-    }
-  }
-});
-proxy.onlyNumbersGoHere = 1;
-console.log(proxy.onlyNumbersGoHere); // 1
-proxy.onlyNumbersGoHere = '2';
-console.log(proxy.onlyNumbersGoHere); // 1
-```
-
-我们还可以对函数进行参数验证：
-
-```javascript
-// 为数组进行排序
-const getSortedData = (...numbers) => {
-  return numbers.sort();
-}
-
-// 数组排序函数监控
-const sortFunctionProxy = new Proxy(getSortedData, {
-  apply(target, thisArg, argArray) {
-    for (let i = 0; i < argArray.length; i++) {
-      if (typeof argArray[i] !== "number") {
-        throw new Error("请传入数字");
-      }
-    }
-    return Reflect.apply(...arguments);
-  }
-})
-
-console.log(sortFunctionProxy(...[1, 2, 3, 0, -1])); // [ -1, 0, 1, 2, 3 ]
-console.log(sortFunctionProxy(...[1, "2", 3, 0, -1])); // Error: 请传入数字
-```
-
-##### 数据绑定与可观察对象
-
-通过代理可以把运行时中原本不相关的部分联系到一起。这样就可以实现各种模式，从而让不同的 代码互操作。
-
-```javascript
-const userList = [];
-
-class User {
-  constructor(name) {
-    this.name_ = name;
-  }
-}
-
-const proxy = new Proxy(User, {
-  construct() {
-    const newUser = Reflect.construct(...arguments);
-    userList.push(newUser);
-    return newUser;
-  }
-});
-new proxy('John');
-new proxy('Jacob');
-new proxy('Jingleheimerschmidt');
-console.log(userList); // [User {}, User {}, User{}]
 ```
 
 ## 防抖和节流
@@ -1687,21 +1389,14 @@ myFunction2[1]();
 
 ## TODO
 
-Proxy和Object.defineProperty()
-
-Object.defineProperty()的缺陷
-
-event loop
-
 浏览器底层（并发）
 
-- 栈溢出
-- js 去重
-- js 并发请求
+栈溢出
+
+js 去重
+
+js 并发请求
 
 事件委托
 
-垃圾回收
-
 工作者线程
-
