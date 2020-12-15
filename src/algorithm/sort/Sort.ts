@@ -6,8 +6,8 @@
  * Email: yuzl1123@163.com
  */
 
-// 用来自定义比较的 `comparator` 函数
-export type Comparator<T> = ((object1: T, object2: T) => number) | undefined;
+
+import {Comparator} from "../common/public";
 
 abstract class Sort<T> {
   protected array: T[];
