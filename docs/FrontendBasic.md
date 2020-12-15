@@ -26,7 +26,8 @@ https://www.zhihu.com/question/66629910/answer/273992383
 
 #### CORS
 
-跨源资源共享（ CORS， Cross-Origin Resource Sharing）定义了浏览器与服务器如何实现跨源通信。CORS 背后的基本思路就是使用自定义的 HTTP 头部允许浏览器和服务器相互了解，以确实请求或响应应该成功还是失败。  
+跨源资源共享（ CORS， Cross-Origin Resource Sharing）定义了浏览器与服务器如何实现跨源通信。CORS 背后的基本思路就是使用自定义的 HTTP
+头部允许浏览器和服务器相互了解，以确实请求或响应应该成功还是失败。
 
 请求在发送时会有一个额外的头部**Origin**，如下面所示：
 
@@ -48,17 +49,18 @@ Access-Control-Allow-Origin: http://docs.yuzzl.top
 Access-Control-Allow-Origin: *
 ```
 
-如果没有这个头部，或者有但源不匹配，则表明不会响应浏览器请求。否则，服务器就会处理这个请求。  
+如果没有这个头部，或者有但源不匹配，则表明不会响应浏览器请求。否则，服务器就会处理这个请求。
 
-#### 预检请求  
+#### 预检请求
 
-CORS 通过一种叫**预检请求**（ preflighted request）的服务器验证机制，允许使用自定义头部、除 GET 、 POST、HEAD（这三个也被称为**简单请求**） 之外的方法，以及不同请求体内容类型。在要发送涉及上述某种高级选项的请求时，会先向服务器发送一个“预检”请求。这个请求使用 OPTIONS 方法发送并包含以下头部。  
+CORS 通过一种叫**预检请求**（ preflighted request）的服务器验证机制，允许使用自定义头部、除 GET 、 POST、HEAD（这三个也被称为**简单请求**）
+之外的方法，以及不同请求体内容类型。在要发送涉及上述某种高级选项的请求时，会先向服务器发送一个“预检”请求。这个请求使用 OPTIONS 方法发送并包含以下头部。
 
-- **Origin**：与简单请求相同  
+- **Origin**：与简单请求相同
 
-- **Access-Control-Request-Method**：请求希望使用的方法  
+- **Access-Control-Request-Method**：请求希望使用的方法
 
-- **Access-Control-Request-Headers**：（可选）要使用的逗号分隔的自定义头部列表。  
+- **Access-Control-Request-Headers**：（可选）要使用的逗号分隔的自定义头部列表。
 
 例如下面的请求报文(省略了一部分无关头部)：
 
@@ -77,7 +79,7 @@ Origin: http://oj.yuzzl.top
 - **Access-Control-Allow-Origin**：与简单请求相同。
 - **Access-Control-Allow-Methods**：允许的**方法**（逗号分隔的列表）。
 - **Access-Control-Allow-Headers**：服务器允许的**头部**（逗号分隔的列表）。
-- **Access-Control-Max-Age**：**缓存**预检请求的秒数。  
+- **Access-Control-Max-Age**：**缓存**预检请求的秒数。
 
 例如下面的响应报文(省略了一部分无关头部)：
 
@@ -93,14 +95,14 @@ Access-Control-Max-Age: 3600
 
 #### 凭据请求
 
-默认情况下，跨源请求不提供凭据（ cookie、 HTTP 认证和客户端 SSL 证书）。可以通过将withCredentials 属性设置为 true 来表明请求会发送凭据。如果服务器允许带凭据的请求，那么可以在响应中包含如下 HTTP 头部：
+默认情况下，跨源请求不提供凭据（ cookie、 HTTP 认证和客户端 SSL 证书）。可以通过将withCredentials 属性设置为 true 来表明请求会发送凭据。如果服务器允许带凭据的请求，那么可以在响应中包含如下 HTTP
+头部：
 
 ```http
 Access-Control-Allow-Credentials: true
 ```
 
 假如我们发送了凭据请求但是响应没有这个头部，那么浏览器**不会将响应交给JavaScript调用**。（在XMLHTTPRequest的接口层面显示为 `status=0`，调用`onerror()`）
-
 
 ### 图片探测
 
@@ -109,7 +111,7 @@ Access-Control-Allow-Credentials: true
 ```javascript
 let img = new Image();
 img.onload = img.onerror = function () {
-    alert("Done!");
+  alert("Done!");
 };
 img.src = "http://www.example.com/test?name=Nicholas";
 ```
@@ -120,12 +122,11 @@ img.src = "http://www.example.com/test?name=Nicholas";
 
 #### 介绍
 
-**JSONP** 是“JSON with padding”的简写，是在 Web 服务上流行的一种 JSON 变体。   
+**JSONP** 是“JSON with padding”的简写，是在 Web 服务上流行的一种 JSON 变体。
 
 JSONP 是通过动态创建`<script>`元素并为 src 属性指定跨域 URL 实现的。
 
-- JSONP 是从不同的域拉取可执行代码。如果这个域并不可信，则可能在响应中加入恶意内容。
-  此时除了完全删除 JSONP 没有其他办法。在使用不受控的 Web 服务时，一定要保证是可以信任的。  
+- JSONP 是从不同的域拉取可执行代码。如果这个域并不可信，则可能在响应中加入恶意内容。 此时除了完全删除 JSONP 没有其他办法。在使用不受控的 Web 服务时，一定要保证是可以信任的。
 - 不好确定 JSONP 请求是否失败。虽然 HTML5 规定了`<script>`元素的 `onerror` 事件处理程序，但还没有被任何浏览器实现。为此，开发者经常使用计时器来决定是否放弃等待响应。
 - JSONP不支持**POST**请求跨域。
 - 当你使用 **IE<=9, Opera<12, or Firefox<3.5** 或者更加老的浏览器，这个时候请使用 JSONP。
@@ -150,7 +151,7 @@ https://query.asilu.com/weather/baidu?callback=handleResponse
       const handleResponse = (response) => {
         console.log(response);
       }
-      
+
       let script = document.createElement("script");
       script.src = "https://query.asilu.com/weather/baidu?callback=handleResponse";
       document.body.appendChild(script);
@@ -163,7 +164,7 @@ https://query.asilu.com/weather/baidu?callback=handleResponse
 上面的代码执行后，往**body**中插入了一个`<script>`标签，于是我们可以调用第三方接口，注意我们传入的query:**callback=handleResponse**，服务端会返回一个这样的文本：
 
 ```javascript
-handleResponse({"city":"杭州","pm25":"66","weather":["数组的内容被省略了"]});
+handleResponse({"city": "杭州", "pm25": "66", "weather": ["数组的内容被省略了"]});
 ```
 
 这下更明白JSONP实现的原理了吧，浏览器获取这串代码（js脚本），就会直接`handleResponse()` -- 也就是我们之前定义的：
@@ -264,7 +265,8 @@ server {
 
 #### 总述
 
-**postMessage**是**html5**引入的API,`postMessage()`方法允许来自不同源的脚本采用异步方式进行有效的通信,可以实现跨文本文档,多窗口,跨域消息传递.多用于窗口间数据通信,这也使它成为跨域通信的一种有效的解决方案。
+**postMessage**是**html5**引入的API,`postMessage()`
+方法允许来自不同源的脚本采用异步方式进行有效的通信,可以实现跨文本文档,多窗口,跨域消息传递.多用于窗口间数据通信,这也使它成为跨域通信的一种有效的解决方案。
 
 #### 实践
 
@@ -318,7 +320,7 @@ server {
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
+    <meta charset="utf-8"/>
     <title>hello world</title>
     <script>
       // 接收domain1的数据
@@ -341,8 +343,6 @@ server {
 ```
 
 小窗口监听`message`事件，接收传来的消息，然后作出修改，返回给发送者，发送者同样可以通过监听`message`事件来接收消息。
-
-
 
 我们可以看到，打开本地页面，控制台打印了如下内容：
 
@@ -378,7 +378,9 @@ server {
      src="elva-fairy-800w.jpg" alt="Elva dressed as a fairy">
 ```
 
-上面的代码中，`srcset`表示“**图像集**”，`sizes`表示”**媒体条件**“。如果支持浏览器以视窗宽度为480px来加载页面，那么`(max-width: 480px)`的媒体条件为真，因此`440px`的槽会被选择，所以`elva-fairy-480w.jpg`将加载，因为它的的固定宽度（`480w`）**最接近于**`440px`。800px的照片大小为128KB而480px版本仅有63KB大小—节省了65KB。现在想象一下，如果这是一个有很多图片的页面。使用这种技术会节省移动端用户的大量带宽。
+上面的代码中，`srcset`表示“**图像集**”，`sizes`表示”**媒体条件**“。如果支持浏览器以视窗宽度为480px来加载页面，那么`(max-width: 480px)`的媒体条件为真，因此`440px`
+的槽会被选择，所以`elva-fairy-480w.jpg`将加载，因为它的的固定宽度（`480w`）**最接近于**`440px`
+。800px的照片大小为128KB而480px版本仅有63KB大小—节省了65KB。现在想象一下，如果这是一个有很多图片的页面。使用这种技术会节省移动端用户的大量带宽。
 
 > 注意：
 >
@@ -398,23 +400,29 @@ server {
 例如，在开发环境下，我们需要注释详细，缩进工整的代码，但是在生产环境下，那些多余的注释/换行/缩进就显得毫无意义。
 
 ```html
+
 <html>
   <head>
-  <style>
-     /* awesome-container is only used on the landing page */
-     .awesome-container { font-size: 120% }
-     .awesome-container { width: 50% }
-  </style>
- </head>
+    <style>
+      /* awesome-container is only used on the landing page */
+      .awesome-container {
+        font-size: 120%
+      }
 
- <body>
-   <!-- awesome container content: START -->
+      .awesome-container {
+        width: 50%
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- awesome container content: START -->
     <div>…</div>
-   <!-- awesome container content: END -->
-   <script>
-     awesomeAnalytics(); // beacon conversion metrics
-   </script>
- </body>
+    <!-- awesome container content: END -->
+    <script>
+      awesomeAnalytics(); // beacon conversion metrics
+    </script>
+  </body>
 </html>
 ```
 
@@ -426,10 +434,23 @@ server {
 
 最后，上面的代码被压缩成了这样：
 
-```javascript
-<html><head><style>.awesome-container{font-size:120%;width: 50%}
-</style></head><body><div>…</div><script>awesomeAnalytics();
-</script></body></html>
+```html
+
+<html>
+  <head>
+    <style>
+      .awesome-container {
+        font -size: 120%;
+        width: 50%;
+      }
+    </style>
+  </head>
+  <body>
+    <div>…</div>
+    <script>awesomeAnalytics();
+    </script>
+  </body>
+</html>
 ```
 
 > 提示： 我们可以使用**webpack**实现这一需求。关于webpack的详细内容，请参考webpack篇。
@@ -440,7 +461,8 @@ server {
 
 ##### 总述
 
-HTTP协议上的**gzip**编码是一种用来改进web应用程序性能的技术，web服务器和客户端（浏览器）必须共同支持gzip。目前主流的浏览器，Chrome,firefox,IE等都支持该协议。常见的服务器如Apache，Nginx，IIS同样支持gzip。
+HTTP协议上的**gzip**
+编码是一种用来改进web应用程序性能的技术，web服务器和客户端（浏览器）必须共同支持gzip。目前主流的浏览器，Chrome,firefox,IE等都支持该协议。常见的服务器如Apache，Nginx，IIS同样支持gzip。
 
 gzip压缩比率在3到10倍左右，可以大大节省服务器的网络带宽。而在实际应用中，并不是对所有文件进行压缩，通常只是压缩静态文件。
 
@@ -466,7 +488,7 @@ gzip压缩比率在3到10倍左右，可以大大节省服务器的网络带宽�
 
 下面是一个nginx配置，是本人部署的一个真实案例。
 
-```nginx
+```nginx configuration
 #  File: nginx.conf
 #  Description: 项目nginx配置文件
 #  Created: 2020-8-27 20:10:33
@@ -497,9 +519,11 @@ server{
 下面给出解释（结合nginx官方文档）：
 
 - **gzip on**：开启或者关闭gzip模块
-- **gzip_buffers**：设置系统获取几个单位的缓存用于存储gzip的压缩结果数据流。 例如 4 4k 代表以4k为单位，按照原始数据大小以4k为单位的4倍申请内存。 4 8k 代表以8k为单位，按照原始数据大小以8k为单位的4倍申请内存。
+- **gzip_buffers**：设置系统获取几个单位的缓存用于存储gzip的压缩结果数据流。 例如 4 4k 代表以4k为单位，按照原始数据大小以4k为单位的4倍申请内存。 4 8k
+  代表以8k为单位，按照原始数据大小以8k为单位的4倍申请内存。
 - **gzip_comp_level**：gzip压缩比，1 压缩比最小处理速度最快，9 压缩比最大但处理最慢（传输快但比较消耗cpu）。
-- **gzip_min_length**：设置**允许压缩的页面最小字节数**，页面字节数从header头中的Content-Length中进行获取。默认值是0，不管页面多大都压缩。建议设置成大于1k的字节数，小于1k可能会越压越大。 即: gzip_min_length 1024。
+- **gzip_min_length**：设置**允许压缩的页面最小字节数**，页面字节数从header头中的Content-Length中进行获取。默认值是0，不管页面多大都压缩。建议设置成大于1k的字节数，小于1k可能会越压越大。
+  即: gzip_min_length 1024。
 - **gzip_types**：匹配MIME类型进行压缩，（无论是否指定）"text/html"类型总是会被压缩的。
 
 ### 静态资源部署到CDN
@@ -536,7 +560,7 @@ server{
 
 - 使用异步和延迟。
 
-  - 例如下面的代码使用了`defer`属性，表示脚本**被延迟到整个页面解析完成**再执行：
+    - 例如下面的代码使用了`defer`属性，表示脚本**被延迟到整个页面解析完成**再执行：
 
   ```html
   <!DOCTYPE html>
@@ -554,7 +578,7 @@ server{
 
   > 提示：defer 属性只对外部脚本文件才有效 。
 
-  - 请看下面代码，它使用了`async`属性。
+    - 请看下面代码，它使用了`async`属性。
 
   ```html
   <!DOCTYPE html>
@@ -580,27 +604,31 @@ server{
 
 ### 概念
 
-XSS是跨站脚本攻击(Cross Site Scripting)，为不和层叠样式表(Cascading Style Sheets, CSS)的缩写混淆，故将跨站脚本攻击缩写为XSS。恶意攻击者往Web页面里插入恶意Script代码，当用户浏览该页之时，嵌入其中Web里面的Script代码会被执行，从而达到恶意攻击用户的目的。
+XSS是跨站脚本攻击(Cross Site Scripting)，为不和层叠样式表(Cascading Style Sheets, CSS)
+的缩写混淆，故将跨站脚本攻击缩写为XSS。恶意攻击者往Web页面里插入恶意Script代码，当用户浏览该页之时，嵌入其中Web里面的Script代码会被执行，从而达到恶意攻击用户的目的。
 
 ### 经典案例
 
 假如某网站的评论区允许用户输入文本来评论，一般情况下用户的文本没有啥问题，在拿到服务端的数据之后，它会这样显示：
 
 ```html
+
 <div class="comment">hello world</div>
 ```
 
 但是如果有心的用户输入了这样的文本：
 
 ```html
-<script>alert(“hahahaha~”)</script>
+
+<script>alert("hahahaha~")</script>
 ```
 
 那么最终我们显示在html里面的内容会是这样：
 
 ```html
+
 <div class="comment">
-  <script>alert(“hahahaha~”)</script>
+  <script>alert("hahahaha~")</script>
 </div>
 ```
 
@@ -620,23 +648,24 @@ XSS是跨站脚本攻击(Cross Site Scripting)，为不和层叠样式表(Cascad
 
 - jQuery、模板引擎等多采用 模板 + encode(数据) 的方式生成 html，因而：
 
-  - 需要程序员根据上下文（js/css/html属性/...）仔细选择 encode 规则，心智负担重。
+    - 需要程序员根据上下文（js/css/html属性/...）仔细选择 encode 规则，心智负担重。
 
-  - 可能存在遗漏encode，或采用了不正确的 encode 规则。
+    - 可能存在遗漏encode，或采用了不正确的 encode 规则。
 
 - MVVM、React 则将模板/jsx解析为树，在 renderer 里调用 DOM API，因而：
 
-  - 减少了 encode 的必要性，减轻程序员心智负担。
+    - 减少了 encode 的必要性，减轻程序员心智负担。
 
-  - 减少了 encode 操作，减少了 XSS 隐患。
+    - 减少了 encode 操作，减少了 XSS 隐患。
 
 - 但 MVVM、React 也不是万能的，依然需要警惕：
-  - prerender / SSR 的 hydrate 过程会生成 html ，需要小心测试其中是否有 XSS 漏洞
-  - dangerouslySetInnerHTML、onload=字符串、href=字符串 等，都有可能造成 XSS 漏洞。
+    - prerender / SSR 的 hydrate 过程会生成 html ，需要小心测试其中是否有 XSS 漏洞
+    - dangerouslySetInnerHTML、onload=字符串、href=字符串 等，都有可能造成 XSS 漏洞。
 
 #### 避免内联事件
 
-尽量不要使用 `onLoad="onload('{{data}}')"`、`onClick="go('{{action}}')"` 这种拼接内联事件的写法。在 JavaScript 中通过 `.addEventlistener()`事件绑定会更安全。
+尽量不要使用 `onLoad="onload('{{data}}')"`、`onClick="go('{{action}}')"` 这种拼接内联事件的写法。在 JavaScript 中通过 `.addEventlistener()`
+事件绑定会更安全。
 
 ## 客户端存储
 
@@ -644,26 +673,25 @@ XSS是跨站脚本攻击(Cross Site Scripting)，为不和层叠样式表(Cascad
 
 #### 描述
 
-sessionStorage 对象只存储会话数据，这意味着数据只会存储到浏览器关闭。这跟浏览器关闭时会消失的会话 cookie 类似。存储在 sessionStorage 中的数据不受页面刷新影响，可以在浏览器崩溃并重启后恢复。主要用于存储只在会话期间有效的小块数据。  
+sessionStorage 对象只存储会话数据，这意味着数据只会存储到浏览器关闭。这跟浏览器关闭时会消失的会话 cookie 类似。存储在 sessionStorage
+中的数据不受页面刷新影响，可以在浏览器崩溃并重启后恢复。主要用于存储只在会话期间有效的小块数据。
 
 ### cookie
 
 #### 描述
 
-HTTP cookie 通常也叫作 cookie，最初用于在客户端存储会话信息。这个规范要求服务器在响应
-HTTP 请求时，通过发送 Set-Cookie HTTP 头部包含会话信息。
+HTTP cookie 通常也叫作 cookie，最初用于在客户端存储会话信息。这个规范要求服务器在响应 HTTP 请求时，通过发送 Set-Cookie HTTP 头部包含会话信息。
 
 请看下面的HTTP报文：
 
-```http
+```
 HTTP/1.1 200 OK
 Content-type: text/html
 Set-Cookie: name=value
 Other-header: other-header-value
 ```
 
-这个 HTTP 响应会设置一个名为"name"，值为"value"的 cookie。名和值在发送时都会经过 URL
-编码。浏览器会存储这些会话信息，并在之后的每个请求中都会通过 HTTP 头部 cookie 再将它们发回服务器。
+这个 HTTP 响应会设置一个名为"name"，值为"value"的 cookie。名和值在发送时都会经过 URL 编码。浏览器会存储这些会话信息，并在之后的每个请求中都会通过 HTTP 头部 cookie 再将它们发回服务器。
 
 #### 特点
 
@@ -697,21 +725,22 @@ cookie数据**不是安全的**，任何人都可以获得，常见的XSRF攻击
 
 - **SameSite**：这个属性很有意思，它是用来限制第三方cookie的，从而减少安全风险（例如**XSRF攻击**），它可以设置三个值：
 
-  - None：Chrome 计划将`Lax`变为默认设置。这时，网站可以选择显式关闭`SameSite`属性，将其设为`None`。不过，前提是必须同时设置`Secure`属性（Cookie 只能通过 HTTPS 协议发送），否则无效。
+    - None：Chrome 计划将`Lax`变为默认设置。这时，网站可以选择显式关闭`SameSite`属性，将其设为`None`。不过，前提是必须同时设置`Secure`属性（Cookie 只能通过 HTTPS
+      协议发送），否则无效。
 
-  - Strict：`Strict`最为严格，完全禁止第三方 Cookie，跨站点时，任何情况下都不会发送 Cookie。换言之，只有当前网页的 URL 与请求目标一致，才会带上 Cookie。
+    - Strict：`Strict`最为严格，完全禁止第三方 Cookie，跨站点时，任何情况下都不会发送 Cookie。换言之，只有当前网页的 URL 与请求目标一致，才会带上 Cookie。
 
   > 这个规则过于严格，可能造成非常不好的用户体验。比如，当前网页有一个 GitHub 链接，用户点击跳转就不会带有 GitHub 的 Cookie，跳转过去总是未登陆状态。
 
-  - Lax：`Lax`规则稍稍放宽，大多数情况也是不发送第三方 Cookie，但是**导航到目标网址的 Get 请求除外**，具体内容请看下表。
-  
+    - Lax：`Lax`规则稍稍放宽，大多数情况也是不发送第三方 Cookie，但是**导航到目标网址的 Get 请求除外**，具体内容请看下表。
+
   | 请求类型  |      示例      |    正常情况 | Lax         |
-  | :-------- | :------------: | ----------: | :---------- |
+                                                                        | :-------- | :------------: | ----------: | :---------- |
   | 链接      |       `<a href="..."></a>`       | 发送 Cookie | 发送 Cookie |
   | 预加载    |       `<link rel="prerender" href="..."/>`       | 发送 Cookie | 发送 Cookie |
   | GET 表单  |       `<form method="GET" action="...">`       | 发送 Cookie | 发送 Cookie |
   | POST 表单 |       `<form method="POST" action="...">`       | 发送 Cookie | 不发送      |
-  | iframe    |       `	<iframe src="..."></iframe>`       | 发送 Cookie | 不发送      |
+  | iframe    |       `    <iframe src="..."></iframe>`       | 发送 Cookie | 不发送      |
   | AJAX      | `$.get("...")` | 发送 Cookie | 不发送      |
   | Image     |       `<img src="...">`       | 发送 Cookie | 不发送      |
 
@@ -720,7 +749,9 @@ cookie数据**不是安全的**，任何人都可以获得，常见的XSRF攻击
 JS操作cookie依靠`document.cookie`属性，且最终的cookie的内容如下:
 
 ```javascript
-name1=value1;name2=value2;name3=value3
+name1 = value1;
+name2 = value2;
+name3 = value3
 ```
 
 可见设置cookie主要依赖字符串拼接，并不直观，所以我们可以使用以下工具类(摘自JavaScript高级程序设计)：
@@ -774,7 +805,7 @@ localstorage也是浏览器客户端一种持久存储的机制。
 
 #### 和sessionStorage的区别
 
-存储在 localStorage 中的数据会保留到通过 JavaScript 删除或者用户清除浏览器缓存。 localStorage 数据不受页面刷新影响，也不会因关闭窗口、标签页或重新启动浏览器而丢失。  
+存储在 localStorage 中的数据会保留到通过 JavaScript 删除或者用户清除浏览器缓存。 localStorage 数据不受页面刷新影响，也不会因关闭窗口、标签页或重新启动浏览器而丢失。
 
 ## 浏览器运行机制
 
@@ -840,8 +871,6 @@ localstorage也是浏览器客户端一种持久存储的机制。
 
 将检测到状态变更时，如果设置有回调函数，异步线程就**产生状态变更事件**，将这个回调再放入事件队列中。再由JavaScript引擎执行。
 
-
-
 ## 浏览器渲染流程
 
 推荐这一系列的优秀的博文：[Inside look at modern web browser](https://developers.google.com/web/updates/2018/09/inside-browser-part3)《现代浏览器内部揭秘》，图文并茂，内容也是满满的干货。下文的部分图片取自这篇博文。
@@ -856,12 +885,13 @@ localstorage也是浏览器客户端一种持久存储的机制。
 
 ###### CSS
 
--  CSS下载时异步，不会阻塞浏览器构建DOM树
+- CSS下载时异步，不会阻塞浏览器构建DOM树
 - 会阻塞渲染，也就是在构建渲染树(下面会提到)时，会等到css下载解析完毕后才进行（这点与浏览器优化有关，防止css规则不断改变，避免了重复的构建）
 
 ###### JavaScript
 
-当 HTML 解析器遇到` <script>` 标记时，会暂停解析 HTML 文档，开始加载、解析并执行 JavaScript 代码。为什么？因为JavaScript 可以使用诸如 `document.write()` 的方法来改写文档，这会改变整个 DOM 结构。
+当 HTML 解析器遇到` <script>` 标记时，会暂停解析 HTML 文档，开始加载、解析并执行 JavaScript 代码。为什么？因为JavaScript 可以使用诸如 `document.write()`
+的方法来改写文档，这会改变整个 DOM 结构。
 
 > 注意：如果script标签中有`async`或者`defer`属性，那么它不会阻塞解析。
 >
@@ -888,12 +918,12 @@ localstorage也是浏览器客户端一种持久存储的机制。
 例如，下面的这些css元素不是布局树的一部分：
 
 ```css
-#element{
-    display: none;
+#element {
+  display: none;
 }
 
-p::before{
-	content:"Hi!"
+p::before {
+  content: "Hi!"
 }
 ```
 
@@ -925,15 +955,11 @@ p::before{
 >
 > 关于web worker的更多信息，请参考JS篇的**工作者线程**部分。
 
-
-
 #### 流程总结
 
 下面我们以一幅图总结浏览器渲染的整个过程：
 
 ![](http://cdn.yuzzl.top/blog/20201031201457.png)
-
-
 
 #### 发生回流/重绘
 
@@ -954,7 +980,7 @@ p::before{
 
 > 注意：回流一定会触发重绘，而重绘不一定会回流，这个结合上面的总结图片应该很好得出。
 
-#####  性能优化
+##### 性能优化
 
 ###### 浏览器层面
 
@@ -962,7 +988,7 @@ p::before{
 
 但是如果你调用了获取布局信息的相关API，例如：
 
-```javascript
+```
 offsetTop、offsetLeft、offsetWidth、offsetHeight
 scrollTop、scrollLeft、scrollWidth、scrollHeight
 clientTop、clientLeft、clientWidth、clientHeight
@@ -986,8 +1012,6 @@ getBoundingClientRect
 - 修改DOM时使用文档片段（fragment），构建完成之后再注入DOM中。
 
 - 声明新的复合图层，浏览器为它单独分配资源 -- **脱离文档流**的它无论如何变化都不会引起默认图层的回流重绘。
-
-
 
 ## 输入一个URL到页面展示的流程
 
@@ -1073,7 +1097,7 @@ http://www.my-school.edu.cn/art/2020/10/30/art_16_40029.html
 
 ##### hashChange事件
 
-HTML5 增加了 hashchange 事件，用于在 URL 散列值（ URL 最后#后面的部分）发生变化时通知开发者。这是因为开发者经常在 Ajax 应用程序中使用 URL 散列值存储状态信息或路由导航信息。  
+HTML5 增加了 hashchange 事件，用于在 URL 散列值（ URL 最后#后面的部分）发生变化时通知开发者。这是因为开发者经常在 Ajax 应用程序中使用 URL 散列值存储状态信息或路由导航信息。
 
 尝试在浏览器控制台运行以下代码：
 
@@ -1095,9 +1119,9 @@ window.addEventListener("hashchange", (event) => {
 
 - 旧地址为`http://localhost:63342/frontendRouter/#/page1`
 - 修改hash值，准备跳转到新地址`http://localhost:63342/frontendRouter/#/page2`，但是要注意跳转的类型：
-  - **刷新页面**，是不会触发`hashchange`的，我们可以使用`load`事件。
-  - 输入链接回车跳转，会触发`hashchange`。
-  - 浏览器的后退按钮，会触发`hashchange`
+    - **刷新页面**，是不会触发`hashchange`的，我们可以使用`load`事件。
+    - 输入链接回车跳转，会触发`hashchange`。
+    - 浏览器的后退按钮，会触发`hashchange`
 
 - 根据我们的hash来匹配相应的页面。（这里的”页面“我们可以简单地看成一个HTML片段），如果匹配不到，我们执行重定向。
 - 替换相应的DOM。
@@ -1139,13 +1163,13 @@ window.addEventListener("hashchange", (event) => {
 
 #### HTML5 History API
 
-**history** 对象表示当前窗口首次使用以来用户的导航历史记录。因为 history 是 window 的属性，所以每个 window 都有自己的 history 对象。出于安全考虑，这个对象不会暴露用户访问过的 URL，但可以通过它在不知道实际 URL 的情况下前进和后退。
+**history** 对象表示当前窗口首次使用以来用户的导航历史记录。因为 history 是 window 的属性，所以每个 window 都有自己的 history 对象。出于安全考虑，这个对象不会暴露用户访问过的
+URL，但可以通过它在不知道实际 URL 的情况下前进和后退。
 
 ##### go()
 
-`go()`方法可以在用户历史记录中沿任何方向导航，可以前进也可以后退。这个方法只接收一个参数，
-这个参数可以是一个整数，表示前进或后退多少步。负值表示在历史记录中后退（类似点击浏览器的“后
-退”按钮），而正值表示在历史记录中前进（类似点击浏览器的“前进”按钮）。  
+`go()`方法可以在用户历史记录中沿任何方向导航，可以前进也可以后退。这个方法只接收一个参数， 这个参数可以是一个整数，表示前进或后退多少步。负值表示在历史记录中后退（类似点击浏览器的“后
+退”按钮），而正值表示在历史记录中前进（类似点击浏览器的“前进”按钮）。
 
 ```javascript
 // 后退一页
@@ -1156,7 +1180,7 @@ history.go(1);
 history.go(2);  
 ```
 
-##### back()  / forward()  
+##### back()  / forward()
 
 它们是`go()`的语法糖。
 
@@ -1169,7 +1193,7 @@ history.forward();
 
 ##### pushState()
 
-`pushState()`方法执行后，状态信息就会被推到历史记录中，浏览器地址栏也会改变以反映新的相对 URL（可以想象成一个“假的”URL）。  
+`pushState()`方法执行后，状态信息就会被推到历史记录中，浏览器地址栏也会改变以反映新的相对 URL（可以想象成一个“假的”URL）。
 
 因为 `pushState()`会创建新的历史记录，所以也会相应地启用“后退”按钮。此时单击“后退”按钮，就会触发 window 对象上的 popstate 事件。
 
@@ -1212,7 +1236,8 @@ npm包 中的模块版本都需要遵循 SemVer规范——由 Github 起草的�
 
 ##### 规约
 
-标准的版本号必须采用 `X.Y.Z`的格式，其中 X、Y 和 Z 为非负的整数，且禁止在数字前方补零。X 是**主版本号**（当你做了不兼容的 API 修改）、Y 是次版本号（当你做了向下兼容的功能性新增）、而 Z 为修订号（当你做了向下兼容的问题修正）。每个元素必须以数值来递增。例如：1.9.1 -> 1.10.0 -> 1.11.0。
+标准的版本号必须采用 `X.Y.Z`的格式，其中 X、Y 和 Z 为非负的整数，且禁止在数字前方补零。X 是**主版本号**（当你做了不兼容的 API 修改）、Y 是次版本号（当你做了向下兼容的功能性新增）、而 Z
+为修订号（当你做了向下兼容的问题修正）。每个元素必须以数值来递增。例如：1.9.1 -> 1.10.0 -> 1.11.0。
 
 使用下面命令尝试查看一个库的版本号：
 
@@ -1243,13 +1268,15 @@ npm install semver
 依赖配置可以是这样：
 
 ```json
- "dependencies": {
-      "antd": "ant-design/ant-design#4.0.0-alpha.8",
-      "axios": "^1.2.0",
-      "test-js": "file:../test",
-      "test2-js": "http://cdn.com/test2-js.tar.gz",
-      "core-js": "^1.1.5",
- }
+{
+  "dependencies": {
+    "antd": "ant-design/ant-design#4.0.0-alpha.8",
+    "axios": "^1.2.0",
+    "test-js": "file:../test",
+    "test2-js": "http://cdn.com/test2-js.tar.gz",
+    "core-js": "^1.1.5"
+  }
+}
 ```
 
 依赖包的名称可以有以下几种方案：
@@ -1264,10 +1291,12 @@ npm install semver
 有一些包有可能你只是在开发环境中用到，这些依赖照样会在你本地进行 `npm install` 时被安装和管理，但是不会被安装到生产环境：
 
 ```json
- "devDependencies": {
-      "jest": "^24.3.1",
-      "eslint": "^6.1.0",
- }
+{
+  "devDependencies": {
+    "jest": "^24.3.1",
+    "eslint": "^6.1.0"
+  }
+}
 ```
 
 ##### peerDependencies
@@ -1277,9 +1306,11 @@ npm install semver
 例如某个webpack loader的依赖：
 
 ```json
-"peerDependencies": {
+{
+  "peerDependencies": {
     "webpack": "^4.0.0 || ^5.0.0",
     "file-loader": "*"
+  }
 }
 ```
 
@@ -1287,7 +1318,8 @@ npm install semver
 
 ##### optionalDependencies
 
-某些场景下，依赖包可能不是强依赖的，这个依赖包的功能可有可无，当这个依赖包无法被获取到时，你希望 `npm install` 继续运行，而不会导致失败，你可以将这个依赖放到 `optionalDependencies` 中，注意 `optionalDependencies` 中的配置将会覆盖掉 `dependencies` 所以只需在一个地方进行配置。
+某些场景下，依赖包可能不是强依赖的，这个依赖包的功能可有可无，当这个依赖包无法被获取到时，你希望 `npm install` 继续运行，而不会导致失败，你可以将这个依赖放到 `optionalDependencies`
+中，注意 `optionalDependencies` 中的配置将会覆盖掉 `dependencies` 所以只需在一个地方进行配置。
 
 当然，引用 `optionalDependencies` 中安装的依赖时，一定要做好异常处理，否则在模块获取不到时会导致报错。
 
@@ -1303,7 +1335,7 @@ npm install semver
 
 ```json
 {
-  "main": "lib/basic_redux.js",
+  "main": "lib/basic_redux.js"
 }
 ```
 
@@ -1311,7 +1343,7 @@ npm install semver
 
 ```json
 {
-    "bin": {
+  "bin": {
     "conard": "./bin/basic_redux.js"
   }
 }
@@ -1320,9 +1352,11 @@ npm install semver
 ##### 发布文件配置
 
 ```json
-"files": [
-  "dist"
-]
+{
+  "files": [
+    "dist"
+  ]
+}
 ```
 
 #### 脚本配置
@@ -1330,10 +1364,12 @@ npm install semver
 ##### scripts
 
 ```json
-"scripts": {
+{
+  "scripts": {
     "start": "npm run build -- -w",
     "clean": "del-cli dist",
-    "build": "cross-env NODE_ENV=production babel src -d dist --copy-files",
+    "build": "cross-env NODE_ENV=production babel src -d dist --copy-files"
+  }
 }
 ```
 
@@ -1345,60 +1381,18 @@ npm install semver
 
 ```json
 {
-  "config" : { "port" : "8080" }
+  "config": {
+    "port": "8080"
+  }
 }
 ```
-
-### npm install 原理
-
-#### 扁平结构依赖
-
-##### 优点
-
-默认情况下，执行`npm install`之后首先要确认的是**首层模块**，也就是 `dependencies` 和 `devDependencies` 属性中直接指定的模块。
-
-工程本身是整棵依赖树的根节点，每个首层依赖模块都是根节点下面的一棵**子树**，npm 会开启多进程从每个首层依赖模块开始**逐步寻找更深层级的节点**。
-
-可以看出来，如果我们在构造完我们的模块树之后直接选择安装，那么会产生大量的**重复依赖**。这也是旧版本npm被诟病的地方。
-
-从`npm3+`开始，有了模块的扁平化（dedupe）-- 它会遍历所有节点，逐个将模块放在根节点下面，也就是 `node-modules` 的第一层。当发现有**重复模块**时，则将其丢弃。
-
-来看下面的截图：
-
-![image-20201104201954144](C:\Users\yuzhanglong\AppData\Roaming\Typora\typora-user-images\image-20201104201954144.png)
-
-axios依赖`follow-redirects`，但是所有的依赖都在根节点下。
-
-##### 遇到冲突了怎么办？
-
-还是上面的图片案例，axios的依赖为，他表示**^1.10.0**版本及以上都可以兼容，所以npm为我们安装了最新版本。
-
-```json
-"dependencies": {
-   "follow-redirects": "^1.10.0"
-}
-```
-
-那么问题来了，假设我们的主项目需要`follow-redirect`的`1.9.1`版本，很明显与`axios`冲突了，我们尝试安装，来看看npm如何处理：
-
-![image-20201104202609758](C:\Users\yuzhanglong\AppData\Roaming\Typora\typora-user-images\image-20201104202609758.png)
-
-可以看到，根节点下面的依赖变成了我们的`follow-redirect@1.9.1`，同时，依赖`axios`下多了一个`node_modules`，这个里面的`follow-redirect@1.9.1`则是最新版本。axios在找模块的时候，会先从自己的`node_modules`下找，如果没有，则逐层向外。
-
-#### 依赖锁定
-
-执行完`npm install`之后，我们会发现多了个`package-lock.json`文件。
-
-实际开发中，经常会因为各种依赖不一致而产生奇怪的问题，或者在某些场景下，我们不希望依赖被更新，建议在开发中使用 `package-lock.json`。
-
-锁定依赖版本意味着在我们不手动执行更新的情况下，每次安装依赖都会安装固定版本。保证整个团队使用版本号一致的依赖。
-
-每次安装固定版本，无需计算依赖版本范围，大部分场景下能大大加速依赖安装时间。
 
 ## 前端模块化
+
 ### commonJS
 
 #### 引用关系
+
 `exports`、`module.exports`、`require`是CommonJS规范的核心，下图表示了模块间的引用关系：
 
 ![](http://cdn.yuzzl.top/blog/20201113204858.png)
@@ -1413,23 +1407,20 @@ axios依赖`follow-redirects`，但是所有的依赖都在根节点下。
 
 CommonJS中没有`module.exports`的概念，为了实现模块的导出，Node中使用的是`Module`类，每一个模块都是`Module`的一个实例，也就是`module`，它才是导出的真正实现者。
 
-也就是说，**他们的关系：module对象的exports属性是exports对象的一个引用**。
-我们来实践证明之：
+也就是说，**他们的关系：module对象的exports属性是exports对象的一个引用**。 我们来实践证明之：
 
 没有修改`module.exports`：
 
 ![](http://cdn.yuzzl.top/blog/20201113205848.png)
 
-
-
 当`module.exports`被修改:
 
 ![](http://cdn.yuzzl.top/blog/20201113211123.png)
 
-
 **一句话总结**：
 
-NodeJS是通过`module.exports`来实现模块化的，为了迎合`commonJS`规范，`module.exports`默认指向了`exports`, 如果将`module.exports`指向了一个新的值，name最终导出的就是`module.exports`指向的内容。
+NodeJS是通过`module.exports`来实现模块化的，为了迎合`commonJS`规范，`module.exports`默认指向了`exports`, 如果将`module.exports`
+指向了一个新的值，name最终导出的就是`module.exports`指向的内容。
 
 #### 模块加载
 
@@ -1447,24 +1438,20 @@ NodeJS是通过`module.exports`来实现模块化的，为了迎合`commonJS`规
 
 ![](http://cdn.yuzzl.top/blog/20201114085813.png)
 
-
-##### 循环引用问题
-
-模块之间的依赖关系可以看成一种数据结构：图，Nodejs采用了**深度优先搜索**来处理加载顺序，我们在后面会去NodeJS这块的源码一探究竟。
-
 ##### 缺点
 
 CommonJS加载模块是**同步**的，在一个CJS模块中，加载，实例化，执行是一次完成的，中间没有停顿。从文件系统中加载文件花费的时间远远小于从网络下载(浏览器环境下)。
 
 ![](http://cdn.yuzzl.top/blog/12_cjs_require-500x298.png)
 
-
-
 ### ES Module
+
 `exports`、`module.exports`、`require`是ES Module规范的核心，具体的使用这里不再赘述，下面只介绍几个重点：
 
 #### import()动态导入
+
 通过`import()`我们可以做到模块的动态加载：
+
 ```javascript
 const Component = () => {
   let element = document.createElement('div');
@@ -1486,22 +1473,23 @@ document.body.appendChild(Component());
 ```
 
 还可以将**变量**用于模块路径：
+
 ```javascript
 import(`${path}/foo.js`);
 ```
-
 
 #### ES Module是异步的
 
 我们都知道在`script`标签上加上`async`属性, 主线程就不会被阻塞。
 
 ```html
+
 <script src="main.js" type="module"></script>
 <!-- 这个js文件的代码不会被阻塞执行 -->
 <script src="main.js"></script>
 ```
-设置了`type=module`的代码，相当于在`script`标签上也加上了 `async` 属性。
 
+设置了`type=module`的代码，相当于在`script`标签上也加上了 `async` 属性。
 
 #### 加载原理
 
@@ -1527,7 +1515,8 @@ import(`${path}/foo.js`);
 
 ##### 模块连接与实例化
 
-JS引擎为模块创造一个**环境记录**（environment record）来管理模块记录中的变量。将每一个exports指向内存的某个位置。**export**连接完成之后，再处理**import**（有先后顺序的原因：首先连接导出就能保证之后所有的导入都能够和它所匹配的导出相连），它们也会指向相对应的位置，如下图：
+JS引擎为模块创造一个**环境记录**（environment record）来管理模块记录中的变量。将每一个exports指向内存的某个位置。**export**连接完成之后，再处理**import**
+（有先后顺序的原因：首先连接导出就能保证之后所有的导入都能够和它所匹配的导出相连），它们也会指向相对应的位置，如下图：
 
 ![](http://cdn.yuzzl.top/blog/30_live_bindings_01-768x316.png)
 
@@ -1591,13 +1580,13 @@ JS引擎为模块创造一个**环境记录**（environment record）来管理�
 ```javascript
 console.log('start')
 
-setTimeout(function() {
+setTimeout(function () {
   console.log('setTimeout')
 }, 0)
 
-Promise.resolve().then(function() {
+Promise.resolve().then(function () {
   console.log('promise1')
-}).then(function() {
+}).then(function () {
   console.log('promise2')
 })
 
@@ -1621,12 +1610,10 @@ console.log('end')
 
 ![](http://cdn.yuzzl.top/blog/640)
 
-- 应用层：  即 JavaScript 交互层，常见的就是 Node.js 的模块，比如 http，fs
+- 应用层： 即 JavaScript 交互层，常见的就是 Node.js 的模块，比如 http，fs
 - V8引擎层： 即利用 V8 引擎来解析JavaScript 语法，进而和下层 API 交互
 - NodeAPI层： 为上层模块提供系统调用，一般是由 C 语言来实现，和操作系统进行交互 。
 - LIBUV层： 是跨平台的底层封装，实现了 事件循环、文件操作等，是 Node.js 实现异步的核心 。
-
-
 
 #### Event Loop 阶段
 
@@ -1645,7 +1632,8 @@ console.log('end')
 
 ##### time阶段
 
-这是事件循环的第一个阶段，Node 会去检查有无已过期的**timer**，如果有则把它的回调压入**timer**的任务队列中等待执行，事实上，Node 并不能保证**timer**在预设时间到了就会立即执行，因为Node对**timer**的过期检查不一定靠谱，它会受机器上其它运行程序影响，或者那个时间点主线程不空闲。比如下面的代码，`setTimeout()` 和 `setImmediate()` 的执行顺序是不确定的。
+这是事件循环的第一个阶段，Node 会去检查有无已过期的**timer**，如果有则把它的回调压入**timer**的任务队列中等待执行，事实上，Node 并不能保证**timer**在预设时间到了就会立即执行，因为Node对**
+timer**的过期检查不一定靠谱，它会受机器上其它运行程序影响，或者那个时间点主线程不空闲。比如下面的代码，`setTimeout()` 和 `setImmediate()` 的执行顺序是不确定的。
 
 ```javascript
 setTimeout(() => {
@@ -1697,8 +1685,6 @@ immediate
 timeout
 ```
 
-
-
 ##### 轮询阶段
 
 **轮询**阶段有两个重要的功能：
@@ -1714,8 +1700,8 @@ timeout
 ![](http://cdn.yuzzl.top/blog/20201124002219.png)
 
 - 如果轮询队列是空的，还有两件事发生：
-  - 如果脚本被 `setImmediate()` 调度，则事件循环将结束轮询阶段，并继续检查阶段以执行那些被调度的脚本。
-  - 如果脚本**未被** `setImmediate()`调度则事件循环将等待回调被添加到队列中，然后立即执行。（当然，等待的时间会有一个阈值），所以我们可以解释上面的`setImmediate()`必定先执行的原因了。
+    - 如果脚本被 `setImmediate()` 调度，则事件循环将结束轮询阶段，并继续检查阶段以执行那些被调度的脚本。
+    - 如果脚本**未被** `setImmediate()`调度则事件循环将等待回调被添加到队列中，然后立即执行。（当然，等待的时间会有一个阈值），所以我们可以解释上面的`setImmediate()`必定先执行的原因了。
 
 一旦轮询队列为空，事件循环将检查已达到时间阈值的计时器。如果一个或多个计时器已准备就绪，则事件循环将绕回计时器阶段以执行这些计时器的回调。
 
@@ -1727,7 +1713,7 @@ timeout
 
 ```javascript
 setTimeout(function () {
- // TODO
+  // TODO
 }, 0); 
 ```
 
@@ -1763,19 +1749,60 @@ setTimeout(function () {
 
 我们是使用**ConfigProvider**来配置全局信息的，来看下面的代码：
 
-```tsx
+```typescript jsx
 export interface ConfigProviderProps {
+  getTargetContainer?: () => HTMLElement;
+  getPopupContainer?: (triggerNode: HTMLElement) => HTMLElement;
+  prefixCls?: string;
+  children?: React.ReactNode;
+  renderEmpty?: RenderEmptyHandler;
+  csp?: CSPConfig;
+  autoInsertSpaceInButton?: boolean;
+  form?: {
+    validateMessages?: ValidateMessages;
+    requiredMark?: RequiredMark;
+  };
+  input?: {
+    autoComplete?: string;
+  };
+  locale?: Locale;
+  pageHeader?: {
+    ghost: boolean;
+  };
+  componentSize?: SizeType;
+  direction?: DirectionType;
+  space?: {
+    size?: SizeType | number;
+  };
+  virtual?: boolean;
+  dropdownMatchSelectWidth?: boolean;
+}
+
+const ConfigProvider: React.FC<ConfigProviderProps> & {
+  ConfigContext: typeof ConfigContext;
+} = props => {
   const renderProvider = (context: ConfigConsumerProps, legacyLocale: Locale) => {
     const {
-      // 省略其他props
-      locale
+      locale,
+      // 省略其他的 props item
     } = props;
-    
+
+    const config: ConfigConsumerProps = {
+      ...context,
+      getPrefixCls: getPrefixClsWrapper(context),
+      csp,
+      autoInsertSpaceInButton,
+      locale: locale || legacyLocale,
+      direction,
+      space,
+      virtual,
+      dropdownMatchSelectWidth,
+    };
+
     const childrenWithLocale =
       locale === undefined ? (
         childNode
       ) : (
-        // reactContext Provider 生产者（其实是对LocaleContext.Provider进行了封装）
         <LocaleProvider locale={locale || legacyLocale} _ANT_MARK__={ANT_MARK}>
           {childNode}
         </LocaleProvider>
@@ -1811,16 +1838,17 @@ export default LocaleContext;
 // LocaleProvider，导入了上面的LocaleContext
 export default class LocaleProvider extends React.Component<LocaleProviderProps, any> {
   render() {
-    const { locale, children } = this.props;
+    const {locale, children} = this.props;
 
     return (
-      <LocaleContext.Provider value={{ ...locale, exist: true }}>{children}</LocaleContext.Provider>
+      <LocaleContext.Provider value={{...locale, exist: true}}>{children}</LocaleContext.Provider>
     );
   }
 }
 ```
 
-**LocaleProvider**组件导入LocaleContext，并返回**LocaleContext.Provider**，对于一些需要国际化的组件，只需要外层包裹**LocaleContext.Consumer**即可拿到全局数据。
+**LocaleProvider**组件导入LocaleContext，并返回**LocaleContext.Provider**，对于一些需要国际化的组件，只需要外层包裹**LocaleContext.Consumer**
+即可拿到全局数据。
 
 #### LocalReceiver
 
@@ -1851,12 +1879,12 @@ export default class LocaleReceiver extends React.Component<LocaleReceiverProps>
   static defaultProps = {
     componentName: 'global',
   };
-	
+
   // 子组件 获取 LocaleContext，通过this.context就可以拿到共享的值
   static contextType = LocaleContext;
 
   getLocale() {
-    const { componentName, defaultLocale } = this.props;
+    const {componentName, defaultLocale} = this.props;
     const locale: object | Function =
       defaultLocale || (defaultLocaleData as LocaleInterface)[componentName || 'global'];
     const antLocale = this.context;
@@ -1877,7 +1905,7 @@ export default class LocaleReceiver extends React.Component<LocaleReceiverProps>
     }
     return localeCode;
   }
-	
+
   // 渲染，值得注意的是这里返回了this.props.children
   // 它要求传入一个函数，通过这个回调函数我们就可以让子组件拿到local
   render() {
@@ -1888,10 +1916,12 @@ export default class LocaleReceiver extends React.Component<LocaleReceiverProps>
 
 ##### 自定义Hook
 
-另外也有国际化的自定义Hook，比上面的class组件代码简洁很多，利用**useContext**拿到全局数据。利用**useMemo**执行性能优化 -- 如果某处用上了`componentLocale()`，那么这个函数不会由于组件的重新渲染而重新执行，除非`[componentName, defaultLocale, antLocale]`三者之一发生改变。
+另外也有国际化的自定义Hook，比上面的class组件代码简洁很多，利用**useContext**拿到全局数据。利用**useMemo**执行性能优化 -- 如果某处用上了`componentLocale()`
+，那么这个函数不会由于组件的重新渲染而重新执行，除非`[componentName, defaultLocale, antLocale]`三者之一发生改变。
 
 ```tsx
 type LocaleComponent = keyof Locale;
+
 export function useLocaleReceiver<T extends LocaleComponent>(
   componentName: T,
   defaultLocale?: Locale[T] | Function,
@@ -1944,7 +1974,7 @@ export function useLocaleReceiver<T extends LocaleComponent>(
 
 ##### Expires
 
-Expires: [一个 HTTP-日期 时间戳],  表示在此时候之后，响应过期。
+Expires: [一个 HTTP-日期 时间戳], 表示在此时候之后，响应过期。
 
 如果在`Cache-Control`响应头设置了 "max-age" 或者 "s-max-age" 指令，那么 `Expires` 头会被忽略。
 
@@ -1980,13 +2010,14 @@ Expires: [一个 HTTP-日期 时间戳],  表示在此时候之后，响应过�
 
 服务器只在所请求的资源在给定的日期时间之后对内容进行过修改的情况下才会将资源返回，状态码为**200**。如果请求的资源从那时起未经修改，那么返回一个不带有消息主体的**304**响应
 
-##### ETag 
+##### ETag
 
 ETag是URL的tag，用来标示URL对象是否改变。这样可以应用于客户端的缓存：服务器产生ETag，并在HTTP响应头中将其传送到客户端，服务器用它来判断页面是否被修改过，如果未修改返回304，无需传输整个对象。
 
 ##### If-None-Match
 
-对于 GET 和 HEAD 请求方法来说，当且仅当服务器上没有任何资源的 ETag 属性值与这个首部中列出的相匹配的时候，服务器端会才返回所请求的资源，响应码为200。对于其他方法来说，当且仅当最终确认没有已存在的资源的  **ETag** 属性值与这个首部中所列出的相匹配的时候，才会对请求进行相应的处理。
+对于 GET 和 HEAD 请求方法来说，当且仅当服务器上没有任何资源的 ETag 属性值与这个首部中列出的相匹配的时候，服务器端会才返回所请求的资源，响应码为200。对于其他方法来说，当且仅当最终确认没有已存在的资源的  **ETag**
+属性值与这个首部中所列出的相匹配的时候，才会对请求进行相应的处理。
 
 上面这些请求头的解释来自MDN文档，看完之后可能感到云里雾里的，下面我们来访问一个资源进行实践，会逐一详细讲解。
 
@@ -1994,23 +2025,19 @@ ETag是URL的tag，用来标示URL对象是否改变。这样可以应用于客�
 
 ##### Last-Modified + If-Modified-Since
 
-下面的代码利用**Last-Modified**和**If-Modified-Since**来实现协商缓存，**Last-Modified**是服务端返回的，可以是当前时间，下次浏览器请求这个资源时就会把这个**Last-Modified**交给服务端，让服务端来进行验证。
+下面的代码利用**Last-Modified**和**If-Modified-Since**来实现协商缓存，**Last-Modified**是服务端返回的，可以是当前时间，下次浏览器请求这个资源时就会把这个**
+Last-Modified**交给服务端，让服务端来进行验证。
 
 ![](http://cdn.yuzzl.top/blog/20201120195300.png)
 
-##### ETag  + If-None-Match
+##### ETag + If-None-Match
 
-下面的代买利用**ETag  + If-None-Match**实现缓存，服务端将文件计算hash值放入Etag返回，下次用户再次访问时 If-None-Match会携带这个ETag ，服务端将新的文件计算hash，然后对比来判断是否304。
+下面的代买利用**ETag + If-None-Match**实现缓存，服务端将文件计算hash值放入Etag返回，下次用户再次访问时 If-None-Match会携带这个ETag ，服务端将新的文件计算hash，然后对比来判断是否304。
 
 ![](http://cdn.yuzzl.top/blog/20201120200552.png)
-
-
 
 ## TODO
 
 SEO(搜索引擎优化)
 
 浏览器底层（并发）
-
-
-
