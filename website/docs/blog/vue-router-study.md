@@ -1,5 +1,7 @@
 # Vue-Router源码解析
 
+[[toc]]
+
 ## 总述
 
 ## 从基本的路由开始
@@ -428,7 +430,7 @@ location / {
 
 ### VueRouter对底层路由管理实现的巧妙之处
 
-`VueRouter` 的 `hashRouter` 是基于 `WebHistory` 的，只是在基础url之后加了一个`#`，这一操作不仅实现了`hashRouter`的特性，同时完美利用了之前封装好的`HistoryAPI`。
+`VueRouter` 的 `hashRouter` 是基于 `WebHistory` 的，只是在基础url之后加了一个 `#` ，这一操作不仅实现了 `hashRouter` 的特性，同时完美利用了之前封装好的 `HistoryAPI`。
 
 ## 路由vuetify
 
@@ -463,11 +465,9 @@ app.mount('#app')
 
 我们介绍的重点在第三步，我们从 `createRouter()` 起手来分析其原理。
 
-### createRouter -- 路由的初始化
+### 路由初始化
 
-#### 总述
-
-`createRouter()`用来创建供Vue应用程序使用的Router实例。它返回一个`router`对象，里面就是我们熟悉的一系列`vue-router`API：
+`createRouter()` 用来创建供Vue应用程序使用的Router实例。它返回一个 `router` 对象，里面就是我们熟悉的一系列 `vue-router` API：
 
 ![](http://cdn.yuzzl.top/blog/20201114190252.png)
 
@@ -490,23 +490,24 @@ export function createRouter(options: RouterOptions): Router {
   const beforeResolveGuards = useCallbacks<NavigationGuardWithThis<undefined>>()
   const afterGuards = useCallbacks<NavigationHookAfter>()
 
-  // 4.当前路由，注意这里和vue3.0结合了，使用了shallowRef这个API，做到了路由监听
+  // 4.当前路由，注意这里和vue3.0结合了，使用了 shallowRef 这个API，做到了响应式路由
   const currentRoute = shallowRef<RouteLocationNormalizedLoaded>(
     START_LOCATION_NORMALIZED,
   )
 
+
   const router: Router = {
-    // 5. 准备挂载到全局vueApp上，这是vuejs提供的插件功能，之后这个函数会被vue调用
+    // 6. 准备挂载到全局vueApp上，这是vuejs提供的插件功能，之后这个函数会被vue调用
     install(app: App) {
       // 省略，后面会提到
     },
-    // 省略其他暴露的API，可见上图
+    // 7. 省略其他暴露的API，可见上图
   }
   return router
 }
 ```
 
-#### createRouterMatcher -- 初始化路由matcher
+#### createRouterMatcher -- 初始化路由 matcher
 
 ```typescript
 const matcher = createRouterMatcher(options.routes, options)
@@ -624,9 +625,7 @@ function addRoute(
 
 #### 初始化路由守卫
 
-##### useCallbacks()
-
-三种路由守卫都通过`useCallbacks<T>()`来初始化，可以看出这是一个闭包，`handlers: T[]`是存储用户注册的守卫函数的地方:
+三种路由守卫都通过 `useCallbacks<T>()` 来初始化，可以看出它利用了闭包，`handlers: T[]` 是存储用户注册的守卫函数的地方:
 
 ```javascript
 export function useCallbacks<T>() {
@@ -652,17 +651,17 @@ export function useCallbacks<T>() {
 }
 ```
 
-这个函数被调用之后返回一个对象，并且，`add`会在`createRouter`作为我们熟悉的`beforeEach`等API暴露给调用者：
+这个函数被调用之后返回一个对象，并且，`add` 会在 `createRouter()` 主函数中作为我们熟悉的 `beforeEach` 等API暴露给调用者：
 
 ![](http://cdn.yuzzl.top/blog/image-20201115122627609.png)
 
-`add`用来注册守卫，`reset` 清空守卫，`list`是一个函数，返回`handlers`数组，在相应的时机`vue-router`会遍历调用之。
+`add` 用来注册守卫，`reset` 清空守卫，`list` 是一个函数，返回 `handlers` 数组，在相应的时机 `vue-router` 会遍历调用之。
 
 #### 当前路由 -- currentRoute
 
-这是响应式路由的核心，`START_LOCATION_NORMALIZED`为默认路由（`/`）：
+这是响应式路由的核心，其中常量 `START_LOCATION_NORMALIZED` 为默认路由（`/`）：
 
-```javascript
+```typescript
 export const START_LOCATION_NORMALIZED: RouteLocationNormalizedLoaded = {
   path: '/',
   name: undefined,
@@ -675,20 +674,16 @@ export const START_LOCATION_NORMALIZED: RouteLocationNormalizedLoaded = {
   redirectedFrom: undefined,
 }
 
-const currentRoute = shallowRef < RouteLocationNormalizedLoaded > (
-  START_LOCATION_NORMALIZED
-)
+const currentRoute = shallowRef<RouteLocationNormalizedLoaded>(START_LOCATION_NORMALIZED)
 ```
 
-使用vue的**响应式API**`shallowRef`处理`currentRoute`使其成为响应式的，一旦它改变就会触发视图的更新。
+使用vue的**响应式API** `shallowRef` 处理 `currentRoute` 使其成为响应式的元素，一旦它改变就会触发视图的更新。
 
-可参考：https://www.vue3js.cn/docs/zh/api/refs-api.html#shallowref
+可参考官方文档：https://v3.vuejs.org/api/refs-api.html#shallowref
 
 #### install -- 向vue添加全局功能
 
-##### vue插件机制概述
-
-`vue3.0`文档如此介绍插件机制：
+这是 `vue` **插件机制**的体现，其文档如此介绍插件机制：
 
 插件是自包含的代码，通常向 Vue 添加全局级功能。它可以是公开 `install()` 方法的 `object`，也可以是 `function`
 
@@ -713,21 +708,21 @@ const router = {
     // 获取路由对象
     const router = this
 
-    // 通过全局混入来添加一些组件选项，如我们熟悉的RouterLink、RouterView
+    // 通过全局混入来添加一些组件选项，如我们熟悉的 RouterLink、RouterView
     app.component('RouterLink', RouterLink)
     app.component('RouterView', RouterView)
 
-    // 添加全局实例方法：router，使用者可以通过$router来获取vuerouter对象
+    // 添加全局实例方法：router，使用者可以通过 $router 来获取 vuerouter 对象
     app.config.globalProperties.$router = router
 
-    // 劫持上面的全局实例方法，
+    // 劫持上面的全局实例方法
     // 通过unref之后的currentRoute是普通的对象而不是响应式对象
     // 便于调用者二次处理
     Object.defineProperty(app.config.globalProperties, '$route', {
       get: () => unref(currentRoute),
     })
 
-    // 创建初始导航，上面说过，默认的当前路由为 “/”，但是如果用户输入了 “/hello”，便不是 “/"了，所以我们要初始化一次"
+    // 创建初始导航，上面说过，默认的当前路由为 “/”，但是如果用户输入了 “/hello”，便不是 “/"了，所以我们要初始化一次
     if (
       isBrowser &&
       !started &&
@@ -747,11 +742,14 @@ const router = {
       reactiveRoute[key] = computed(() => currentRoute.value[key])
     }
 
-    // provide可向根组件中注入一个 property，值得注意的是这里的 routerKey、routeLocationKey都是Symbol类型，有效防止了成员变量的命名冲突
+    // provide 可向根组件中注入一个 property，
+    // 值得注意的是这里的 routerKey、routerViewLocationKey 
+    // 都是 es6 的 Symbol 类型，有效防止了成员变量的命名冲突
     app.provide(routerKey, router)
     app.provide(routeLocationKey, reactive(reactiveRoute))
+    app.provide(routerViewLocationKey, currentRoute)
 
-    // 覆写全局组件的unmount方法（先使用unmountApp指向app.unmount），然后重写app.unmount，之后执行app的unmountApp
+    // 覆写全局组件的 unmount 方法（先使用 unmountApp 指向 app.unmount），然后重写 app.unmount，之后执行 app 的 unmountApp
     let unmountApp = app.unmount
 
     // 这应该是考虑一个页面多个vue全局实例的情况，installedApps是一个set，每一个app创建时就会向集合中添加它（的引用）
@@ -771,16 +769,14 @@ const router = {
       // 执行vue实例的注销方法
       unmountApp.call(this, arguments)
     }
-    // 针对vue-devtools的处理，略去
+    // 针对 vue-devtools 的处理，略去
   }
 }
 ```
 
 ### 路由跳转
 
-#### 总述
-
-路由跳转接口有这些：
+上面提到了 `createRouter()` 暴露了很多 API，关于路由跳转接口有这些：
 
 - push
 - replace
@@ -788,7 +784,7 @@ const router = {
 - back
 - forward
 
-其中`back` , `forward`其实就是`go(+1 / -1)`，`push`和`replace`请看下面代码：
+其中 `back`，`forward` 其实就是 `go(+1 / -1)`。 对于 `push` 和 `replace` 请看下面代码：
 
 ```typescript
 function push(to: RouteLocationRaw | RouteLocation) {
@@ -800,11 +796,11 @@ function replace(to: RouteLocationRaw | RouteLocationNormalized) {
 }
 ```
 
-可以看出他们本质上都是调用了`pushWithRedirect`，下面我们来看看`pushWithRedirect`。
+可以看出他们本质上都是调用了`pushWithRedirect`，只不过后者多了 `{replace: true}` 下面我们来看看 `pushWithRedirect`。
 
 #### pushWithRedirect -- 路由跳转的核心
 
-下面结合代码注释描述一下`pushWithRedirect`的过程，具体细节的方法会单独提及。
+下面结合代码注释描述一下 `pushWithRedirect` 的过程，具体细节的方法会单独提及。
 
 ```typescript
 function pushWithRedirect(
@@ -817,8 +813,10 @@ function pushWithRedirect(
 
   // 记录当前路由
   const from = currentRoute.value
+
   // 携带的数据
   const data: HistoryState | undefined = (to as RouteLocationOptions).state
+
   // 是否强制跳转
   const force: boolean | undefined = (to as RouteLocationOptions).force
 
@@ -829,44 +827,36 @@ function pushWithRedirect(
   const shouldRedirect = handleRedirectRecord(targetLocation)
 
   // 如果需要重定向，递归调用 pushWithRedirect 直至无重定向为止
-  if (shouldRedirect)
+  if (shouldRedirect) {
     return pushWithRedirect(
       assign(shouldRedirect, {state: data, force, replace}),
       redirectedFrom || targetLocation,
     )
+  }
 
+  // 如果是来自重定向的，执行如果到了这里就是最终的路由，未来不会再重定向
   const toLocation = targetLocation as RouteLocationNormalized
 
-  // 如果是来自重定向的，记录重定向来源 -- 既然执行到了这里就是最终的路由
+  // 记录重定向来源
   toLocation.redirectedFrom = redirectedFrom
 
   // 错误对象，下面的可能发生的错误都会赋值给他，最后它会被统一处理
   let failure: NavigationFailure | void | undefined
 
   // 如果不是强制跳转，但是是相同的路由，
-  // 我们就会产生一个错误并交给failure变量，到后面统一处理
+  // 我们就会产生一个错误并交给 failure 变量，到后面统一处理
   if (!force && isSameRouteLocation(stringifyQuery, from, targetLocation)) {
     failure = createRouterError<NavigationFailure>(
       ErrorTypes.NAVIGATION_DUPLICATED,
       {to: toLocation, from},
     )
-
-    // trigger scroll to allow scrolling to the same anchor
-    handleScroll(
-      from,
-      from,
-      // this is a push, the only way for it to be triggered from a
-      // history.listen is with a redirect, which makes it become a push
-      true,
-      // This cannot be the first navigation because the initial location
-      // cannot be manually navigated to
-      false,
-    )
   }
 
   // 最终我们返回一个promise，
   // 1.首先判断之前的操作是否出现错误，
-  // 1.1 如果一切正常，我们调用navigate，传入相应的路由参数执行跳转，如果执行跳转失败，则走到下面的catch，成功则走到下面的then
+  // 1.1 如果一切正常，我们调用 navigate() 方法，传入相应的路由参数执行跳转
+  //     如果执行跳转失败，则走到下面的catch，成功则走到下面的then
+
   // 1.2 如果出现了错误，那么我们resolve一个promise，走到了下面的then
   return (failure ? Promise.resolve(failure) : navigate(toLocation, from))
     .catch((error: NavigationFailure | NavigationRedirectError) =>
@@ -875,20 +865,19 @@ function pushWithRedirect(
         : // 处理未知错误
         triggerError(error),
     )
-    // 上面的navigate执行跳转成功，以及failure有值都会走到这里，我们只要根据failure的值进行对应的处理即可
+    // 上面的navigate执行跳转成功，以及failure有值都会走到这个回调，
+    // 我们只要根据failure的值进行对应的处理即可
     .then((failure: NavigationFailure | NavigationRedirectError | void) => {
       if (failure) {
         // 一系列错误判断和警告，略去不表
-
-        // 最后我们调用pushWithRedirect执行跳转失败的重定向，重定向的配置和错误的类型有关
+        // ........
+        // 最后我们调用 pushWithRedirect 执行跳转失败的重定向，重定向的配置和错误的类型有关
         return pushWithRedirect(
-          // keep options
           assign(locationAsObject(failure.to), {
             state: data,
             force,
             replace,
           }),
-          // preserve the original redirectedFrom if any
           redirectedFrom || toLocation,
         )
       } else {
@@ -901,7 +890,7 @@ function pushWithRedirect(
           data,
         )
       }
-      // 路由跳转结束的操作，在这里afterEach守卫将被处理
+      // 路由跳转结束的操作，在这里 afterEach 守卫将被遍历并执行，具体的代码略去，请自行查看
       triggerAfterEach(
         toLocation as RouteLocationNormalizedLoaded,
         from,
@@ -912,18 +901,245 @@ function pushWithRedirect(
 }
 ```
 
-#### navigate
+#### navigate -- 执行路由导航
 
-如果`pushWithRedirect`的主要过程没有出现错误，也就是说`failure`为`undefined`，那么就会执行`navigate`。
+如果 `pushWithRedirect` 的主要过程没有出现错误，也就是说 `failure` 为 `undefined` ，那么就会执行 `navigate`。
 
-#### finalizeNavigation -- 导航完成
+navigate 函数需要我们传入目标路由 `to` 和 起始路由 `from`：
 
-这个方法主要做四件事情：
+```typescript
+ function navigate(
+  to: RouteLocationNormalized,
+  from: RouteLocationNormalizedLoaded
+): Promise<any> {
+  // ，，，，
+}
+```
+
+首先，传入 `to` 和 `from`， 通过执行 `extractChangingRecords` 提取本次路由跳转的信息：
+
+```typescript
+const [
+  leavingRecords,
+  updatingRecords,
+  enteringRecords,
+] = extractChangingRecords(to, from)
+```
+
+`extractChangingRecords()` 的主要功能是遍历 `to` 、`form` 匹配（`match`）的所有路由组件，然后加入到相应的数组中：
+
+```typescript
+function extractChangingRecords(
+  to: RouteLocationNormalized,
+  from: RouteLocationNormalizedLoaded
+) {
+  const leavingRecords: RouteRecordNormalized[] = []
+  const updatingRecords: RouteRecordNormalized[] = []
+  const enteringRecords: RouteRecordNormalized[] = []
+
+  const len = Math.max(from.matched.length, to.matched.length)
+  for (let i = 0; i < len; i++) {
+    // from 匹配的路由组件
+    const recordFrom = from.matched[i]
+    if (recordFrom) {
+      // 如果这个组件在to中没有出现，那么将 recordFrom 放入 leavingRecords，否如果再次出现了，则放到 updatingRecords
+      if (to.matched.indexOf(recordFrom) < 0) leavingRecords.push(recordFrom)
+      else updatingRecords.push(recordFrom)
+    }
+    // 如果 to 的组件不再 from 里面出现，那么是新出现的，我们放到 enteringRecords 里面
+    const recordTo = to.matched[i]
+    if (recordTo) {
+      if (from.matched.indexOf(recordTo as any) < 0)
+        enteringRecords.push(recordTo)
+    }
+  }
+  return [leavingRecords, updatingRecords, enteringRecords]
+}
+```
+
+接着执行 `extractComponentsGuards` ，通过传入上面的 `record` 和守卫 type，以提取相应的路由守卫赋值给 `guards`，另外，路由**异步组件**也会在这里被处理：
+
+```typescript
+guards = extractComponentsGuards(
+  leavingRecords.reverse(),
+  "beforeRouteLeave",
+  to,
+  from
+);
+```
+
+这里被处理的是 `beforeRouteLeave` 守卫。
+
+来看 `extractComponentsGuards`，略去了一些错误处理：
+
+```typescript
+export function extractComponentsGuards(
+  matched: RouteRecordNormalized[],
+  guardType: GuardType,
+  to: RouteLocationNormalized,
+  from: RouteLocationNormalizedLoaded
+) {
+  const guards: Array<() => Promise<void>> = []
+
+  // 遍历传入的 matched，也就是匹配的路由
+  for (const record of matched) {
+    // 接着遍历 所有components
+    for (const name in record.components) {
+
+      // 拿到 rawComponent
+      let rawComponent = record.components[name]
+
+      // 如果它是一个合法的 vue 组件，
+      // isRouteComponent 合法的条件是 component 为 object 类型，且拥有 displayName、props、__vccOpts 属性
+      if (isRouteComponent(rawComponent)) {
+
+        // 通过传入的 guardType 拿到 guard，并加入 guard 数组中
+        const guard = options[guardType]
+        guard && guards.push(guardToPromiseFn(guard, to, from, record, name))
+
+      } else {
+        // 如果他不是一个合法的组件，例如一个函数 () => import(.....)，
+        // 没错，你想到了懒加载模式（异步路由），
+        // 这个 import 在底层的实现就是一个 promise ，执行它
+        let componentPromise: Promise<RouteComponent | null | undefined | void> = (rawComponent as Lazy<RouteComponent>)()
+
+        // 将这个 promise 的 then 回调 加入到 guards 中
+        guards.push(() =>
+          componentPromise.then(resolved => {
+            const resolvedComponent = isESModule(resolved)
+              ? resolved.default
+              : resolved
+            // 如果解析成功，我们将旧的 component （上面说了，是个异步函数）替换成我们解析的组件
+            record.components[name] = resolvedComponent
+
+            // 然后拿到相应的 guard
+            const guard: NavigationGuard = resolvedComponent[guardType]
+            return guard && guardToPromiseFn(guard, to, from, record, name)()
+          })
+        )
+      }
+    }
+  }
+  return guards
+}
+```
+
+然后，我们处理 `leavingRecords` 的 `leaveGuards` 守卫：
+
+```typescript
+ for (const record of leavingRecords) {
+  record.leaveGuards.forEach(guard => {
+    guards.push(guardToPromiseFn(guard, to, from));
+  });
+}
+```
+
+最终返回一个 `promise` 链，结合注释来看源码：
+
+```typescript
+return (
+  // 1.执行 from 匹配路由的 beforeRouteLeave 守卫
+  runGuardQueue(guards)
+    .then(() => {
+
+      // 2.将全局 beforeEach 路由用 promise 封装，加入守卫队列中
+      guards = []
+      for (const guard of beforeGuards.list()) {
+        guards.push(guardToPromiseFn(guard, to, from))
+      }
+      guards.push(canceledNavigationCheck)
+
+      // 3. 调用全局的 beforeEach 守卫。
+      return runGuardQueue(guards)
+    })
+    .then(() => {
+
+      // 4. 获取 updatingRecords 的 beforeRouteUpdate 守卫
+      guards = extractComponentsGuards(
+        updatingRecords,
+        'beforeRouteUpdate',
+        to,
+        from
+      )
+      // 5. 获取 updatingRecords 的 updateGuards 守卫
+      for (const record of updatingRecords) {
+        record.updateGuards.forEach(guard => {
+          guards.push(guardToPromiseFn(guard, to, from))
+        })
+      }
+      guards.push(canceledNavigationCheck)
+
+      // 6. 执行守卫
+      return runGuardQueue(guards)
+    })
+    .then(() => {
+      guards = []
+      for (const record of to.matched) {
+        if (record.beforeEnter && from.matched.indexOf(record as any) < 0) {
+          if (Array.isArray(record.beforeEnter)) {
+            for (const beforeEnter of record.beforeEnter)
+              guards.push(guardToPromiseFn(beforeEnter, to, from))
+          } else {
+            guards.push(guardToPromiseFn(record.beforeEnter, to, from))
+          }
+        }
+      }
+      guards.push(canceledNavigationCheck)
+      // 执行 beforeEnter 相关的守卫
+      return runGuardQueue(guards)
+    })
+    .then(() => {
+      guards = extractComponentsGuards(
+        enteringRecords,
+        'beforeRouteEnter',
+        to,
+        from
+      )
+      guards.push(canceledNavigationCheck)
+
+      // 执行 beforeEnter 相关的守卫
+      return runGuardQueue(guards)
+    })
+    .then(() => {
+      guards = []
+      for (const guard of beforeResolveGuards.list()) {
+        guards.push(guardToPromiseFn(guard, to, from))
+      }
+      guards.push(canceledNavigationCheck)
+      // 调用全局的 beforeResolve 守卫
+      return runGuardQueue(guards)
+    })
+  // 导航异常 catch 处理 ，略去
+)
+```
+
+`navigate()` 的一系列过程总结如下：
+
+- 初始化并调用 from 组件匹配到的 beforeRouteLeave 守卫、leaveGuards 守卫
+- 初始化并调用全局的 beforeEach 守卫
+- 初始化并调用 updatingRecords 的 beforeRouteUpdate、updateGuards 守卫
+- 初始化并调用 enteringRecords 的 beforeRouteEnter 守卫
+
+如何保证守卫都按顺序执行？来看 `runGuardQueue`，它通过 `Array.prototype.reduce` 保证了 `guards` 链式执行：
+
+原理是把后一个 `guard` 放到前一个 `guard` 的 `then` 回调中：
+
+```typescript
+function runGuardQueue(guards: Lazy<any>[]): Promise<void> {
+  return guards.reduce(
+    (promise, guard) => promise.then(() => guard()),
+    Promise.resolve()
+  )
+}
+```
+
+#### finalizeNavigation -- 完成导航
+
+这个方法主要做三件事情：
 
 - 调用之前封装好的**historyAPI**执行跳转（**url层面的跳转**）
-- 修改当前路由`currentRoute`，前面说过，它是**响应式**的（**视图层面的跳转**）
-- 触发`handleScroll`
-- 调用`markAsReady()`来进行一些初始化工作（这个工作只会执行**一次**）。
+- 修改当前路由 `currentRoute`，前面说过，它是**响应式**的，视图层的更新将在之后自动被触发
+- 调用 `markAsReady()` 来进行一些初始化工作（这个工作只会执行**一次**）。
 
 ```typescript
 function finalizeNavigation(
@@ -940,7 +1156,7 @@ function finalizeNavigation(
   const isFirstNavigation = from === START_LOCATION_NORMALIZED
   const state = !isBrowser ? {} : history.state
   if (isPush) {
-    // 调用routerHistoryAPI，执行url层面上的跳转
+    // 调用routerHistoryAPI，执行 url 层面上的跳转
     if (replace || isFirstNavigation)
       // replace模式
       routerHistory.replace(
@@ -956,12 +1172,10 @@ function finalizeNavigation(
     else routerHistory.push(toLocation.fullPath, data)
   }
 
-  // 修改当前响应式路由currentRoute
+  // 修改当前响应式路由 currentRoute，视图层的更新将会被触发
   currentRoute.value = toLocation
 
-  handleScroll(toLocation, from, isPush, isFirstNavigation)
-
-  // 判断全局router是否初始化完成
+  // 判断全局router是否初始化完成，下面会说
   markAsReady()
 }
 ```
@@ -980,15 +1194,15 @@ function markAsReady(err?: any): void {
 }
 ```
 
-全局的`router`内部有一个`ready`变量，在路由首次初始化成功时会执行`if (ready)`之后的内容 ，主要做了如下事情：
+全局的 `router` 内部有一个 `ready` 变量，在路由首次初始化成功时会执行 `if (ready)` 之后的内容，主要做了如下事情：
 
-- `setupListeners()`初始化监听器，我们开篇说过，用户在浏览器上点击后退按钮时，会触发`popstate`事件。触发时执行的套路和`pushWithRedirect`十分相似 --- 调用`navigate`
-  同时在`navigate`成功完成时通过修改响应式变量让视图层更新。
-- 初始化`readyHandlers`，它其实也是通过`useCallbacks()`初始化的类似路由守卫的东西。
+- `setupListeners()` 初始化监听器，我们开篇说过，用户在浏览器上点击后退按钮时，会触发 `popstate` 事件。触发时执行的套路和 `pushWithRedirect` 十分相似 --- 调用 `navigate`
+  同时在 `navigate` 成功完成时通过修改响应式变量让视图层更新。
+- 初始化 `readyHandlers`，它其实也是通过 `useCallbacks()` 初始化的类似路由守卫的东西。
 
 #### triggerAfterEach -- 处理后置守卫
 
-它的代码很简单， 功能就是获取所有注册的**后置守卫**，依次执行它们：
+它的代码很简单，功能就是获取所有注册的**后置守卫**，依次执行它们：
 
 ```typescript
  function triggerAfterEach(
@@ -1001,5 +1215,296 @@ function markAsReady(err?: any): void {
 }
 ```
 
-### 路由组件
+### router-view 和 router-link
+
+下面来探究 vue-router 的两个基本组件：`router-view` 和 `router-link`。
+
+#### router-view
+
+router-view 将显示与当前 url 相匹配的组件。也就是说，不同的路由将被渲染在这里：
+
+```html
+<!-- 当前路由对应的组件将被渲染在这里 -->
+<div id="app">
+  <router-view></router-view>
+</div>
+```
+
+来看看它的源码，主要关注 `setup` 部分：
+
+首先，通过 `inject` API 拿到当前路由 `injectedRoute`，这个是由全局 `app` 通过执行 `provide` 得到的（上面已经提及）：
+
+```typescript
+// 拿到当前路由
+const injectedRoute = inject(routerViewLocationKey)!;
+```
+
+也可以结合下图感受一下：
+
+![](http://cdn.yuzzl.top/blog/20201216132538.png)
+
+之后，routerToDisplay 决定了要渲染的路由，如果 `props.route` 有值，则渲染它，否则渲染我们上面提到的 `injectedRoute`：
+
+```typescript
+const routeToDisplay = computed(() => props.route || injectedRoute.value);
+```
+
+注意这里的 `routeToDisplay = computed()` 可以获得一个不可变的响应式对象，也就是说，一旦 `injectedRoute.value` 或者 `props.route` 更新，`routeToDisplay`
+的 `value` 也会变化。
+
+接下来，我们从 `routeToDisplay` 拿到匹配到的路由：
+
+```typescript
+const matchedRouteRef = computed<RouteLocationMatched | undefined>(
+  () => routeToDisplay.value.matched[depth]
+);
+```
+
+下面解释一下这个 `depth` ，我们知道，一个 `match` 里面可能有多个匹配到的路由，例如这样的路由结构：
+
+```vue
+<!-- 细节内容省略 -->
+<template>
+  <div>
+    <p>Nested level {{ level }}</p>
+    <ul v-if="level === 1 && $route.name === 'Nested'">
+      <!-- content....-->
+    </ul>
+    <router-view v-if="level < 6"></router-view>
+  </div>
+</template>
+```
+
+也就是说，顶层 `router-view` 渲染 `/children` 下的内容，第二层渲染 `/children/b` 下的内容，第三层渲染 `/children/b` 下的内容（注意和第二层的区别，这个是第二层孩子的默认值，在路由
+url 层面下体现为 `/children/b` 加上空字符串）。
+
+调试看看匹配的路由：
+
+![](http://cdn.yuzzl.top/blog/20201216161630.png)
+
+这样通过判断当前深度就可以正确匹配路由了，这也顺便解释了上面 `depth` 的意义。
+
+回到主线，在获取匹配到的路由之后，我们将一些必要的信息通过 `provide` 交给未来的孩子组件：
+
+```typescript
+// 孩子得到的深度就是当前的深度加一，结合上面的内容不难理解
+provide(viewDepthKey, depth + 1);
+// 匹配到的路由
+provide(matchedRouteKey, matchedRouteRef);
+// 当前路径
+provide(routerViewLocationKey, routeToDisplay);
+```
+
+最后返回一个渲染函数，结合注释来感受下过程，省略一些边界条件的代码，只保留主干部分：
+
+```typescript
+return () => {
+  // 当前路由 URL
+  const route = routeToDisplay.value;
+  // 匹配到的路由
+  const matchedRoute = matchedRouteRef.value;
+  // 匹配到的组件，将被渲染
+  const ViewComponent = matchedRoute && matchedRoute.components[props.name];
+  // 当前组件名称
+  const currentName = props.name;
+
+  // 获取匹配到的路由的一些配置（routeProps）
+  const routePropsOption = matchedRoute!.props[props.name];
+  const routeProps = routePropsOption
+    ? routePropsOption === true
+      ? route.params
+      : typeof routePropsOption === "function"
+        ? routePropsOption(route)
+        : routePropsOption
+    : null;
+
+  // 调用 vue 的 h API，这个 API 的功能是生成 v-node，第一个参数为 vue组件，第二个参数为 props
+  const component = h(
+    ViewComponent,
+    assign({}, routeProps, attrs, {
+      onVnodeUnmounted,
+      ref: viewRef
+    })
+  );
+
+  // 返回 被渲染的组件的 v-node
+  return (
+    // ....
+    component
+  );
+};
+```
+
+#### router-link
+
+我们使用自定义组件 `router-link` 而不是使用常规标签 `<a>` 来创建链接。
+
+这样我们可以更改URL而无需重新加载页面。
+
+```typescript
+export const RouterLinkImpl = defineComponent({
+  // 省略 props
+  setup(props, {slots, attrs}) {
+    const link = reactive(useLink(props));
+    const {options} = inject(routerKey)!;
+
+    // 处理元素的类名
+    const elClass = computed(() => ({
+      [getLinkClass(
+        props.activeClass,
+        options.linkActiveClass,
+        "router-link-active"
+      )]: link.isActive,
+      [getLinkClass(
+        props.exactActiveClass,
+        options.linkExactActiveClass,
+        "router-link-exact-active"
+      )]: link.isExactActive
+    }));
+
+
+    // 返回生成 v-dom 的函数
+    return () => {
+      // 拿到 slot 中的内容
+      const children = slots.default && slots.default(link);
+      // 在 非 custom 模式下，我们会在其外围包裹一个 a 标签，这些也通过 h API 来实现
+      return props.custom
+        ? children
+        : h(
+          "a",
+          assign(
+            {
+              "aria-current": link.isExactActive
+                ? props.ariaCurrentValue
+                : null,
+              onClick: link.navigate,
+              href: link.href
+            },
+            attrs,
+            {
+              class: elClass.value
+            }
+          ),
+          children
+        );
+    };
+  }
+});
+```
+
+`router-link` 通过一个**作用域插槽**暴露底层的定制能力：
+
+```vue
+<!-- 案例来自 vue-router 官网-->
+<router-link
+    to="/about"
+    v-slot="{ href, route, navigate, isActive, isExactActive }">
+<NavLink :active="isActive" :href="href" @click="navigate">{{ route.fullPath }}
+</NavLink>
+</router-link>
+```
+
+这五个 API 通过 `useLink()` 来实现，来看源码：
+
+route 是目标路由，也就是我们点击 `router-link` 导向的位置，它通过拿到用户传入的 `to` 属性，解析成 `url`：
+
+```typescript
+const route = computed(() => router.resolve(unref(props.to)));
+```
+
+href 是解析后的 url，相当于 a 元素的 href 属性，从源码中看出它来自 `route.value.href`：
+
+```typescript
+href: computed(() => route.value.href);
+```
+
+`isActive` 表示当前 `router-link` 是否处于 “激活状态”，来看下面的代码：
+
+`activeRecordIndex` 记录了匹配当前路由、且处于活跃状态组件的下标。 有了活跃项目下标还不够，我们还要通过 `includesParams()` 来处理动态路由，可以看出是通过**逐一比较 `params` 来实现**的：
+
+```typescript
+const isActive = computed<boolean>(
+  () =>
+    activeRecordIndex.value > -1 &&
+    includesParams(currentRoute.params, route.value.params)
+);
+
+function includesParams(
+  outer: RouteLocation["params"],
+  inner: RouteLocation["params"]
+): boolean {
+  // 遍历 keys
+  for (let key in inner) {
+    let innerValue = inner[key];
+    let outerValue = outer[key];
+    if (typeof innerValue === "string") {
+      if (innerValue !== outerValue) return false;
+    } else {
+      // 对数组处理利用了 `Array.prototype.some()`
+      // some() 方法测试数组中是不是至少有 1 个元素通过了被提供的函数测试。
+      // 它返回的是一个 Boolean 类型的值。
+      if (
+        !Array.isArray(outerValue) ||
+        outerValue.length !== innerValue.length ||
+        innerValue.some((value, i) => value !== outerValue[i])
+      )
+        return false;
+    }
+  }
+  return true;
+}
+```
+
+可以看出这里的激活状态是一个**浅层**的活跃状态，例如，子组件对应的 `router-link` 如果是激活状态，那么其父路径对应的 `router-link` 也处于激活状态。
+
+`isExactActive` 则是一个严格比较，他要求当前路由和这个组件**完全匹配**，也就是说，当前路由必须和匹配路由的**最后一个**相同，即所有的父级路由全被排除在外：
+
+```typescript
+const isExactActive = computed<boolean>(
+  () =>
+    activeRecordIndex.value > -1 &&
+    activeRecordIndex.value === currentRoute.matched.length - 1 &&
+    isSameRouteLocationParams(currentRoute.params, route.value.params)
+);
+```
+
+另外，上面对 `params` 的对比是一个 **浅层的对比**，而在这里则是一个深层的比较（使用递归的方式）：
+
+```typescript
+
+export function isSameRouteLocationParams(
+  a: RouteLocationNormalized["params"],
+  b: RouteLocationNormalized["params"]
+): boolean {
+  if (Object.keys(a).length !== Object.keys(b).length) return false;
+
+  for (let key in a) {
+    if (!isSameRouteLocationParamsValue(a[key], b[key])) return false;
+  }
+
+  return true;
+}
+```
+
+最后一个 `navigate`，是一个执行路由跳转的方法，本质上是调用了上面说到的 `router.replace` 或者 `router.push`：
+
+```typescript
+function navigate(
+  e: MouseEvent = {} as MouseEvent
+): Promise<void | NavigationFailure> {
+  if (guardEvent(e))
+    return router[unref(props.replace) ? "replace" : "push"](unref(props.to));
+  return Promise.resolve();
+}
+```
+
+## 参考资料
+
+| 标题                                      | 来源                                                   |
+| ----------------------------------------- | ------------------------------------------------------ |
+| vue-router-next 仓库                        | https://github.com/vuejs/vue-router-next             |
+| vue-router-next 文档                       |    https://next.router.vuejs.org              |
+| vue-next 文档                       |   https://v3.vuejs.org/           |
+| MDN                    |  https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/some          |
+
 
