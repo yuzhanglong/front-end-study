@@ -4,7 +4,14 @@
 
 ## 总述
 
-## 从基本的路由开始
+单页面应用可以做到**页面跳转的不刷新**，而实现这一功能的核心在于前端路由的处理。
+
+实际上，前端路由的核心无非就是下面的两点：
+
+- 改变 url，页面**不刷新**。
+- 改变 url 时，我们可以**监听**到并能做出一些处理（如更新 DOM）。
+
+## 路由核心
 
 我们现在暂时抛开 `Vue` 这个框架，想想如何使用**原生 JS** 实现一个路由管理工具，如此一来，任何 router 库无非就是在这个基础上进行扩展，让其适应自身的框架，这便是一种**封装**
 思想的体现，我们现在讨论的 `VueRouter` 就是如此做的, 来看下图（来自官方文档）：
@@ -18,9 +25,7 @@
 
 接下来，我们就从这两个模式的具体实现讲起。
 
-## createWebHistory
-
-### 整体描述
+### createWebHistory
 
 `createWebHistory` 最终返回一个 `routerHistory`，它的主要流程如下：
 
@@ -287,7 +292,9 @@ return {
 
 ### useHistoryListeners -- 路由监听
 
-我们已经实现了路由的切换，光有切换还不够，我们还需要监听，`useHistoryListeners()` 就是来满足这个需求的，它最终暴露三个接口：
+前面我们已经实现了路由的切换，光有切换还不够，我们还需要监听，也就是我们开头说到的第二个核心功能。
+
+`useHistoryListeners()` 就是来满足这个需求的，它最终暴露三个接口：
 
 ```typescript
 return {
@@ -371,7 +378,7 @@ function listen(callback: NavigationCallback) {
 }
 ```
 
-## createWebHashHistory
+### createWebHashHistory
 
 这是 `VueRouter` 提供的第二种路由解决方案，在了解了上面的 `createWebHistory` 的基本流程之后，我们可以轻松写出 `createWebHashHistory` ,它只不过是在基础的URL之后加上了一个`#`
 ，来看它的实现：
@@ -394,31 +401,21 @@ export function createWebHashHistory(base?: string): RouterHistory {
 }
 ```
 
-## 总结
+## PART 1 总结
 
 至此，`VueRouter` 的路由核心部分已经全部分析完成，这一部分的源码中没有提到任何 `Vue` 的知识，只是对**原生的API进行封装**。保证了其**高可用性**。此时，我们也可以手撕一个比较完美的路由基础库了。
 
-### 两种路由模式有什么不同？
+两种路由模式有什么不同？ hash路由利用了浏览器的特性：hash 值的变化并不会导致浏览器向服务器发出请求，浏览器不发出请求，也就不会刷新页面：
 
-#### hash
-
-hash路由利用了浏览器的特性 -- hash值的变化，并不会导致浏览器向服务器发出请求，浏览器不发出请求，也就不会刷新页面：
-
-```http
-https://xxx.com/xxx/hello#helloworld
-// 不变刷新页面
-https://xxx.com/xxx/hello#helloworld2
+```
+// 不会刷新页面
+https://xxx.com/xxx/hello#helloworld  ===> https://xxx.com/xxx/hello#helloworld2
 ```
 
-通过监听`hashchange`事件来实现我们的目标。
+之后，通过主动跳转或者监听 `hashchange` 事件即可实现我们的目标（如 DOM 的替换），hash 路由对于没有主机的 Web 应用程序很有用。
 
-hash路由对于没有主机的Web应用程序很有用。
-
-#### history
-
-history路由利用HTML5的`HistoryAPI`来控制状态。
-
-history路由适合有主机的Web应用程序，由于每一个**虚拟的URL**需要对应服务端的一个地址，所以我们需要在服务端（例如nginx）进行重定向，例如在`nginx`下可以如此处理：
+history 路由利用 HTML5 的 `History`API 来控制状态，它适合有主机的 Web 应用程序，由于每一个**虚拟的 URL** 需要对应服务端的一个地址，所以我们需要在服务端进行重定向，例如在 **nginx**
+下可以如此处理：
 
 ```nginx
 location / {
@@ -426,16 +423,14 @@ location / {
 }
 ```
 
-更多的处理方案请自行阅读官方文档。
-
-### VueRouter对底层路由管理实现的巧妙之处
+更多的处理方案请自行阅读[官方文档 -- Example Server Configurations](https://next.router.vuejs.org/guide/essentials/history-mode.html#example-server-configurations)。
 
 `VueRouter` 的 `hashRouter` 是基于 `WebHistory` 的，只是在基础url之后加了一个 `#` ，这一操作不仅实现了 `hashRouter` 的特性，同时完美利用了之前封装好的 `HistoryAPI`。
 
 ## 路由vuetify
 
 在这里，之前封装好的一套路由 API 将被赋予 `vue` 的特性, 这也是 `VueRouter` 源码的核心部分。主要的代码位于 `src/router.ts`
-下，下面展示一个DEMO代码（来自官网），来回顾一下 `VueRouter` 是如何使用的：
+下，下面展示一个 DEMO 代码（来自官网），来回顾一下 `VueRouter` 是如何使用的。
 
 ```javascript
 //第一步：定义路由组件
@@ -473,16 +468,14 @@ app.mount('#app')
 
 #### 整体过程
 
-去除函数定义，`createRouter` 的过程如下所示，为了简洁，省略了函数的定义（后面都会提到），以及一些细节代码，突出主干。
-
-请看下面代码，我以注释的形式描述整体过程：
+去除函数定义，`createRouter` 的过程如下所示，仅保留主干部分：
 
 ```typescript
 export function createRouter(options: RouterOptions): Router {
-  // 1.初始化路由matcher，可以把它看成“路由管理器”
+  // 1.初始化路由matcher，可以把它看成“路由管理器”，我们可以通过它来动态添加路由、删除路由等操作
   const matcher = createRouterMatcher(options.routes, options)
 
-  // 2.获取路由API（hashAPI或者HistoryAPI）
+  // 2.获取路由核心 API（hash 或者 History）
   let routerHistory = options.history
 
   // 3.利用useCallbacks()初始化路由前置守卫/解析守卫/后置守卫
@@ -490,7 +483,7 @@ export function createRouter(options: RouterOptions): Router {
   const beforeResolveGuards = useCallbacks<NavigationGuardWithThis<undefined>>()
   const afterGuards = useCallbacks<NavigationHookAfter>()
 
-  // 4.当前路由，注意这里和vue3.0结合了，使用了 shallowRef 这个API，做到了响应式路由
+  // 4.当前路由，注意这里和 vue3.0 结合了，使用了 shallowRef 这个API，做到了响应式路由
   const currentRoute = shallowRef<RouteLocationNormalizedLoaded>(
     START_LOCATION_NORMALIZED,
   )
@@ -507,120 +500,219 @@ export function createRouter(options: RouterOptions): Router {
 }
 ```
 
+`createRouterMatcher` 提供了一系列接口，返回一个 `matcher`，它是一个对象，可以用来配置路由匹配、动态路由。
+
+在讲细节之前我们需要明确几个概念：
+
+- 路由配置：用户传入的路由配置信息，即全局配置中的 `routes` 属性的一个元素：
+
+```typescript
+const r = {
+  path: '路径',
+  name: '名称',
+  component,
+  beforeEnter(to, from, next) {
+    //.....
+  }
+}
+```
+
+- **当前路由信息**（currentRoute）：当前所处的路径的一些数据信息：
+
+![](http://cdn.yuzzl.top/blog/20201217124529.png)
+
+- **匹配到的路由**（matched）：传入当前路由，通过 matcher 来匹配到的一个或者多个路由信息，拿到匹配到的路由，我们就可以渲染其对应的组件：
+
+![](http://cdn.yuzzl.top/blog/20201217124838.png)
+
+- 路由匹配器（RouteRecordMatcher）：它是一个对象，他主要维护一个正则语句和与其匹配的路由信息（recode）。
+
+下图是路由匹配宏观的的过程：
+
+![](http://cdn.yuzzl.top/blog/20201217140746.png)
+
 #### createRouterMatcher -- 初始化路由 matcher
 
 ```typescript
 const matcher = createRouterMatcher(options.routes, options)
 ```
 
-首先利用 `createRouterMatcher()` 初始化了 `matcher` 变量，这个函数返回值如下, 可以看出是路由处理的一套API，其中有部分再次向外暴露给用户（可以对比一下本节的第一张图片），如`addRoute`
-，很明显，我们可以利用这些API使用**动态路由**功能：
+首先利用 `createRouterMatcher()` 初始化了 `matcher` 变量，这个函数返回值如下, 可以看出是路由处理的一套API，部分向外暴露给用户（可以对比一下本节的第一张图片），如 `addRoute`：
 
 ```typescript
-return {addRoute, resolve, removeRoute, getRoutes, getRecordMatcher}
+return {
+  // 添加一个路由
+  addRoute,
+  // 获取路径（记录）相匹配的路由，这也是路由匹配的核心方法
+  resolve,
+  // 移除一个路由2、
+  removeRoute,
+  // 获取所有的 matcher
+  getRoutes,
+  // 从路由匹配映射表中获取某个路径匹配的路由
+  getRecordMatcher
+}
 ```
 
-##### addRoute()
+`createRouterMatcher()` 基于上述的 API，核心是维护了 `matchers` 这个数组，全局所有的匹配器都包含在内：
 
-`createRouterMatcher`传入路由表`routes`，以及全局配置`globalOptions`, 它利用`addRoute()`递归地遍历路由表, 来看`addRoute()`，其中参数`record`表示单个路由记录:
+结合调试工具，来看一下这两个数据，下面是我们的路由结构：
+
+```typescript
+it("yzl test", () => {
+  const matcher = createRouterMatcher([{
+    path: "/",
+    component,
+    name: "home",
+    children: [
+      {
+        path: "one",
+        component,
+        children: [
+          {
+            path: "two",
+            component
+          }
+        ]
+      }
+    ]
+  }], {});
+  expect(matcher).toStrictEqual([]);
+});
+```
+
+其生成的匹配器数组和映射表如图所示（是通过 `addRoute` 实现的，后面会说）：
+
+![](http://cdn.yuzzl.top/blog/20201217174201.png)
+
+可以看出，对于每个路由配置，都会有相应的 `matcher` 和它匹配（通过正则表达式），例如，我们的路径是 `one/two`，那么可以匹配到上图的**第一项**。
+
+来看看 `resolve` 方法，它通过传入当前路径配置，拿到匹配的路由组件，只保留主干部分代码：
+
+```typescript
+function resolve(
+  location: Readonly<MatcherLocationRaw>,
+  currentLocation: Readonly<MatcherLocation>
+): MatcherLocation {
+  let matcher: RouteRecordMatcher | undefined
+  let params: PathParams = {}
+  let path: MatcherLocation['path']
+  let name: MatcherLocation['name']
+
+  // 拿到 path
+  path = location.path
+
+  // 从 matchers 数组中拿到匹配的路由 matcher ，这里的匹配使用了正则
+  matcher = matchers.find(m => m.re.test(path))
+
+  const matched: MatcherLocation['matched'] = []
+  let parentMatcher: RouteRecordMatcher | undefined = matcher
+  while (parentMatcher) {
+    // 遍历匹配到的 matcher，依次加入数组，
+    // 注意，越接近路由表的根部越靠前
+    matched.unshift(parentMatcher.record)
+    // 指向其父亲，类似于链表的结构
+    // 对于这个 matched 不熟悉的可以去回顾一下前面的代码
+    parentMatcher = parentMatcher.parent
+  }
+
+  return {
+    name,
+    path,
+    params,
+    matched,
+    meta: mergeMetaFields(matched),
+  }
+}
+```
+
+然后是 `removeRoute` 方法，支持传入路由名称或者一个路由匹配器：
+
+```typescript
+function removeRoute(matcherRef: RouteRecordName | RouteRecordMatcher) {
+  if (isRouteName(matcherRef)) {
+    // 从路由匹配映射表中找到目标路由的匹配器
+    const matcher = matcherMap.get(matcherRef)
+    if (matcher) {
+      // 如果找到了，从映射表、匹配器数组中删除之
+      matcherMap.delete(matcherRef)
+      matchers.splice(matchers.indexOf(matcher), 1)
+
+      // 以同样的方法递归地处理孩子
+      matcher.children.forEach(removeRoute)
+      matcher.alias.forEach(removeRoute)
+    }
+  } else {
+    // 如果是路由匹配器，也是一样的道理
+    let index = matchers.indexOf(matcherRef)
+    if (index > -1) {
+      matchers.splice(index, 1)
+      if (matcherRef.record.name) matcherMap.delete(matcherRef.record.name)
+      matcherRef.children.forEach(removeRoute)
+      matcherRef.alias.forEach(removeRoute)
+    }
+  }
+}
+```
+
+很明显，这个方法会在监听到路由改变 / 主动切换路由时被执行。
+
+问题来了，这个 `matchers` 数组是怎么来的？这里就要介绍 `addRoute()` 方法了，`addRoute()` 递归处理一条路由记录，生成匹配器数组和路由表：
 
 ```typescript
 function addRoute(
   record: RouteRecordRaw,
   parent?: RouteRecordMatcher,
-  originalRecord?: RouteRecordMatcher,
+  originalRecord?: RouteRecordMatcher
 ) {
-  // 判断是否为根路由
   let isRootAdd = !originalRecord
-
-  // 传入record，初始化单个路由选项的数据结构，传给 mainNormalizedRecord
+  // 规范化路由信息，例如把一些 undefined 的属性用默认值进行填充
   let mainNormalizedRecord = normalizeRouteRecord(record)
 
-  // 处理路由别名功能
-  mainNormalizedRecord.aliasOf = originalRecord && originalRecord.record
+  // 合并选项
   const options: PathParserOptions = mergeOptions(globalOptions, record)
-
   const normalizedRecords: typeof mainNormalizedRecord[] = [
     mainNormalizedRecord,
   ]
 
-  if ('alias' in record) {
-    const aliases =
-      typeof record.alias === 'string' ? [record.alias] : record.alias!
-    for (const alias of aliases) {
-      normalizedRecords.push(
-        assign({}, mainNormalizedRecord, {
-          components: originalRecord
-            ? originalRecord.record.components
-            : mainNormalizedRecord.components,
-          path: alias,
-          aliasOf: originalRecord
-            ? originalRecord.record
-            : mainNormalizedRecord,
-        }) as typeof mainNormalizedRecord,
-      )
-    }
-  }
-
   let matcher: RouteRecordMatcher
   let originalMatcher: RouteRecordMatcher | undefined
 
-  // 遍历所有路由记录
+  // 遍历路由记录
   for (const normalizedRecord of normalizedRecords) {
-    // 格式化路径
+    // 拿到当前路径
     let {path} = normalizedRecord
-    if (parent && path[0] !== '/') {
-      let parentPath = parent.record.path
-      let connectingSlash =
-        parentPath[parentPath.length - 1] === '/' ? '' : '/'
-      normalizedRecord.path =
-        parent.record.path + (path && connectingSlash + path)
-    }
 
-    // 初始化父路由信息（为子路由准备的）
+    // 创建匹配器
     matcher = createRouteRecordMatcher(normalizedRecord, parent, options)
 
-    // if we are an alias we must tell the original record that we exist
-    // so we can be removed
-    if (originalRecord) {
-      originalRecord.alias.push(matcher)
-    } else {
-      // otherwise, the first record is the original and others are aliases
-      originalMatcher = originalMatcher || matcher
-      if (originalMatcher !== matcher) originalMatcher.alias.push(matcher)
+    // 如果当前路由已经存在了，删除旧的（例如 我们有 /home 然后又添加了一个 /home，我们会删除旧的）
+    if (isRootAdd && record.name && !isAliasRecord(matcher))
+      removeRoute(record.name)
 
-      // remove the route if named and only for the top record (avoid in nested calls)
-      // this works because the original record is the first one
-      if (isRootAdd && record.name && !isAliasRecord(matcher))
-        removeRoute(record.name)
-    }
-
-    // 判断是否有孩子，如果有，递归执行addRoute()，以matcher（代表父路由）、originalRecord（代表未经处理过的路由原始记录）
+    // 递归地处理孩子
     if ('children' in mainNormalizedRecord) {
       let children = mainNormalizedRecord.children
       for (let i = 0; i < children.length; i++) {
         addRoute(
           children[i],
           matcher,
-          originalRecord && originalRecord.children[i],
+          originalRecord && originalRecord.children[i]
         )
       }
     }
-
-    // if there was no original record, then the first one was not an alias and all
-    // other alias (if any) need to reference this record when adding children
-    originalRecord = originalRecord || matcher
-
+    // 将获取的匹配器插入全局 matcher 中，为后续匹配做准备
     insertMatcher(matcher)
   }
-
-  return originalMatcher
-    ? () => {
-      // since other matchers are aliases, they should be removed by the original matcher
-      removeRoute(originalMatcher!)
-    }
-    : noop
+  // 返回一个移除路由的方法，方便将其删除
+  return () => removeRoute(originalMatcher);
 }
+```
+
+在 `createRouteMatcher()` 中，遍历用户传入的路由表，依次调用上面的方法即可：
+
+```typescript
+routes.forEach(route => addRoute(route));
 ```
 
 #### 初始化路由守卫
@@ -778,13 +870,13 @@ const router = {
 
 上面提到了 `createRouter()` 暴露了很多 API，关于路由跳转接口有这些：
 
-- push
-- replace
-- pop
-- back
-- forward
+- `push()`
+- `replace()`
+- `pop()`
+- `back()`
+- `forward()`
 
-其中 `back`，`forward` 其实就是 `go(+1 / -1)`。 对于 `push` 和 `replace` 请看下面代码：
+其中 `back`，`forward` 其实就是 `go(±1)`。 对于 `push` 和 `replace` 请看下面代码：
 
 ```typescript
 function push(to: RouteLocationRaw | RouteLocation) {
@@ -912,7 +1004,7 @@ navigate 函数需要我们传入目标路由 `to` 和 起始路由 `from`：
   to: RouteLocationNormalized,
   from: RouteLocationNormalizedLoaded
 ): Promise<any> {
-  // ，，，，
+  // ......
 }
 ```
 
@@ -1014,6 +1106,8 @@ export function extractComponentsGuards(
 
             // 然后拿到相应的 guard
             const guard: NavigationGuard = resolvedComponent[guardType]
+
+            // 这个 guard 会在之后的 runGuard 里面被执行
             return guard && guardToPromiseFn(guard, to, from, record, name)()
           })
         )
@@ -1038,30 +1132,25 @@ export function extractComponentsGuards(
 
 ```typescript
 return (
-  // 1.执行 from 匹配路由的 beforeRouteLeave 守卫
+  // 调用离开组件的 `beforeRouteLeave` 守卫
   runGuardQueue(guards)
     .then(() => {
-
-      // 2.将全局 beforeEach 路由用 promise 封装，加入守卫队列中
       guards = []
       for (const guard of beforeGuards.list()) {
         guards.push(guardToPromiseFn(guard, to, from))
       }
       guards.push(canceledNavigationCheck)
 
-      // 3. 调用全局的 beforeEach 守卫。
+      // 调用全局的 `beforeEach` 守卫
       return runGuardQueue(guards)
     })
     .then(() => {
-
-      // 4. 获取 updatingRecords 的 beforeRouteUpdate 守卫
       guards = extractComponentsGuards(
         updatingRecords,
         'beforeRouteUpdate',
         to,
         from
       )
-      // 5. 获取 updatingRecords 的 updateGuards 守卫
       for (const record of updatingRecords) {
         record.updateGuards.forEach(guard => {
           guards.push(guardToPromiseFn(guard, to, from))
@@ -1069,7 +1158,7 @@ return (
       }
       guards.push(canceledNavigationCheck)
 
-      // 6. 执行守卫
+      // 调用复用组件内部的 `beforeRouteUpdate` 守卫
       return runGuardQueue(guards)
     })
     .then(() => {
@@ -1085,7 +1174,7 @@ return (
         }
       }
       guards.push(canceledNavigationCheck)
-      // 执行 beforeEnter 相关的守卫
+      // 调用目标组件的 `beforeEnter` 守卫
       return runGuardQueue(guards)
     })
     .then(() => {
@@ -1097,7 +1186,7 @@ return (
       )
       guards.push(canceledNavigationCheck)
 
-      // 执行 beforeEnter 相关的守卫
+      // 调用目标组件内部的 `beforeRouteEnter` 守卫
       return runGuardQueue(guards)
     })
     .then(() => {
@@ -1109,16 +1198,28 @@ return (
       // 调用全局的 beforeResolve 守卫
       return runGuardQueue(guards)
     })
-  // 导航异常 catch 处理 ，略去
+  // 如果上述操作有异常，会在最后的 `catch()` 回调中被捕获到，这里略去
 )
 ```
 
 `navigate()` 的一系列过程总结如下：
 
-- 初始化并调用 from 组件匹配到的 beforeRouteLeave 守卫、leaveGuards 守卫
-- 初始化并调用全局的 beforeEach 守卫
-- 初始化并调用 updatingRecords 的 beforeRouteUpdate、updateGuards 守卫
-- 初始化并调用 enteringRecords 的 beforeRouteEnter 守卫
+:::tip
+
+下面称 `leavingRecords` 匹配的所有组件为**离开组件**，`enteringRecords` 匹配的所有组件为**目标组件**，`enteringRecords` 匹配的所有组件为**复用组件**
+
+另外，你也可以查看[这部分的官方文档](https://next.router.vuejs.org/guide/advanced/navigation-guards.html#the-full-navigation-resolution-flow)
+对于这部分流程的原文。
+:::
+
+- 调用离开组件的 `beforeRouteLeave` 守卫。
+- 调用全局的 `beforeEach` 守卫
+- 调用复用组件内部的 `beforeRouteUpdate` 守卫
+- 调用目标路由配置的 `beforeEnter` 守卫
+- 处理异步组件
+- 调用目标组件内部的 `beforeRouteEnter` 守卫
+- 初始化并调用全局的 `beforeResolve` 守卫
+- 如果上述操作有异常，会在最后的 `catch()` 回调中被捕获到
 
 如何保证守卫都按顺序执行？来看 `runGuardQueue`，它通过 `Array.prototype.reduce` 保证了 `guards` 链式执行：
 
@@ -1132,6 +1233,31 @@ function runGuardQueue(guards: Lazy<any>[]): Promise<void> {
   )
 }
 ```
+
+如果没有理解，可以运行下面的代码感受一下：
+
+```typescript
+// 链式的 Promise
+
+const promises = new Array(10).fill(null).map((item, index) => {
+  return () => {
+    return Promise.resolve("promise " + index + " resolved!");
+  }
+});
+
+const reducer = (promise, guard) => {
+  return promise.then((res) => {
+    console.log(res);
+    return guard(res);
+  });
+}
+
+promises.reduce(reducer, Promise.resolve());
+```
+
+运行结果：
+
+![](http://cdn.yuzzl.top/blog/20201217185242.png)
 
 #### finalizeNavigation -- 完成导航
 
@@ -1498,6 +1624,18 @@ function navigate(
 }
 ```
 
+## PART 2 总结
+
+在第二部分的内容中，我们详细阐述了在第一部分封装完成的路由核心是如何结合 `vue` 来实现功能的。
+
+路由的初始化从 `createRouter()` 开始，正确的路径可以成功匹配（match）到相应的路由，从而匹配到路由组件。
+
+`router-view` 组件是路由渲染的核心，它可以拿到当前路由，然后匹配到组件并渲染它。另外，它还支持路由的嵌套，此功能能够正确运行的基础在于匹配到的路由深度随着下标的增大而增大，我们可以根据深度找到对应关系。
+
+`router-link` 用来替代 `<a>` 标签，赋予了路由跳转的功能。另外，它还利用 `vue` 的作用域插槽暴露一些底层的 API 供库作者或者开发者使用，一个典型的案例就是 CMS 后台的路由侧边栏。
+
+在路由切换的过程中有大量的守卫钩子，这些钩子会在适当的地方执行，不同的类型钩子之间通过 `promise` 链式调用。同时其内部也考虑了异步路由（懒加载）的方式。
+
 ## 参考资料
 
 | 标题                                      | 来源                                                   |
@@ -1505,6 +1643,6 @@ function navigate(
 | vue-router-next 仓库                        | https://github.com/vuejs/vue-router-next             |
 | vue-router-next 文档                       |    https://next.router.vuejs.org              |
 | vue-next 文档                       |   https://v3.vuejs.org/           |
-| MDN                    |  https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/some          |
+| MDN                              |  https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/some      |
 
 
