@@ -673,8 +673,8 @@ Axios.prototype.request = function request(config) {
 
     - 下面是一种示例情况（`dispatchRequest()`使用`promise`包装了整个网络请求，后面会详细介绍）：
 
-      ```javascript
-      var chain = [
+      ```
+      let chain = [
           请求拦截1(请求成功时), 请求拦截1（请求失败时）, 
           dispatchRequest, undefined, 
           响应拦截1（响应成功时）， 响应拦截1（响应失败时）
@@ -1238,7 +1238,7 @@ if (utils.isStandardBrowserEnv()) {
       ），例如对于url `http://yuzzl.top/index.html`：
 
       | URL                                | 是否同源 | 原因                                 |
-                      | ---------------------------------- | -------- | ------------------------------------ |
+                                                          | ---------------------------------- | -------- | ------------------------------------ |
       | `http://yuzzl.top/index.html`      | 同源     | **域名或 IP 地址、端口与协议都相同** |
       | `https://yuzzl.top/index.html`     | 不同源   | **协议不同**                         |
       | `http://yuzzl.top:8081/index.html` | 不同源   | **端口号不同**                       |

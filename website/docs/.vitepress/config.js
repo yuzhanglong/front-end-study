@@ -35,6 +35,10 @@ function getBlogSidebar() {
       link: '/blog/axios-study'
     },
     {
+      text: 'vue-router源码解读',
+      link: '/blog/vue-router-study'
+    },
+    {
       text: 'webpack-loader & plugin 详解',
       link: '/blog/webpack-loader-and-plugin'
     },
