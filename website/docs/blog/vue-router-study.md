@@ -1,4 +1,4 @@
-# Vue-Router源码解析
+# vue-router-next 源码解析
 
 [[toc]]
 
@@ -9,14 +9,16 @@
 实际上，前端路由的核心无非就是下面的两点：
 
 - 改变 url，页面**不刷新**。
-- 改变 url 时，我们可以**监听**到并能做出一些处理（如更新 DOM）。
+- 改变 url 时，我们可以**监听**到路由的变化并能够做出一些处理（如更新 DOM）。
+
+本文的源码解读基于 `vue-router-next 4.0.1`，于 12.7 发布。
 
 ## 路由核心
 
 我们现在暂时抛开 `Vue` 这个框架，想想如何使用**原生 JS** 实现一个路由管理工具，如此一来，任何 router 库无非就是在这个基础上进行扩展，让其适应自身的框架，这便是一种**封装**
 思想的体现，我们现在讨论的 `VueRouter` 就是如此做的, 来看下图（来自官方文档）：
 
-![](http://cdn.yuzzl.top/blog/20201107205145.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201107205145.png">![](http://cdn.yuzzl.top/blog/20201107205145.png)</a>
 
 可以发现，两种模式分别对应我们前面提到的两种路由方案：
 
@@ -93,7 +95,7 @@ window.MY_HISTORY = routerHistory;
 起一个空白的H5页面，只执行上面的方法，可以看出，这些路由操作全部如期望的一样执行，上升到框架层面，无非也是对这个 `routerHistory` 进行各种操作，例如让它变成响应式的，所以由此可见，封装一套**通用的路由操作API**
 至关重要。
 
-![](http://cdn.yuzzl.top/blog/20201107213838.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201107213838.png">![](http://cdn.yuzzl.top/blog/20201107213838.png)</a>
 
 接下来，我们来看看 `routerHistory` 的一些详细的实现。
 
@@ -271,7 +273,7 @@ function push(to: HistoryLocation, data?: HistoryState) {
 
 我们可以看到，一次 `push` 状态改变了两次，我们可以在控制台上打印这两个状态一探究竟：
 
-![](http://cdn.yuzzl.top/blog/20201108132516.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201108132516.png">![](http://cdn.yuzzl.top/blog/20201108132516.png)</a>
 
 可以看出，第一个状态可以看成一个"中间状态"，体现在 `forward` 字段上，第二个状态才是我们的最终状态，可以看到 `current` 已经变成了`hello`。
 
@@ -464,7 +466,7 @@ app.mount('#app')
 
 `createRouter()` 用来创建供Vue应用程序使用的Router实例。它返回一个 `router` 对象，里面就是我们熟悉的一系列 `vue-router` API：
 
-![](http://cdn.yuzzl.top/blog/20201114190252.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201114190252.png">![](http://cdn.yuzzl.top/blog/20201114190252.png)</a>
 
 #### 整体过程
 
@@ -519,17 +521,17 @@ const r = {
 
 - **当前路由信息**（currentRoute）：当前所处的路径的一些数据信息：
 
-![](http://cdn.yuzzl.top/blog/20201217124529.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201217124529.png">![](http://cdn.yuzzl.top/blog/20201217124529.png)</a>
 
 - **匹配到的路由**（matched）：传入当前路由，通过 matcher 来匹配到的一个或者多个路由信息，拿到匹配到的路由，我们就可以渲染其对应的组件：
 
-![](http://cdn.yuzzl.top/blog/20201217124838.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201217124838.png">![](http://cdn.yuzzl.top/blog/20201217124838.png)</a>
 
 - 路由匹配器（RouteRecordMatcher）：它是一个对象，他主要维护一个正则语句和与其匹配的路由信息（recode）。
 
 下图是路由匹配宏观的的过程：
 
-![](http://cdn.yuzzl.top/blog/20201217140746.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201217140746.png">![](http://cdn.yuzzl.top/blog/20201217140746.png)</a>
 
 #### createRouterMatcher -- 初始化路由 matcher
 
@@ -554,7 +556,7 @@ return {
 }
 ```
 
-`createRouterMatcher()` 基于上述的 API，核心是维护了 `matchers` 这个数组，全局所有的匹配器都包含在内：
+`createRouterMatcher()` 基于上述的 API，核心是维护了 `matchers` 这个数组，全局所有的匹配器都包含在内。
 
 结合调试工具，来看一下这两个数据，下面是我们的路由结构：
 
@@ -583,7 +585,7 @@ it("yzl test", () => {
 
 其生成的匹配器数组和映射表如图所示（是通过 `addRoute` 实现的，后面会说）：
 
-![](http://cdn.yuzzl.top/blog/20201217174201.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201217174201.png">![](http://cdn.yuzzl.top/blog/20201217174201.png)</a>
 
 可以看出，对于每个路由配置，都会有相应的 `matcher` 和它匹配（通过正则表达式），例如，我们的路径是 `one/two`，那么可以匹配到上图的**第一项**。
 
@@ -745,7 +747,7 @@ export function useCallbacks<T>() {
 
 这个函数被调用之后返回一个对象，并且，`add` 会在 `createRouter()` 主函数中作为我们熟悉的 `beforeEach` 等API暴露给调用者：
 
-![](http://cdn.yuzzl.top/blog/image-20201115122627609.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/image-20201115122627609.png">![](http://cdn.yuzzl.top/blog/image-20201115122627609.png)</a>
 
 `add` 用来注册守卫，`reset` 清空守卫，`list` 是一个函数，返回 `handlers` 数组，在相应的时机 `vue-router` 会遍历调用之。
 
@@ -1208,7 +1210,7 @@ return (
 
 下面称 `leavingRecords` 匹配的所有组件为**离开组件**，`enteringRecords` 匹配的所有组件为**目标组件**，`enteringRecords` 匹配的所有组件为**复用组件**
 
-另外，你也可以查看[这部分的官方文档](https://next.router.vuejs.org/guide/advanced/navigation-guards.html#the-full-navigation-resolution-flow)
+另外，你也可以查看[官方文档](https://next.router.vuejs.org/guide/advanced/navigation-guards.html#the-full-navigation-resolution-flow)
 对于这部分流程的原文。
 :::
 
@@ -1257,7 +1259,7 @@ promises.reduce(reducer, Promise.resolve());
 
 运行结果：
 
-![](http://cdn.yuzzl.top/blog/20201217185242.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201217185242.png">![](http://cdn.yuzzl.top/blog/20201217185242.png)</a>
 
 #### finalizeNavigation -- 完成导航
 
@@ -1367,7 +1369,7 @@ const injectedRoute = inject(routerViewLocationKey)!;
 
 也可以结合下图感受一下：
 
-![](http://cdn.yuzzl.top/blog/20201216132538.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201216132538.png">![](http://cdn.yuzzl.top/blog/20201216132538.png)</a>
 
 之后，routerToDisplay 决定了要渲染的路由，如果 `props.route` 有值，则渲染它，否则渲染我们上面提到的 `injectedRoute`：
 
@@ -1406,7 +1408,7 @@ url 层面下体现为 `/children/b` 加上空字符串）。
 
 调试看看匹配的路由：
 
-![](http://cdn.yuzzl.top/blog/20201216161630.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201216161630.png">![](http://cdn.yuzzl.top/blog/20201216161630.png)</a>
 
 这样通过判断当前深度就可以正确匹配路由了，这也顺便解释了上面 `depth` 的意义。
 
@@ -1626,15 +1628,19 @@ function navigate(
 
 ## PART 2 总结
 
-在第二部分的内容中，我们详细阐述了在第一部分封装完成的路由核心是如何结合 `vue` 来实现功能的。
+在第二部分的内容中，我们详细阐述了在第一部分封装完成的路由核心是如何结合 `vue` 来实现目标功能的。
 
-路由的初始化从 `createRouter()` 开始，正确的路径可以成功匹配（match）到相应的路由，从而匹配到路由组件。
+路由的初始化从 `createRouter()` 开始，正确的路径可以成功匹配（match）到相应的路由，从而匹配到路由组件。匹配的内部实现基于全局 matcher
+维护的匹配器，通过传入当前路径，遍历匹配器，寻找到符合的匹配器对应的一个或多个组件。
 
-`router-view` 组件是路由渲染的核心，它可以拿到当前路由，然后匹配到组件并渲染它。另外，它还支持路由的嵌套，此功能能够正确运行的基础在于匹配到的路由深度随着下标的增大而增大，我们可以根据深度找到对应关系。
+`router-view` 组件是路由渲染的核心，它可以拿到当前路由，然后利用上面的 matcher
+匹配到组件并渲染它。另外，它还支持路由的嵌套，此功能能够正确运行的基础在于匹配到的路由深度随着下标的增大而增大，我们可以根据深度找到对应关系。
 
 `router-link` 用来替代 `<a>` 标签，赋予了路由跳转的功能。另外，它还利用 `vue` 的作用域插槽暴露一些底层的 API 供库作者或者开发者使用，一个典型的案例就是 CMS 后台的路由侧边栏。
 
 在路由切换的过程中有大量的守卫钩子，这些钩子会在适当的地方执行，不同的类型钩子之间通过 `promise` 链式调用。同时其内部也考虑了异步路由（懒加载）的方式。
+
+另外还有一些细节功能，例如路由别名、滚动处理等，如果有兴趣可以自行查看源码探究。
 
 ## 参考资料
 
