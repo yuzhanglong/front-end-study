@@ -674,9 +674,9 @@ Axios.prototype.request = function request(config) {
 
     ```javascript
     let chain = [
-        请求拦截1(请求成功时), 请求拦截1（请求失败时）, 
+        "请求拦截1(请求成功时)", "请求拦截1（请求失败时）",
         dispatchRequest, undefined, 
-        响应拦截1（响应成功时）， 响应拦截1（响应失败时）
+        "响应拦截1（响应成功时）", "响应拦截1（响应失败时）"
     ];
     ```
 
@@ -1183,7 +1183,6 @@ axios的Features之一（原文）: Client side support for protecting against�
 **跨站请求伪造**（英语：Cross-site request forgery），也被称为 **one-click attack** 或者 **session riding**，通常缩写为 **CSRF** 或者 **XSRF**。 **
 在未授权系统可以访问某个资源**时，可以将其视为跨站点请求伪造攻击。未授权系统会按照处理请求的服务器的要求**伪装自己**。
 
-
 ##### 处理手段
 
 - 要求通过 SSL 访问能够被 Ajax 访问的资源
@@ -1192,10 +1191,12 @@ axios的Features之一（原文）: Client side support for protecting against�
 :::tip
 
 注意：以下手段对防护 CSRF 攻击是不安全的
+
 - 要求 POST 而非 GET 请求（很容易修改请求方法）
 - 使用referrer URL 验证来源（很容易伪造）
 - 基于 cookie 验证（很容易伪造）
-:::
+  :::
+
 ##### axios中的处理方式
 
 回到源码，我们来看看axios是如何处理的。
@@ -1603,15 +1604,15 @@ module.exports = function httpAdapter(config) {
 };
 ```
 
-#### Buffer(缓冲区)
+#### Buffer (缓冲区)
 
 JavaScript语言自身只有字符串数据类型，没有二进制数据类型。
 
-但在处理像**TCP流**或**文件流**时，必须使用到二进制数据。因此在 Node.js中，定义了一个Buffer类，该类用来创建一个专门存放二进制数据的缓存区。
+但在处理像** TCP 流**或**文件流**时，必须使用到二进制数据。因此在 Node.js 中，定义了一个 Buffer 类，该类用来创建一个专门存放二进制数据的缓存区。
 
 在 Node.js 中，Buffer 类是随 Node 内核一起发布的核心库。Buffer 库为 Node.js 带来了一种存储原始数据的方法，可以让 Node.js 处理二进制数据。
 
-请看下面的代码，这是http适配器对data进行**预处理**的部分。
+请看下面的代码，这是 http 适配器对 data 进行**预处理**的部分。
 
 ```javascript
     // 二进制数据流
@@ -1636,15 +1637,15 @@ if (data && !utils.isStream(data)) {
 }
 ```
 
-- 首先读取`config`的`data`(用户传入的配置)，然后判断data是否为二进制数据流，如果不是，开始执行下面的分支处理。
+- 首先读取 `config` 的 `data`(用户传入的配置)，然后判断data是否为二进制数据流，如果不是，开始执行下面的分支处理。
 
-- 如果是`ArrayBuffer`, 我们调用`Buffer.from(new Uint8Array(data))`将其转为`Buffer`。
+- 如果是 `ArrayBuffer`, 我们调用 `Buffer.from(new Uint8Array(data))` 将其转为 `Buffer`。
 
-- 如果是`String`，我们调用`Buffer.from(data, 'utf-8')`将其转为`Buffer`。
+- 如果是 `String`，我们调用 `Buffer.from(data, 'utf-8')` 将其转为 `Buffer`。
 
-- 如果以上转换条件都不符合，我们抛出异常，并将`Promise`的状态置为`reject`。
+- 如果以上转换条件都不符合，我们抛出异常，并将 `Promise` 的状态置为 `reject`。
 
-- 设置`Content-Length`请求头。
+- 设置 `Content-Length` 请求头。
 
 #### Proxy - 代理
 
@@ -1672,9 +1673,9 @@ module.exports = function createError(message, config, code, request, response) 
 };
 ```
 
-`createError()`可以使用使用指定的消息，配置，错误代码，请求和响应来创建错误。
+`createError()` 可以使用使用指定的消息，配置，错误代码，请求和响应来创建错误。
 
-例如，axios在收到非`2XX - 正常`的返回时，就会`reject`Promise，并且抛出一个`createError`
+例如，axios在收到非**2XX - 正常**的返回时，就会 `reject` Promise，并且抛出一个 `createError`
 
 ```javascript
 reject(createError(
@@ -1688,13 +1689,13 @@ reject(createError(
 
 #### enhanceError.js
 
-`createError()`最终返回一个`enhanceError()`，是一个默认异常的**扩展**（enhance），也是自定义异常的核心所在。
+`createError()` 最终返回一个 `enhanceError()`，是一个默认异常的**扩展**（enhance），也是自定义异常的核心所在。
 
-`enhanceError()`传入一个`error`对象以及一系列响应、请求的配置，来扩展这个`Error`，这包括：
+`enhanceError()` 传入一个 `error` 对象以及一系列响应、请求的配置，来扩展这个 `Error`，这包括：
 
-- 将用户配置、请求对象（如果有的话）、响应对象（如果有的话）、响应（错误）码带入error中。
-- 附加一个`toJson()`方法
-- 值得注意的是，不同浏览器的`Error()`对象的成员变量可能有差别，下面的注释就体现了这一点。
+- 将用户配置、请求对象（如果有的话）、响应对象（如果有的话）、响应（错误）码带入 error 中。
+- 附加一个 `toJson()` 方法
+- 值得注意的是，不同浏览器的 `Error()` 对象的成员变量可能有差别，下面的注释就体现了这一点。
 
 ```javascript
 module.exports = function enhanceError(error, config, code, request, response) {
