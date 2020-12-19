@@ -15,9 +15,19 @@ module.exports = {
     docsDir: 'docs',
     nav: [],
     sidebar: {
-      '/blog': getBlogSidebar()
+      '/blog': getBlogSidebar(),
+      '/': getBaseSidebar()
     }
   }
+}
+
+function getBaseSidebar() {
+  return [
+    {
+      text: 'README',
+      link: '/index'
+    }
+  ]
 }
 
 function getBlogSidebar() {
@@ -53,6 +63,10 @@ function getBlogSidebar() {
     {
       text: 'typescript 数据结构与算法',
       link: '/blog/typescript-algorithm'
+    },
+    {
+      text: '深入浏览器和 Node.js 的事件循环',
+      link: '/blog/event-loop'
     }
   ]
 }
