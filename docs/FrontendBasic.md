@@ -735,7 +735,7 @@ cookie数据**不是安全的**，任何人都可以获得，常见的XSRF攻击
     - Lax：`Lax`规则稍稍放宽，大多数情况也是不发送第三方 Cookie，但是**导航到目标网址的 Get 请求除外**，具体内容请看下表。
 
   | 请求类型  |      示例      |    正常情况 | Lax         |
-                                                                        | :-------- | :------------: | ----------: | :---------- |
+                                                                              | :-------- | :------------: | ----------: | :---------- |
   | 链接      |       `<a href="..."></a>`       | 发送 Cookie | 发送 Cookie |
   | 预加载    |       `<link rel="prerender" href="..."/>`       | 发送 Cookie | 发送 Cookie |
   | GET 表单  |       `<form method="GET" action="...">`       | 发送 Cookie | 发送 Cookie |
@@ -1545,62 +1545,6 @@ JS引擎为模块创造一个**环境记录**（environment record）来管理�
 这也是我们为什么有模块映射表的原因。模块映射表通过唯一的URL只为模块添加一条模块记录。这就保证了每个模块只执行一次。
 
 ## 事件循环（Event Loop）
-
-### 浏览器的事件循环
-
-#### 规范
-
-对于事件循环，HTML规范如此介绍道：
-
-> There must be at least one event loop per user agent, and at most one event loop per unit of related similar-origin browsing contexts.
->
-> An event loop has one or more task queues.
->
-> Each task is defined as coming from a specific task source.
-
-- 浏览器至少有一个事件循环
-- 一个事件循环至少有一个任务队列
-- 每个任务都有自己的分组，浏览器会为不同的任务组设置优先级。
-
-#### 宏任务和微任务
-
-浏览器的事件循环中并非只维护着一个队列，事实上是有两个队列：
-
-- **宏任务队列**（macrotask queue）：**ajax**、**setTimeout**、**setInterval**、**DOM监听**、**UI Rendering**等
-- **微任务队列**（microtask queue）：Promise的then回调、 Mutation Observer API、`queueMicrotask()`等。
-
-#### 流程
-
-来看下图，它详细介绍了事件循环的处理过程：
-
-![](http://cdn.yuzzl.top/blog/event-loop.jpg)
-
-来看下面的代码：
-
-```javascript
-console.log('start')
-
-setTimeout(function () {
-  console.log('setTimeout')
-}, 0)
-
-Promise.resolve().then(function () {
-  console.log('promise1')
-}).then(function () {
-  console.log('promise2')
-})
-
-console.log('end')
-```
-
-分析一下过程：
-
-- 全局代码压栈，打印start。
-- setTimeout进入**macrotask queue**。
-- `Promise.then`后的回调进入**macrotask queue**。
-- 执行最后一行，打印end。
-- 全局代码执行完毕，接下来执行**microtask**的任务，打印promise1、promise2。
-- 这时microtask队列已经为空，从上面的流程图可以知道，接下来主线程会去做一些UI渲染工作（不一定会做），然后开始下一轮event loop，执行setTimeout的回调，打印出`setTimeout`。
 
 ### Node的事件循环
 
