@@ -3,7 +3,6 @@
 
 type T0 = Extract<"a" | "b" | "c", "a" | "f">;
 
-type T1 = Extract<string | number | (() => void), Function>;
 
 // Extract 原理，它其实和 exclude 的情况相反
 // 拿 T0 来说，
