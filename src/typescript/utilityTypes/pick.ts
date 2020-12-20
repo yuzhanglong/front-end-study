@@ -19,7 +19,6 @@ type MyPick<T, K extends keyof T> = {
   [P in K]: T[P];
 };
 
-// K extends keyof T
-// keyof T 表示 T 所有 key 的联合类型，K 继承之
+// 首先，K 必须是 T 的所有键组成的集合的子集，其次，新的对象的 key 为 K 的每一个元素。
 
 
