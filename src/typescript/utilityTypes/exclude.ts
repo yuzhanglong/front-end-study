@@ -9,11 +9,7 @@ type T0 = Exclude<"a" | "b" | "c", "a" | "c">;
 // 合法的表达式
 let b: T0 = "b";
 
-// Exclude 的本质
-// 如果 T 包含的类型不是 U 包含的类型的 '子集'，则为 never 否则返回 T
+// Exclude
 type MyExclude<T, U> = T extends U ? never : T;
 
-//   Exclude<"a" | "b" | "c", "a" | "c">
-// = Exclude<"a" , "a" | "c"> | Exclude<"b", "a" | "c"> | Exclude<"c", "a" | "c">
-// = never | "b" | never
-// = "b"
+type T1 = MyExclude<"a" | "b" | "c", "a" | "c">;
