@@ -16,7 +16,7 @@
 
 一图以蔽之：
 
-![](http://cdn.yuzzl.top/blog/20201221142823.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201221142823.png">![](http://cdn.yuzzl.top/blog/20201221142823.png)</a>
 
 ### 强制缓存
 
@@ -69,14 +69,14 @@ Cache-Control 中的 `max-age=x` 和 `Expires` 的值有所区别 --- 一个是�
 下面的代码利用 **Last-Modified** 和 **If-Modified-Since** 来实现协商缓存，**Last-Modified** 是服务端返回的，可以是当前时间，下次浏览器请求这个资源时就会把这个
 **Last-Modified** 交给服务端，让服务端来进行验证。
 
-![](http://cdn.yuzzl.top/blog/20201120195300.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201120195300.png">![](http://cdn.yuzzl.top/blog/20201120195300.png)</a>
 
 **ETag + If-None-Match**
 
 下面的代码利用 **ETag + If-None-Match** 实现缓存，服务端将文件计算 hash 值放入 Etag 返回，下次用户再次访问时 If-None-Match 会携带这个ETag，服务端将新的文件计算
 hash，然后对比来判断是否 304。
 
-![](http://cdn.yuzzl.top/blog/20201120200552.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201120200552.png">![](http://cdn.yuzzl.top/blog/20201120200552.png)</a>
 
 ## 优化资源的编码/大小
 
@@ -163,16 +163,16 @@ gzip压缩比率在 3 到 10 倍左右，可以大大节省服务器的网络带
 
 下图是 gzip 的工作流程：
 
-![](http://cdn.yuzzl.top/blog/20201101225138.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201101225138.png">![](http://cdn.yuzzl.top/blog/20201101225138.png)</a>
 
 - 浏览器请求url，并在request header中设置属性 `accept-encoding:gzip`。表明浏览器支持 gzip，例如下图：
 
-![](http://cdn.yuzzl.top/blog/20201101225226.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201101225226.png">![](http://cdn.yuzzl.top/blog/20201101225226.png)</a>
 
 - 服务器收到浏览器发送的请求之后，判断浏览器是否支持 gzip，如果支持 gzip，则向浏览器传送压缩过的内容，不支持则向浏览器发送未经压缩的内容。如果支持，response
   headers返回 `content-encoding:gzip`
 
-![](http://cdn.yuzzl.top/blog/20201101225238.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201101225238.png">![](http://cdn.yuzzl.top/blog/20201101225238.png)</a>
 
 - 浏览器接收到服务器的响应之后判断内容是否被压缩，如果被压缩则解压缩并显示页面内容。
 
@@ -234,7 +234,7 @@ defer 的**加载**会在 `DOMContentLoaded` 事件之前执行。
 
 **async** 意为“异步”，来看下面代码：
 
- ```html
+```html
 <!DOCTYPE html>
 <html>
   <head>
@@ -309,7 +309,7 @@ p::before {
 
 下面总结一下全过程：
 
-![](http://cdn.yuzzl.top/blog/20201031201457.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201031201457.png">![](http://cdn.yuzzl.top/blog/20201031201457.png)</a>
 
 网页载入时，上述过程（至少）会执行一次，但是某些操作会导致网页重新渲染，即重新生成布局和重新绘制。前者叫做"重排"（`reflow`），后者叫做"重绘"（`repaint`）。
 
@@ -360,11 +360,11 @@ getBoundingClientRect
 
 每一帧的工作流程如下所示：
 
-![](http://cdn.yuzzl.top/blog/frame-full.jpg)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/frame-full.jpg">![](http://cdn.yuzzl.top/blog/frame-full.jpg)</a>
 
 我们上面一直在说减少重排、重绘，用类似的图来表达就是这样，这是我们最期望的效果：
 
-![](http://cdn.yuzzl.top/blog/frame-no-layout-paint.jpg)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/frame-no-layout-paint.jpg">![](http://cdn.yuzzl.top/blog/frame-no-layout-paint.jpg)</a>
 
 **Style** 指样式计算。此过程是根据匹配选择器计算出哪些元素应用哪些 CSS 规则的过程，这个过程不仅包括计算层叠样式表中的权重来确定样式，也包括内联的样式，来计算每个元素的最终样式。
 **Composite** 指合成。由于页面的各部分可能被绘制到多个层上，因此它们需要按正确顺序绘制到屏幕上，才能正确地渲染页面。
@@ -375,11 +375,11 @@ getBoundingClientRect
 
 图中 `Frame` 代表一帧，但是 `js` 的执行让某些帧无法执行，导致丢帧，在用户面前体现为卡顿
 
-![](http://cdn.yuzzl.top/blog/pagejank2.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/pagejank2.png">![](http://cdn.yuzzl.top/blog/pagejank2.png)</a>
 
 于是我们使用 `requestAnimationFrame()` 来解决这个问题，它的原理实在每一次重绘前执行相应的 js 代码，来达到下图的理想状态：
 
-![](http://cdn.yuzzl.top/blog/raf.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/raf.png">![](http://cdn.yuzzl.top/blog/raf.png)</a>
 
 下面的案例来自 [MDN](https://developer.mozilla.org/zh-CN/docs/Web/API/Window/requestAnimationFrame) ：
 
