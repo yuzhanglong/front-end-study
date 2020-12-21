@@ -71,6 +71,10 @@ function getBlogSidebar() {
     {
       text: 'typescript 工具类型解析',
       link: '/blog/typescript-utility-types'
+    },
+    {
+      text: '谈谈前端性能优化',
+      link: '/blog/frontend-better-performance'
     }
   ]
 }

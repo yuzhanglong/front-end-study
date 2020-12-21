@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>requestIdleCallback</title>
+  </head>
+  <body>
+
+    <script>
+      const myNonEssentialWork = (deadline) => {
+        // deadline.timeRemaining() 可以获取到当前帧剩余时间 ms
+        console.log(deadline.timeRemaining());
+        window.requestIdleCallback(myNonEssentialWork);
+      }
+      window.requestIdleCallback(myNonEssentialWork);
+    </script>
+
+  </body>
+</html>
