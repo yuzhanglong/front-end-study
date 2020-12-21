@@ -305,7 +305,7 @@ readFile(fileA)
 
 `Promise` 挺不错，但是也有一些问题，例如大量冗余的代码 -- 跟着一大堆 `then`，异步逻辑一多，代码会非常难以维护。
 
-我们可能会期望这样的代码，在 `console.log(result)` 中拿到结果"hello world"：
+我们可能会期望这样的代码，在 `console.log(result)` 中拿到结果 "hello world"：
 
 ```javascript
 function foo() {
@@ -315,7 +315,7 @@ function foo() {
       resolve("hello world");
     }, 1000);
   });
-  const res2 = yield new Promise((resolve, reject) => {
+  const res2 = new Promise((resolve, reject) => {
     setTimeout(() => {
       resolve("yzl!");
     }, 1000);
@@ -332,6 +332,7 @@ function foo() {
 ```javascript
 function* bar() {
   console.log('hi~');
+  
   // 利用 setTimeout 模拟网络请求
   const res1 = yield new Promise((resolve, reject) => {
     setTimeout(() => {
@@ -343,9 +344,10 @@ function* bar() {
       resolve("yzl!");
     }, 1000);
   });
-  // 这里是无法拿到 hello world 的
+  
+  // 我们希望拿到 hello world!
   console.log(res1);
-  // 这里是无法拿到 yzl 的
+  // 我们希望拿到 yzl!
   console.log(res2);
 }
 ```

@@ -705,7 +705,7 @@ Other-header: other-header-value
 
 ##### 非安全环境
 
-cookie数据**不是安全的**，任何人都可以获得，常见的XSRF攻击就可以利用浏览器的cookie来进行非法的访问。
+cookie数据**不是安全的**，任何人都可以获得，常见的 XSRF 攻击就可以利用浏览器的 cookie 来进行非法的访问。
 
 #### 组成
 
@@ -735,7 +735,7 @@ cookie数据**不是安全的**，任何人都可以获得，常见的XSRF攻击
     - Lax：`Lax`规则稍稍放宽，大多数情况也是不发送第三方 Cookie，但是**导航到目标网址的 Get 请求除外**，具体内容请看下表。
 
   | 请求类型  |      示例      |    正常情况 | Lax         |
-                                                                              | :-------- | :------------: | ----------: | :---------- |
+                                                                                                    | :-------- | :------------: | ----------: | :---------- |
   | 链接      |       `<a href="..."></a>`       | 发送 Cookie | 发送 Cookie |
   | 预加载    |       `<link rel="prerender" href="..."/>`       | 发送 Cookie | 发送 Cookie |
   | GET 表单  |       `<form method="GET" action="...">`       | 发送 Cookie | 发送 Cookie |
@@ -1161,42 +1161,6 @@ window.addEventListener("hashchange", (event) => {
 </html>
 ```
 
-#### HTML5 History API
-
-**history** 对象表示当前窗口首次使用以来用户的导航历史记录。因为 history 是 window 的属性，所以每个 window 都有自己的 history 对象。出于安全考虑，这个对象不会暴露用户访问过的
-URL，但可以通过它在不知道实际 URL 的情况下前进和后退。
-
-##### go()
-
-`go()`方法可以在用户历史记录中沿任何方向导航，可以前进也可以后退。这个方法只接收一个参数， 这个参数可以是一个整数，表示前进或后退多少步。负值表示在历史记录中后退（类似点击浏览器的“后
-退”按钮），而正值表示在历史记录中前进（类似点击浏览器的“前进”按钮）。
-
-```javascript
-// 后退一页
-history.go(-1);
-// 前进一页
-history.go(1);
-// 前进两页
-history.go(2);  
-```
-
-##### back()  / forward()
-
-它们是`go()`的语法糖。
-
-```javascript
-// 后退一页
-history.back();
-// 前进一页
-history.forward();
-```
-
-##### pushState()
-
-`pushState()`方法执行后，状态信息就会被推到历史记录中，浏览器地址栏也会改变以反映新的相对 URL（可以想象成一个“假的”URL）。
-
-因为 `pushState()`会创建新的历史记录，所以也会相应地启用“后退”按钮。此时单击“后退”按钮，就会触发 window 对象上的 popstate 事件。
-
 ##### 刷新白屏问题
 
 如果你使用一些前端框架和它的路由管理插件，那么有时会出现刷新白屏现象。
@@ -1544,141 +1508,6 @@ JS引擎为模块创造一个**环境记录**（environment record）来管理�
 
 这也是我们为什么有模块映射表的原因。模块映射表通过唯一的URL只为模块添加一条模块记录。这就保证了每个模块只执行一次。
 
-## 事件循环（Event Loop）
-
-### Node的事件循环
-
-#### Node架构
-
-来看下面的架构图，其中：
-
-![](http://cdn.yuzzl.top/blog/640)
-
-- 应用层： 即 JavaScript 交互层，常见的就是 Node.js 的模块，比如 http，fs
-- V8引擎层： 即利用 V8 引擎来解析JavaScript 语法，进而和下层 API 交互
-- NodeAPI层： 为上层模块提供系统调用，一般是由 C 语言来实现，和操作系统进行交互 。
-- LIBUV层： 是跨平台的底层封装，实现了 事件循环、文件操作等，是 Node.js 实现异步的核心 。
-
-#### Event Loop 阶段
-
-##### 概览
-
-![](http://cdn.yuzzl.top/blog/20201123234446.png)
-
-**每个阶段都有一个FIFO队列来执行回调**。通常情况下，我们会按照队列的规则执行操作，操作完成则进入下一阶段。
-
-- **定时器**：本阶段执行已经被 `setTimeout()` 和 `setInterval()` 的调度回调函数。
-- **待定回调**：执行延迟到下一个循环迭代的 I/O 回调。
-- **idle, prepare**：仅系统内部使用。
-- **轮询**：检索新的 I/O 事件;执行与 I/O 相关的回调（几乎所有情况下，除了关闭的回调函数，那些由计时器和 `setImmediate()` 调度的之外），其余情况 node 将在适当的时候在此阻塞。
-- **检测**：`setImmediate()` 回调函数在这里执行。
-- **关闭的回调函数**：一些关闭的回调函数，如：`socket.on('close', ...)`。
-
-##### time阶段
-
-这是事件循环的第一个阶段，Node 会去检查有无已过期的**timer**，如果有则把它的回调压入**timer**的任务队列中等待执行，事实上，Node 并不能保证**timer**在预设时间到了就会立即执行，因为Node对**
-timer**的过期检查不一定靠谱，它会受机器上其它运行程序影响，或者那个时间点主线程不空闲。比如下面的代码，`setTimeout()` 和 `setImmediate()` 的执行顺序是不确定的。
-
-```javascript
-setTimeout(() => {
-  console.log("setTimeout");
-}, 0);
-
-setImmediate(() => {
-  console.log("setImmediate");
-});
-```
-
-可以得到输出：
-
-```shell
-$ node timeout_vs_immediate.js
-timeout
-immediate
-
-$ node timeout_vs_immediate.js
-immediate
-timeout
-```
-
-但如果把它们放到一个I/O回调里面，就一定是 `setImmediate()` 先执行。
-
-```js
-// timeout_vs_immediate.js
-const fs = require('fs');
-
-fs.readFile(__filename, () => {
-  setTimeout(() => {
-    console.log('timeout');
-  }, 0);
-  setImmediate(() => {
-    console.log('immediate');
-  });
-});
-```
-
-可以得到输出：
-
-```shell
-$ node timeout_vs_immediate.js
-immediate
-timeout
-
-$ node timeout_vs_immediate.js
-immediate
-timeout
-```
-
-##### 轮询阶段
-
-**轮询**阶段有两个重要的功能：
-
-- 计算应该阻塞和轮询 I/O 的时间。
-
-- 然后，处理轮询队列里的事件。
-
-当事件循环进入**轮询阶段**且**没有被调度的计时器**时，将发生以下两种情况之一：
-
-- 如果轮询队列不是空的，事件循环将循环访问回调队列并同步执行它们，直到队列已用尽，或者达到了与系统相关的硬性限制。
-
-![](http://cdn.yuzzl.top/blog/20201124002219.png)
-
-- 如果轮询队列是空的，还有两件事发生：
-    - 如果脚本被 `setImmediate()` 调度，则事件循环将结束轮询阶段，并继续检查阶段以执行那些被调度的脚本。
-    - 如果脚本**未被** `setImmediate()`调度则事件循环将等待回调被添加到队列中，然后立即执行。（当然，等待的时间会有一个阈值），所以我们可以解释上面的`setImmediate()`必定先执行的原因了。
-
-一旦轮询队列为空，事件循环将检查已达到时间阈值的计时器。如果一个或多个计时器已准备就绪，则事件循环将绕回计时器阶段以执行这些计时器的回调。
-
-![](http://cdn.yuzzl.top/blog/20201124002109.png)
-
-#### process.nextTick()
-
-如果我们要立刻异步执行一个任务，可能会这样做：
-
-```javascript
-setTimeout(function () {
-  // TODO
-}, 0); 
-```
-
-我们上面说到过，定时器不太精确，而且定时器的查询需要动用红黑树，创建定时器对象、迭代操作。如果我们使用`process.nextTick()`就可以达到**O1**的级别。
-
-#### 尝试一下
-
-我们用代码来理解一下，试解释下面的输出：
-
-![](http://cdn.yuzzl.top/blog/20201123161403.png)
-
-- 代码自上而下执行。打印1处
-- 执行`async1()`，打印2处
-- 执行`async2()`，打印3处，它下面的代码被加入事件队列中。
-- 执行`new Promise`，打印4处、5处。
-- `then`回调被加入事件队列中。
-- 执行6处。
-- 执行所有的`nextTick`。7处、8处。
-- Promise的`then`回调属于微任务队列的内容，执行它们。9处 10处
-- `setTimeout`属于宏任务队列的内容，执行它们，11处。但是13处由于有300的延时，于是放在了12之后。
-
 ## 前端国际化
 
 前端国际化是个很有意思的东西。在前端的国际化本质上是文本的替换，所以如果优雅地处理这种类型的文本替换就很关键。通用的做法都是把文字资源统一管理，在页面中用id来占位，根据语言使用不同的资源去填充，或者设计一个特殊的注解之类的来区分不同语言的文字部分。
@@ -1969,8 +1798,8 @@ ETag是URL的tag，用来标示URL对象是否改变。这样可以应用于客�
 
 ##### Last-Modified + If-Modified-Since
 
-下面的代码利用**Last-Modified**和**If-Modified-Since**来实现协商缓存，**Last-Modified**是服务端返回的，可以是当前时间，下次浏览器请求这个资源时就会把这个**
-Last-Modified**交给服务端，让服务端来进行验证。
+下面的代码利用**Last-Modified**和**If-Modified-Since**来实现协商缓存，**Last-Modified**是服务端返回的，可以是当前时间，下次浏览器请求这个资源时就会把这个
+**Last-Modified**交给服务端，让服务端来进行验证。
 
 ![](http://cdn.yuzzl.top/blog/20201120195300.png)
 
