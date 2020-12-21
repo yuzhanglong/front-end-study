@@ -45,7 +45,7 @@ function getBlogSidebar() {
       link: '/blog/axios-study'
     },
     {
-      text: 'vue-router源码解读',
+      text: 'vue-router-next 源码解析',
       link: '/blog/vue-router-study'
     },
     {
