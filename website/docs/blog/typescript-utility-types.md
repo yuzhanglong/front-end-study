@@ -4,8 +4,6 @@ Typescript 有一套 **Utility Types**（实用工具类型），非常有意思
 
 [[toc]]
 
-
-
 ## Partial
 
 `Partial<Type>` 意为 “部分的”，见文知意，就是所有属性都可选。`Partial<Type>` 用于构造一个类型，并将Type的**所有属性设置为可选**，来看下面这个案例：
@@ -495,11 +493,11 @@ type MyOmitThisParameter<T>
     (...args: A) => R : T;
 ```
 
-如果没有显式声明 `this`, 那么 ThisParameterType<T> 会返回 `unknown`，则结果就是 Type。
+如果没有显式声明 `this`, 那么 `ThisParameterType<T>` 会返回 `unknown`，则结果就是 Type。
 
-如果声明了 this，则 ThisParameterType<T> 会获取到 `this` 的类型
+如果声明了 this，则 `ThisParameterType<T>` 会获取到 `this` 的类型
 
-后面的内容表示 如果 T 是一个函数，则创建创建一个没有 `this` 的新函数类型，否则返回 T。
+后面的内容表示 如果 T 是一个函数，则创建一个没有 `this` 的新函数类型，否则返回 T。
 
 ## ThisType
 
