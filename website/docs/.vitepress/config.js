@@ -65,7 +65,7 @@ function getBlogSidebar() {
       link: '/blog/typescript-algorithm'
     },
     {
-      text: '深入浏览器和 Node.js 的事件循环',
+      text: '分析浏览器和 NodeJS 的事件循环',
       link: '/blog/event-loop'
     }
   ]
