@@ -4,7 +4,11 @@
 
 ## 总述
 
-本文将深入分析浏览器和 NodeJS 的事件循环。
+本文将带你一起分析浏览器和 NodeJS 的事件循环。
+
+强烈看完本文后去阅读国外博主 Deepal Jayasekara 介绍 EventLoop
+的[系列文章](https://blog.insiderattack.net/event-loop-and-the-big-picture-nodejs-event-loop-part-1-1cb67a182810)
+，有些地方会让你感到醍醐灌顶。
 
 ## 事件循环
 
@@ -73,7 +77,7 @@ console.log(foo("yzl"));
 
 首先，我们执行 `console.log("Hi!")`:
 
-![](http://cdn.yuzzl.top/blog/20201225193822.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201225193822.png">![](http://cdn.yuzzl.top/blog/20201225193822.png)</a>
 
 然后是函数 `foo()` 的定义，啥也不执行。
 
@@ -81,11 +85,11 @@ console.log(foo("yzl"));
 
 首先，让 `setTimeout()` 函数入栈：
 
-![](http://cdn.yuzzl.top/blog/20201225194900.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201225194900.png">![](http://cdn.yuzzl.top/blog/20201225194900.png)</a>
 
 `setTimeout()` 立即执行，他会调用浏览器的 **WebAPI**，然后立刻出栈（执行完成），此时浏览器底层会**单独地**进行相应的系统调用（如计时器）：
 
-![](http://cdn.yuzzl.top/blog/20201225194626.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201225194626.png">![](http://cdn.yuzzl.top/blog/20201225194626.png)</a>
 
 我们接着执行 `console.log(foo("yzl"))` ，注意此时 Web API 的计时器也在**同步地执行**，具体的入栈出栈操作这里不再赘述。
 
@@ -93,7 +97,7 @@ console.log(foo("yzl"));
 
 一旦计时器执行完成，**Web API** 会将回调函数放入回调队列中。主线程发现回调队列有内容，会从队列中取出它，放到调用栈中执行：
 
-![](http://cdn.yuzzl.top/blog/20201225195530.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201225195530.png">![](http://cdn.yuzzl.top/blog/20201225195530.png)</a>
 
 您可以进入[这个网站](http://latentflip.com/loupe/?code=Y29uc29sZS5sb2coIkhpISIpOw0KDQpzZXRUaW1lb3V0KGZ1bmN0aW9uIHRpbWVvdXQoKSB7DQogIGNvbnNvbGUubG9nKCJoZWxsbyB3b3JsZCEiKTsNCn0sIDIwMDApOw0KDQpjb25zb2xlLmxvZygibWFpbiBlbmQiKTs%3D!!!PGJ1dHRvbj5DbGljayBtZSE8L2J1dHRvbj4%3D)
 来可视化体验浏览器的事件循环过程。
@@ -112,7 +116,7 @@ console.log(foo("yzl"));
 
 其步骤总结如下图：
 
-![](http://cdn.yuzzl.top/blog/event-loop.jpg)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/event-loop.jpg">![](http://cdn.yuzzl.top/blog/event-loop.jpg)</a>
 
 我们可以发现，事件循环期望微任务**尽可能快地被执行完成**，在上图中体现为每次执行完成一个宏任务，都会去查看微任务队列中有没有内容，如果有，则执行它们直至队列为空。
 
@@ -178,7 +182,7 @@ NodeJS 的事件循环的核心是 **[libuv](https://zh.wikipedia.org/wiki/Libuv
 
 下图展示了这个流程：
 
-![](http://cdn.yuzzl.top/blog/1_2yXbhvpf1kj5YT-m_fXgEQ.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/1_2yXbhvpf1kj5YT-m_fXgEQ.png">![](http://cdn.yuzzl.top/blog/1_2yXbhvpf1kj5YT-m_fXgEQ.png)</a>
 
 可以看出，**Expired timers** 即上面的定时器阶段、**IO Events** 即上面的 `poll` 阶段、`close Handlers` 即上面的 `close callbacks` 阶段。
 
@@ -326,3 +330,8 @@ set immediate4
 对于一些**不同于原生 Promise** 的 Promise 库（如 **Q**），可能不会得到上面的输出，它们的 `then` 回调是利用 `process.nextTick()` 或者 `setImmediate()` 间接实现的。
 :::
 
+## 参考资料
+
+nodejs官网，[The Node.js Event Loop, Timers, and process.nextTick()](https://nodejs.org/en/docs/guides/event-loop-timers-and-nexttick/)
+
+Deepal Jayasekara，[NodeJS Event Loop 系列文章](https://blog.insiderattack.net/event-loop-and-the-big-picture-nodejs-event-loop-part-1-1cb67a182810)
