@@ -2,7 +2,9 @@
 
 ## 总述
 
-本文收集了个人在平时学习中的一些有趣的 ES6 案例，随着我的学习，这篇文章会不断地补充完善。
+本文收集了个人在平时学习中的一些有趣的 ES6 案例。
+
+本文不定期更新，随着我的学习，这篇文章会不断地补充完善。
 
 [[toc]]
 
@@ -720,3 +722,13 @@ foo().then(res => {
   console.log(res);
 })
 ```
+
+## 参考资料
+
+Matt Frisble，JavaScript 高级程序设计（第四版）
+
+MDN，[async和await:让异步编程更简单](https://developer.mozilla.org/zh-CN/docs/learn/JavaScript/%E5%BC%82%E6%AD%A5/Async_await)
+
+Dan Abramov，[Why Do React Elements Have a $$typeof Property?](https://overreacted.io/why-do-react-elements-have-typeof-property/)
+
+Vincent Driessen，[Iterables vs. Iterators vs. Generators](https://nvie.com/posts/iterators-vs-generators/)
