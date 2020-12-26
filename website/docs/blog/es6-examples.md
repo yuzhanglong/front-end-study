@@ -332,7 +332,7 @@ function foo() {
 ```javascript
 function* bar() {
   console.log('hi~');
-  
+
   // 利用 setTimeout 模拟网络请求
   const res1 = yield new Promise((resolve, reject) => {
     setTimeout(() => {
@@ -344,7 +344,7 @@ function* bar() {
       resolve("yzl!");
     }, 1000);
   });
-  
+
   // 我们希望拿到 hello world!
   console.log(res1);
   // 我们希望拿到 yzl!
@@ -472,3 +472,35 @@ function co(gen) {
 redux 有一些中间件提供了一些解决方案，例如 `redux-thunk` 和 `redux-saga`，其中，`redux-saga` 是基于 generator 的一个不错的实践，结合下图，来看看它的用法。
 
 <a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201211132141.png">![](http://cdn.yuzzl.top/blog/20201211132141.png)</a>
+
+## 异步工具 -- Promise、async 和 await
+
+### 实现 promise 的链式调用
+
+你用过 vue-router 吗？如果你用过，你应该知道 vue-router 可以在某个守卫上注册多次，且这些守卫都会按你添加的顺序执行。
+
+实际上其底层就是 promise 链式调用的一种体现，我们可以写一个类似的链式 Promise：
+
+```typescript
+// 链式的 Promise
+const promises = new Array(10).fill(null).map((item, index) => {
+  return () => {
+    return Promise.resolve("promise " + index + " resolved!");
+  }
+});
+
+const reducer = (promise, guard) => {
+  return promise.then((res) => {
+    console.log(res);
+    return guard(res);
+  });
+}
+
+promises.reduce(reducer, Promise.resolve());
+```
+
+运行结果如下：
+
+![promise](http://cdn.yuzzl.top/blog/20201217185242.png)
+
+这里巧妙地利用了数组的 `reduce` API，通过一个 **resolved Promise** 作为初值，让**后一个 promise** 作为**前一个 promise** 的 then 回调的返回值。
