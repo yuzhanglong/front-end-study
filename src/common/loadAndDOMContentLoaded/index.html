@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>load 与 DOMContentLoaded</title>
+    <script>
+      window.onload = () => {
+        console.log("onload execute!");
+      }
+      document.addEventListener('DOMContentLoaded', () => {
+        console.log('DOMContentLoaded!');
+      });
+    </script>
+    <script defer src="http://cdn.yuzzl.top/remoteScript.js"></script>
+    <script defer src="./defer.js"></script>
+    <script async src="./async.js"></script>
+  </head>
+  <body>
+    <div>hhaha</div>
+    <script>
+      console.log("hello");
+    </script>
+
+  </body>
+</html>
