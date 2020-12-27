@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>事件委托</title>
+  </head>
+  <body>
+    <div>
+      如果你有一个很多行的大表格，在每个 tr 上绑定点击事件是个非常危险的想法，因为性能是个大问题。
+      流行的做法是使用事件委托。事件委托描述的是将事件绑定在容器元素上，
+      然后通过判断点击的 target 子元素的类型来触发相应的事件。
+    </div>
+    <div>
+      最适合使用事件委托的事件包括： click、 mousedown、 mouseup、 keydown 和 keypress。
+      mouseover 和 mouseout 事件冒泡，但很难适当处理，且经常需要计算元素位置（因为 mouseout 会
+      在光标从一个元素移动到它的一个后代节点以及移出元素之外时触发）。
+    </div>
+    <strong>TIP:事件委托依赖事件冒泡</strong>
+
+    <ul id="mylist">
+      <li>item 1</li>
+      <li>item 2</li>
+      <li>item 3</li>
+      <li>item 4</li>
+      <li>item 5</li>
+      <li>item 6</li>
+      <li>item 7</li>
+      <li>item 8</li>
+      <li>item 9</li>
+      <li>item 10</li>
+    </ul>
+    <script>
+      document.getElementById('mylist').addEventListener('click', (e) => {
+        console.log(e.target);
+        // console.log(e.currentTarget); 注意和 currentTarget 的区别，currentTarget 是事件的真正监听者
+        // do something
+      })
+    </script>
+  </body>
+</html>
