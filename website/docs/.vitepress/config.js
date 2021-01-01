@@ -2,7 +2,7 @@ module.exports = {
   lang: 'en-US',
   title: 'yzl-blog',
   head: [
-    // add jquert and fancybox
+    // add jquery and fancybox
     ['script', {src: 'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.slim.min.js'}],
     ['script', {src: 'https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.2/jquery.fancybox.min.js'}],
     ['link', {
@@ -47,6 +47,10 @@ function getBlogSidebar() {
     {
       text: 'vue-router-next 源码解析',
       link: '/blog/vue-router-study'
+    },
+    {
+      text: 'express & koa 框架对比及原理分析',
+      link: '/blog/express-and-koa'
     },
     {
       text: 'webpack-loader & plugin 详解',
