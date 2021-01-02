@@ -1,33 +1,37 @@
 # express & koa 框架对比及原理分析
 
+[[toc]]
+
+## 总述
+
 本文将结合源码剖析 **node.js** 的两款优秀框架 **express** 和 **koa** 的原理。本文假设读者已对这两款框架有所了解，并会简单使用。
 
 ## express
 
-### 从一个案例讲起
+### 中间件的注册
 
-来看下面的 DEMO，它可以启动一个 express 服务器：
+我们从下面这个 DEMO 开始讲起，它可以启动一个 express 服务器：
 
 ```javascript
 const express = require("express");
 
 const app = express();
 
-app.use((req, res, next) => {
+app.use(/* 中间件 M1 */ (req, res, next) => {
   console.log("middleware 01 in app.use");
   next();
-}, (req, res, next) => {
+}, /* 中间件 M2 */ (req, res, next) => {
   console.log("middleware 02 in app.use");
   next();
 });
 
-app.get('/home', (req, res, next) => {
+app.get('/home', /* 中间件 M3 */ (req, res, next) => {
   console.log("home and get method middleware 01");
   next();
-}, (req, res, next) => {
+}, /* 中间件 M4 */ (req, res, next) => {
   console.log("home and get method middleware 02");
   next();
-}, (req, res, next) => {
+}, /* 中间件 M5 */ (req, res, next) => {
   console.log("home and get method middleware 03");
   res.end("hello world");
 });
@@ -38,22 +42,10 @@ app.listen(8000, () => {
 });
 ```
 
-其中，函数体 `(req, res, next) => {}` 被称为中间件函数（下文所有提到的中间件函数均指这种形式的函数体），中间件函数能够访问请求对象 (req)、响应对象 (res)
-以及应用程序的请求/响应循环中的下一个中间件函数。下一个中间件函数通常由名为 next 的变量来表示，通过调用函数 `next()` 可以将控制权转移到下一个中间件函数中。
+其中，函数体 `(req, res, next) => {}` 被称为**中间件函数**（下文所有提到的中间件函数均指这种形式的函数体），中间件函数能够访问请求对象 (req)、响应对象 (res)
+以及应用程序的请求/响应循环中的下一个中间件函数。下一个中间件函数通常由名为 **next** 的变量来表示，通过调用函数 `next()` 可以将控制权转移到下一个中间件函数。
 
-使用 postMan 访问 **localhost:8000/home**，发起请求之后控制台输出如下：
-
-```
-middleware 01 in app.use
-middleware 02 in app.use
-home and get method middleware 01
-home and get method middleware 02
-home and get method middleware 03
-```
-
-接下来我们详细分析如上输出的原因。
-
-### require("express")
+#### express 应用的创建 -- require("express")
 
 我们都知道，`require("express")` 所得到的值是一个函数，JavaScript 中的函数也是对象，所以它可以拥有各种成员变量例如 `app.use`，点进去我们就可以看到它的实现 `createApplication()`
 ：
@@ -95,7 +87,7 @@ mixin(app, proto, false);
 
 我们常见的 `app.use()`、`app.get()` 方法就是来自上面的 `proto`，下面我们分析 `app.use()`。
 
-### app.use()
+#### app.use() -- 中间件注册
 
 这个函数要求我们传入一个中间件函数，我们可以传入一个路径 + 一个或多个中间件函数，或者仅传入一个或多个中间件函数。它的流程如下：
 
@@ -166,7 +158,7 @@ app.use = function use(fn) {
 
 我们可以提炼出两个核心方法，一个是 `this.lazyrouter()`，还有一个是 `router.use(path, fn)`。
 
-### this.lazyrouter()
+#### this.lazyrouter() -- 全局路由初始化
 
 ```javascript
 app.lazyrouter = function lazyrouter() {
@@ -189,9 +181,9 @@ app.lazyrouter = function lazyrouter() {
 还记得上面对用户传入的中间件函数的遍历吗？express 对每一个中间件函数都会调用 `router.use(path, fn)` 方法。所以 `app.use(middleWares)`
 **本质上**就是 `router.use(middleWares)`
 
-也就是说，中间件会被注册到**相对应的路由（Router 对象）**中。在上面的代码中就是全局路由，相应的路径为 `/`。接下来我们分析 `router.use(path, fn)`。
+也就是说，中间件会被注册到**相对应的路由（Router 对象）**中。在上面的代码中就是全局路由，相应的路径为 `/`。接下来我们分析 `router.use(path, fn)`。#中间件的注册
 
-### router.use(path, fn)
+#### router.use(path, fn)
 
 这个函数位于 `router/index.js` 下，我们注意到：
 
@@ -254,9 +246,9 @@ proto.use = function use(fn) {
 
 带着这个结论，我们再来看看 `app[method]` 方法。
 
-### app[method] 方法
+#### app[method] 方法
 
-app[method] 代码如下：
+`app[method]()` 代码如下，它位于 **lib/application.js** 目录下：
 
 ```javascript
 methods.forEach(function (method) {
@@ -283,8 +275,8 @@ methods.forEach(function (method) {
 
 下面是 `this._router.route(path)` 代码：
 
-- 它以我们设置的路径为参数， new 了一个 Router 对象。
-- 初始化了一个 Layer，之后将这个 Layer 压入栈中，注意，这里的 `this` 为 app._router，也就是全局 router 对象。
+- 它以我们设置的路径为参数， new 了一个 **Route** 对象。
+- 初始化了一个 **Layer**，之后将这个 Layer 压入栈中，注意，这里的 `this` 为 `app._router`，也就是全局 router 对象。
 
 ```javascript
 proto.route = function route(path) {
@@ -303,9 +295,9 @@ proto.route = function route(path) {
 };
 ```
 
-如果对前面的代码还有印象的话，在 new Layer() 时，我们传入的第二个参数是我们的中间件函数，在这里是 `route.dispatch.bind(route)`，这是用来处理用户请求的，我们后面会讲。
+如果对前面的代码还有印象的话，在执行 `new Layer()` 时，我们传入的第二个参数是我们的中间件函数，在这里是 `route.dispatch.bind(route)`，这是用来处理用户请求的核心方法，我们后面会讲。
 
-再来看 `route[method]` ，这里就是我们传入的若干个中间件函数被处理的地方，注意，这里的 this 是我们 new 的 Router 对象（对应 home 路径）：
+再来看 `route[method]` ，这里就是我们传入的若干个中间件函数被处理的地方，注意，这里的 this 是我们 new 的 Route 对象（对应 home 路径）：
 
 ```javascript
 Route.prototype[method] = function () {
@@ -359,16 +351,16 @@ function Layer(path, options, fn) {
 
 可以看出，如果 this 不是 Layer 的实例，那我们会 new 一个 Layer。否则会对 this 执行一些初始化操作。
 
-也就是说，执行 new Layer() 时会**递归调用**这个函数，但是在 new 之后的 this 已经变成了 Layer 的实例了，也就顺理成章地去处理下面一些初始化代码。
+也就是说，执行 `new Layer()` 时会**递归调用**这个函数，但是在 new 之后的 this 已经变成了 Layer 的实例了，也就顺理成章地去处理下面一些初始化代码。
 
 接下来两行代码很好理解，一个是标记当前的请求类型，一个是标记可选的请求类型。
 
-最后，将这个 layer 压入栈中，注意，这里的 this 是 对应 home 路径的 router 对象，和我们前面提到的全局 router 栈不一样！
+最后，将这个 layer 压入栈中，注意，这里的 this 是 对应 home 路径的 Route 对象，和我们前面提到的全局 router 栈不一样！
 
-至此，app[method] 执行完成，总结一下， 执行 app[method](path, fns) 会为路径 path 新建一个与之对应的 Router 对象，这个 Router 也维护了一个栈，栈里面是用 Layer
+至此，`app[method]` 执行完成，总结一下， 执行 `app[method](path, fns)` 会为路径 path 新建一个与之对应的 Route 对象，这个 Route 也维护了一个栈，栈里面是用 Layer
 对象包装的一个个中间件函数。
 
-### 总结 PART 1
+### PART 1 总结
 
 上面的内容都围绕着一个内容展开： **中间件函数是如何被初始化**的？
 
@@ -381,7 +373,247 @@ function Layer(path, options, fn) {
 
 下面我们重点讲述中间件如何被执行。
 
+### 中间件的执行
+
+我们以上图的代码为例，使用接口调试工具发起 get 请求，访问 **localhost:8000/home**，发起请求之后控制台输出如下：
+
+```
+middleware 01 in app.use
+middleware 02 in app.use
+home and get method middleware 01
+home and get method middleware 02
+home and get method middleware 03
+```
+
+为什么是这样的输出顺序？这些中间件是如何被回调的？我们从 `app.listen()` 开始详细分析整个过程。
+
+#### app.listen()
+
+代码如下：
+
+```javascript
+app.listen = function listen() {
+  var server = http.createServer(this);
+  return server.listen.apply(server, arguments);
+};
+```
+
+app.listen() 实际上是执行 node.js 内部的 http 模块的 API `http.createServer(this)` 来创建一个服务器，然后调用 `server.listen()` 来监听端口。
+
+每当有 HTTP 请求到达服务器时，createServer 中传入的函数就被自动执行，在这里传入的回调函数是 app，这个函数我们在 `createApplication()` 中提到过：
+
+```javascript
+var app = function (req, res, next) {
+  app.handle(req, res, next);
+};
+```
+
+所以用户发起请求之后，express 内部会去执行 `app.handle()`：
+
+```javascript
+app.handle = function handle(req, res, callback) {
+  var router = this._router;
+
+  // final handler
+  var done = callback || finalhandler(req, res, {
+    env: this.get('env'),
+    onerror: logerror.bind(this)
+  });
+
+  // no routes
+  if (!router) {
+    debug('no routes defined on app');
+    done();
+    return;
+  }
+
+  router.handle(req, res, done);
+};
+```
+
+不难看出 `app.handle()` 实质是执行 `app._router.handle()` 。
+
+#### router.handle()
+
+`router.handle()` 的代码很长，下面的代码我做了精简，但足以表达中间件调用的核心流程，结合注释理解：
+
+```javascript
+proto.handle = function handle(req, res, out) {
+  var self = this;
+
+  // 将 next 函数绑定到 req 对象下
+  req.next = next;
+
+  // 执行一次 next 函数
+  next();
+
+  function next(err) {
+
+    var idx = 0;
+
+    var layer;  // 匹配到的层
+    var match;  // 是否匹配成功
+    var route;  // 该层是路由层，它会从 undefined 变成相应的路由对象
+
+    // 这个循环遍历 stack 数组，匹配对应的层，一旦匹配成功就会跳出循环
+    while (match !== true && idx < stack.length) {
+      // 当前层
+      layer = stack[idx++];
+
+      // 执行路由匹配
+      match = matchLayer(layer, path);
+
+      // layer.route，如果该层对应的是路由中间件，那么这个 route 是有值的，它就是相应的 Route 对象。
+      route = layer.route;
+
+      // 如果没有匹配到，再循环
+      if (match !== true) {
+        continue;
+      }
+
+      // 没有 route 对象，会被忽略
+      if (!route) {
+        continue;
+      }
+    }
+
+    if (match !== true) {
+      return done(layerError);
+    }
+
+    // 保存 route 对象
+    if (route) {
+      req.route = route;
+    }
+
+    // self.process_params 会调用回调函数，
+    self.process_params(layer, paramcalled, req, res, function (err) {
+
+      // 如果当前层是路由层
+      if (route) {
+        return layer.handle_request(req, res, next);
+      }
+
+      // 一般的中间件层，这个方法的主要内容是 url 路径的处理
+      // 最后会调用 layer.handle_request(req, res, next) 来处理请求
+      trim_prefix(layer, layerError, layerPath, path);
+    });
+  }
+};
+```
+
+上面的代码我们可以分为两部分，第一部分是层匹配，第二部分是层执行。
+
+层匹配即根据**当前路径**匹配对应的层，如果当前路径是 `/home`，那么全局路由的每一层、`/home` 路由的每一层都会匹配成功。
+
+层执行指的是对于匹配到的层，我们会通过 `layer.handle_request()` 执行其中的 `handler` 函数。
+
+对于普通层，执行的是我们注册的中间件。
+
+对于路由层，执行的是 `Route.prototype.dispatch`。（它本质上也是一个中间件）。
+
+从上面的代码我们可以看出来普通层多了一步 `trim_prefix()`，它主要是对路径进行了处理，但最终还是会去调用 `layer.handle_request()`。
+
+在 `layer.handle_request()` 中，中间件函数在一个 `try..catch` 块中被执行。
+
+```javascript
+Layer.prototype.handle_request = function handle(req, res, next) {
+  var fn = this.handle;
+
+  if (fn.length > 3) {
+    // not a standard request handler
+    return next();
+  }
+
+  try {
+    fn(req, res, next);
+  } catch (err) {
+    next(err);
+  }
+};
+```
+
+当我们的中间件函数继续调用 next 时，我们就会去栈中寻找上一层，然后以同样的方法执行它。
+
+#### Route.prototype.dispatch()
+
+对于非全局路由，我们也会执行一个中间件，这个中间件在路由注册的时候就被导入，下面的代码做了一些精简，删去了一些边界错误处理：
+
+```javascript
+Route.prototype.dispatch = function dispatch(req, res, done) {
+  var idx = 0;
+  var stack = this.stack;
+
+  req.route = this;
+
+  next();
+
+  function next(err) {
+    var layer = stack[idx++];
+    if (!layer) {
+      return done(err);
+    }
+
+    if (layer.method && layer.method !== method) {
+      return next(err);
+    }
+
+    layer.handle_request(req, res, next);
+  }
+};
+```
+
+不难看出，这部分逻辑和前面的 `proto.handle()` 极为相似。
+
+前面我们说过，每个路由（Route）对象也会维护一个栈，存储自身匹配的中间件。并且他们会通过这个中间件函数和全局路由进行关联。
+
+在上面的代码中，我们首先执行了 next 函数，它会获取当前路由栈的第一层，通过 `handle_request()` 执行之，如果用户在回调函数中执行 next 函数，那么又会重复上述操作，直到栈完全遍历位置。
+
+### PART 2 总结
+
+在这一部分里面，我们讨论了 express 框架中间件的执行流程，首先在全局路由中找到第一个符合的层，然后将执行下一个匹配层的 next 作为回调函数的参数传给中间件，在中间件内部调用 next() 函数就可以实现中间件逐层调用的效果。
+
+在最后，我们解决一下这部分开头的输出问题：
+
+```javascript
+const express = require("express");
+
+const app = express();
+
+app.use(/* 中间件 M1 */ (req, res, next) => {
+  console.log("middleware 01 in app.use");
+  next();
+}, /* 中间件 M2 */ (req, res, next) => {
+  console.log("middleware 02 in app.use");
+  next();
+});
+
+app.get('/home', /* 中间件 M3 */ (req, res, next) => {
+  console.log("home and get method middleware 01");
+  next();
+}, /* 中间件 M4 */ (req, res, next) => {
+  console.log("home and get method middleware 02");
+  next();
+}, /* 中间件 M5 */ (req, res, next) => {
+  console.log("home and get method middleware 03");
+  res.end("hello world");
+});
 
 
+app.listen(8000, () => {
+  console.log("your project is running successfully!");
+});
+```
 
+根据第一部分的知识，上面的代码将会构造如下的数据结构：
 
+![](http://cdn.yuzzl.top/blog/20210102152616.png)
+
+:::tip 注意
+
+stack 中的每一层都是通过 **Layer** 对象来封装的，layer 对象中的 handle 成员变量才是真正的中间件函数。
+:::
+
+一旦有请求进来，那么会如此调用：
+
+![](http://cdn.yuzzl.top/blog/20210102153824.png)
