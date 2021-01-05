@@ -617,3 +617,414 @@ stack 中的每一层都是通过 **Layer** 对象来封装的，layer 对象中
 一旦有请求进来，那么会如此调用：
 
 ![](http://cdn.yuzzl.top/blog/20210102153824.png)
+
+再看下面的代码，结合上述内容，如果访问 `home` 接口，会输出什么？
+
+```javascript
+const express = require("express");
+
+const app = express();
+
+app.use((req, res, next) => {
+  console.log("middleware 01 in app.use");
+  next();
+  console.log("after m1 next");
+}, (req, res, next) => {
+  console.log("middleware 02 in app.use");
+  next();
+  console.log("after m2 next");
+});
+
+app.get('/home', (req, res, next) => {
+  console.log("home and get method middleware 01");
+  next();
+  console.log("after m3 next");
+}, (req, res, next) => {
+  console.log("home and get method middleware 02");
+  next();
+  console.log("after m4 next");
+}, (req, res, next) => {
+  console.log("home and get method middleware 03");
+  res.end("hello world");
+});
+app.listen(8000, () => {
+  console.log("your project is running successfully!");
+});
+```
+
+输出结果如下，具体的分析过程不再赘述：
+
+```
+your project is running successfully!
+middleware 01 in app.use
+middleware 02 in app.use
+home and get method middleware 01
+home and get method middleware 02
+home and get method middleware 03
+after m4 next
+after m3 next
+after m2 next
+after m1 next
+```
+
+## Koa
+
+相比 express，**koa** 是一个**更加轻量级的框架**。express 和 Koa 的核心都是**中间件**，但是他们的执行机制略有不同。
+
+### 中间件的注册与执行
+
+下面的代码启动了一个 koa 服务器：
+
+```javascript
+const Koa = require("koa");
+
+const app = new Koa();
+
+
+app.use((ctx, next) => {
+  console.log("middleware in app.use");
+  next();
+});
+
+app.listen(8000, () => {
+  console.log("success!");
+});
+```
+
+和 express 不同，这里 new 的 Koa 是一个类，所有的核心方法都包含在这里面，我们先看它的构造函数的实现：
+
+```javascript
+module.exports = class Application extends Emitter {
+  constructor(options) {
+    super();
+    options = options || {};
+    this.proxy = options.proxy || false;
+    this.subdomainOffset = options.subdomainOffset || 2;
+    this.proxyIpHeader = options.proxyIpHeader || 'X-Forwarded-For';
+    this.maxIpsCount = options.maxIpsCount || 0;
+    this.env = options.env || process.env.NODE_ENV || 'development';
+    if (options.keys) this.keys = options.keys;
+
+    this.middleware = [];
+    this.context = Object.create(context);
+    this.request = Object.create(request);
+    this.response = Object.create(response);
+    if (util.inspect.custom) {
+      this[util.inspect.custom] = this.inspect;
+    }
+  }
+};
+```
+
+大部分都是一些参数的初始化，例如环境变量、代理配置，从 `this.middleware = []` 开始，我们看到了一些熟悉的内容：
+
+- 中间件 `middleware`（可得知所有的中间件最终会被存放到这个数组中）
+- context、request、response 对象，其中 context 是我们中间件的第一个参数。
+
+现在我们还不清楚它们在何时会被用上。在实例化 Koa 对象之后，我们执行了 `app.use()`，来看它的源码：
+
+```javascript
+module.exports = class Application extends Emitter {
+  use(fn) {
+    if (typeof fn !== 'function') throw new TypeError('middleware must be a function!');
+    if (isGeneratorFunction(fn)) {
+      deprecate('Support for generators will be removed in v3. ' +
+        'See the documentation for examples of how to convert old middleware ' +
+        'https://github.com/koajs/koa/blob/master/docs/migration.md');
+      fn = convert(fn);
+    }
+    debug('use %s', fn._name || fn.name || '-');
+    this.middleware.push(fn);
+    return this;
+  }
+};
+```
+
+use 的代码非常简单，其最终就是把你传入的中间件 push 到前面提到的 `middleware` 数组。
+
+相比 express 对中间件的初始化方式（用 Layer 封装、特殊的路由中间件），koa 的处理更为简单粗暴。
+
+服务器的启动依靠 `listen()` 方法：
+
+```javascript
+module.exports = class Application extends Emitter {
+  listen(...args) {
+    debug('listen');
+    const server = http.createServer(this.callback());
+    return server.listen(...args);
+  }
+};
+```
+
+和 express 如出一辙，都是调用了 http 库的 `createServer()`，并传入相应的回调函数 -- 这个回调函数会在用户发送请求时执行。
+
+值得注意的是，这里的回调函数是 `this.callback()` 的**返回值**，也就是下面的 `handleRequest()`：
+
+```javascript
+module.exports = class Application extends Emitter {
+  callback() {
+    const fn = compose(this.middleware);
+
+    if (!this.listenerCount('error')) this.on('error', this.onerror);
+
+    const handleRequest = (req, res) => {
+      const ctx = this.createContext(req, res);
+      return this.handleRequest(ctx, fn);
+    };
+
+    return handleRequest;
+  }
+};
+```
+
+用户发送请求，`handleRequest()` 被执行，首先调用 `createContext()` 初始化上下文对象（context），也就是中间件函数的第一个参数，例如把 http 模块的 res、req 对象绑定到 context
+对象上。
+
+最终执行核心方法 `this.handleRequest()`：
+
+```javascript
+module.exports = class Application extends Emitter {
+  handleRequest(ctx, fnMiddleware) {
+    const res = ctx.res;
+    res.statusCode = 404;
+    const onerror = err => ctx.onerror(err);
+    const handleResponse = () => respond(ctx);
+    onFinished(res, onerror);
+    return fnMiddleware(ctx).then(handleResponse).catch(onerror);
+  }
+};
+```
+
+第一个参数是 context，第二个参数是 `fnMiddleware`，在上面提到的 `callback()` 函数中可以看出，它是在 `callback()` 执行时，通过对 `this.middleware`
+执行 `compose()` 得到的。
+
+所以关键就是这里的 `compose()` 方法了，它来自单独的一个库，叫做 `koa-compose`：
+
+- 这个函数要求传入 middleware 数组。
+- 首先是数组的判断、以及每个成员是不是函数的判断。
+- 然后返回一个函数，这个会在上面 `handleRequest()` 中被执行。
+- 这个函数又返回一个函数 `dispatch(0)`，不难看出这里的 0 表示下标。
+- dispatch 函数会通过 `let fn = middleware[i]` 得到某个中间件。
+- 接着调用 `fn(context, dispatch.bind(null, i + 1))`，fn 是中间件函数，context 是上下文，`dispatch.bind(null, i + 1))` 就是 第二个参数 next 了。
+- 很明显，这是一个递归调用，它会一直去调用每一个中间件，直到遍历并执行完所有的中间件，退出递归。
+
+```javascript
+function compose(middleware) {
+  if (!Array.isArray(middleware)) throw new TypeError('Middleware stack must be an array!')
+  for (const fn of middleware) {
+    if (typeof fn !== 'function') throw new TypeError('Middleware must be composed of functions!')
+  }
+
+  return function (context, next) {
+    let index = -1
+    return dispatch(0)
+
+    function dispatch(i) {
+      if (i <= index) return Promise.reject(new Error('next() called multiple times'))
+      index = i
+      let fn = middleware[i]
+      if (i === middleware.length) fn = next
+      if (!fn) return Promise.resolve()
+      try {
+        return Promise.resolve(fn(context, dispatch.bind(null, i + 1)));
+      } catch (err) {
+        return Promise.reject(err)
+      }
+    }
+  }
+}
+```
+
+可以看出，Koa 执行中间件的流程也非常简单，请看下面的代码，试推测出它的输出：
+
+```javascript
+const Koa = require("koa");
+
+const app = new Koa();
+
+app.use((ctx, next) => {
+  console.log("middleware 01 in app.use");
+  next();
+  console.log("middleware 01 in app.use after next");
+});
+
+app.use((ctx, next) => {
+  console.log("middleware 02 in app.use");
+  next();
+  console.log("middleware 02 in app.use after next");
+});
+
+app.use((ctx, next) => {
+  console.log("middleware 03 in app.use");
+  ctx.response.body = "hi~";
+});
+
+app.listen(8000, () => {
+  console.log("success!");
+});
+```
+
+```
+success!
+middleware 01 in app.use
+middleware 02 in app.use
+middleware 03 in app.use
+middleware 02 in app.use after next
+middleware 01 in app.use after next
+```
+
+### PART 3 总结
+
+Koa 作为一个轻量级框架，其底层逻辑也非常的清晰易懂：
+
+对于中间件的注册，只是将中间件函数放入 Koa 类的 middleware 数组中，并没有像 express 那样用层封装、进行路由的区分。
+
+对于中间件的执行，和 express 有异曲同工之妙，只不过每次请求初始化中间件时，它是将中间件数组的每个中间件 **compose** 了（可以理解为**组合**），组合的方式是通过递归 --
+将触发下一个中间件的函数用 `dispatch.bind()` 封装，作为上一个中间件函数的第二个参数。
+
+## express 和 Koa 对比
+
+express 和 Koa 的共同之处在于核心都是**中间件**，那么又有什么区别？各有什么优势？下面我们来探究一下。
+
+### Koa 更加轻量级
+
+从上面的源码分析中不难看出，express 是一个比较全面的 web 框架，内置了参数解析、路由匹配等功能。
+
+而 Koa 则是一个**轻量级的框架**，短小精悍，所有的额外功能都要通过第三方的库进行扩展。
+
+他们类似于 Python Web 开发中的 Django 和 flask。
+
+### 针对异步代码
+
+express 框架在处理异步操作时略有些捉襟见肘，来看下面的代码，这两份代码都使用了类似的异步中间件：
+
+**express**
+
+```javascript
+const express = require("express");
+
+const app = express();
+
+const myPromise = () => new Promise((resolve) => {
+  setTimeout(() => {
+    resolve("promise resolved!");
+  }, 2000);
+});
+
+
+app.use(async (req, res, next) => {
+  console.log("middleware 01");
+  await next();
+  console.log("after middleware 01 next");
+  res.end("hello~");
+});
+
+
+app.use(async (req, res, next) => {
+  const timeRes = await myPromise();
+  console.log(timeRes);
+});
+
+
+app.listen(8000, () => {
+  console.log("listening!");
+})
+```
+
+**koa**
+
+```javascript
+const Koa = require("koa");
+
+const app = new Koa();
+
+const myPromise = () => new Promise((resolve) => {
+  setTimeout(() => {
+    resolve("promise resolved!");
+  }, 2000);
+});
+
+
+app.use(async (ctx, next) => {
+  console.log("middleware 01");
+  await next();
+  console.log("after middleware 01 next");
+  ctx.body = "hello~";
+});
+
+
+app.use(async (ctx, next) => {
+  const timeRes = await myPromise();
+  console.log(timeRes);
+});
+
+
+app.listen(8000, () => {
+  console.log("listening!");
+})
+```
+
+在 express 的代码中，我们得到输出：
+
+```
+middleware 01
+after middleware 01 next
+promise resolved!
+```
+
+在 Koa 的代码中，我们得到输出，并且响应会有约两秒的延迟：
+
+```
+middleware 01
+promise resolved!
+after middleware 01 next
+```
+
+我们想达成这样一个目的 -- 在第一个中间件中利用 **await** 来等待下一个异步中间件函数（它使用 await 执行了一个 `setTimeout()` 并打印结果）执行完成，但是只有 Koa 的版本能实现需求。
+
+为什么？本质就在于 await 关键词的特性 -- await 关键字期待（但实际上并不要求）一个实现 thenable 接口的对象，但常规的值也可以。如果是实现 thenable 接口的对象，则这个对象可以由 await
+来“解包”。如果不是，则这个值就被当作已经 **resolved 的 Promise**。
+
+回顾一下上面的源码，koa 的 `next()` 函数是在 `compose()` 函数中经过 Promise 包装的！（可以往上翻到 `dispatch()` 函数源码部分）而 express 的 `next()`
+函数并没有经过包装，也就是没有实现 `thenable` 接口。那么即使 `next()` 是异步的，它会被执行，但我们不会等待它的结果，而是把它的结果设置为一个 **resolved 的 Promise**。
+
+那么对于 express，如何解决这个问题呢？
+
+## express 的异步实践
+
+学习了上面的源码，我们有如下结论：
+
+- 通过调用 `next()` 可以转移控制权到下一个中间件。
+- 通过调用 `res.end("xx")` 可以提早结束请求。
+- koa 的中间件函数是会被 promise 包装的。
+
+结合这些结论，我们有下面的几种方案：
+
+**在异步操作结束之后调用 `next()`**
+
+```javascript
+app.use((req, res, next) => {
+  console.log("middleware 01");
+  next();
+});
+
+app.use(async (req, res, next) => {
+  const myPromise = () => new Promise((resolve) => {
+    setTimeout(() => {
+      next();
+      resolve("promise resolved!");
+    }, 2000);
+  });
+
+  const timeRes = await myPromise();
+  console.log(timeRes);
+});
+
+app.use(async (req, res, next) => {
+  console.log("middleware 03");
+  res.end("hello~");
+});
+```
+
+**使用 promise 包装中间件**
+
