@@ -1,4 +1,4 @@
-# express & koa 框架对比及原理分析
+# express & koa 框架对比及源码解析
 
 [[toc]]
 
@@ -91,7 +91,7 @@ mixin(app, proto, false);
 
 这个函数要求我们传入一个中间件函数，我们可以传入一个路径 + 一个或多个中间件函数，或者仅传入一个或多个中间件函数。它的流程如下：
 
-- 在 this.lazyrouter() 之前的代码都是处理参数的，它会从参数中拿到路径（如果有的话）和若干个中间件函数，并调用 `flatten` 来将他们扁平化（其实就是把它们传到一个数组里面了）：
+- 在 `this.lazyrouter()` 之前的代码都是处理参数的，它会从参数中拿到路径（如果有的话）和若干个中间件函数，并调用 `flatten` 来将他们扁平化（其实就是把它们传到一个数组里面了）：
 - 调用 `this.lazyrouter()` 初始化路由，接下来会讲。
 - 利用 `Array.prototype.forEach()` 遍历上面扁平化的 `fns`。
 - 在 forEach 回调函数体中，普通的中间件会执行 `router.use(path, fn)`。
@@ -181,7 +181,7 @@ app.lazyrouter = function lazyrouter() {
 还记得上面对用户传入的中间件函数的遍历吗？express 对每一个中间件函数都会调用 `router.use(path, fn)` 方法。所以 `app.use(middleWares)`
 **本质上**就是 `router.use(middleWares)`
 
-也就是说，中间件会被注册到**相对应的路由（Router 对象）**中。在上面的代码中就是全局路由，相应的路径为 `/`。接下来我们分析 `router.use(path, fn)`。#中间件的注册
+也就是说，中间件会被注册到**相对应的路由对象**中。在上面的代码中就是全局路由，其路径为 `/`。接下来我们分析 `router.use(path, fn)`。
 
 #### router.use(path, fn)
 
@@ -196,8 +196,6 @@ proto.use = function use(fn) {
   var offset = 0;
   var path = '/';
 
-  // default path to '/'
-  // disambiguate router.use([fn])
   if (typeof fn !== 'function') {
     var arg = fn;
 
@@ -205,7 +203,6 @@ proto.use = function use(fn) {
       arg = arg[0];
     }
 
-    // first arg is the path
     if (typeof arg !== 'function') {
       offset = 1;
       path = fn;
@@ -221,7 +218,6 @@ proto.use = function use(fn) {
   for (var i = 0; i < callbacks.length; i++) {
     var fn = callbacks[i];
 
-    // add the middleware
     debug('use %o %s', path, fn.name || '<anonymous>')
 
     var layer = new Layer(path, {
@@ -267,7 +263,7 @@ methods.forEach(function (method) {
 });
 ```
 
-- 首先通过 `this.lazyrouter()` 初始化 全局 router（如果没有被初始化过）。
+- 首先通过 `this.lazyrouter()` 初始化全局 router（如果没有被初始化过）。
 - 接着执行 `this._router.route(path)` 来初始化**当前路径**所对应的路由，在上面的 DEMO 中，当前路径为 `/home`。
 - 然后执行 `route[method]`。
 
@@ -369,7 +365,7 @@ function Layer(path, options, fn) {
 
 我们通过调试工具验证一下上述结果：
 
-![](http://cdn.yuzzl.top/blog/20210102111810.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20210102111810.png">![](http://cdn.yuzzl.top/blog/20210102111810.png)</a>
 
 下面我们重点讲述中间件如何被执行。
 
@@ -607,7 +603,7 @@ app.listen(8000, () => {
 
 根据第一部分的知识，上面的代码将会构造如下的数据结构：
 
-![](http://cdn.yuzzl.top/blog/20210102152616.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20210102152616.png">![](http://cdn.yuzzl.top/blog/20210102152616.png)</a>
 
 :::tip 注意
 
@@ -616,7 +612,7 @@ stack 中的每一层都是通过 **Layer** 对象来封装的，layer 对象中
 
 一旦有请求进来，那么会如此调用：
 
-![](http://cdn.yuzzl.top/blog/20210102153824.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20210102153824.png">![](http://cdn.yuzzl.top/blog/20210102153824.png)</a>
 
 再看下面的代码，结合上述内容，如果访问 `home` 接口，会输出什么？
 
@@ -985,7 +981,7 @@ after middleware 01 next
 为什么？我们先得知道 await 关键词的特性 -- await 关键字期待（但实际上并不要求）一个**实现 thenable 接口**的对象，但常规的值也可以。如果是实现 thenable 接口的对象，则这个对象可以由 await
 来“解包”。如果不是，则这个值就被当作已经 **resolved 的 Promise**。
 
-那么问题就成了 express 中间件参数的 next 是一个异步函数吗？答案为不是异步函数。你可能会问，我不是给 await 后面的 next 加了 async 了吗？实际上，express 对原本的 next
+那么问题就成了 **express 中间件参数的 next 是一个异步函数吗**？答案是否定的。你可能会问，我不是给 await 后面的 next 加了 async 了吗？实际上，express 对原本的 next
 还做了一层封装，此部分的代码前面已经讲了：
 
 ```javascript
@@ -1002,7 +998,7 @@ Layer.prototype.handle_request = function handle(req, res, next) {
 };
 ```
 
-上面 `try` 块中包裹的 `fn` 就是我们真正的中间件函数 -- 但是我们 await 后面跟着的 next 并不是它。
+上面 `try` 块中包裹的 `fn` 就是我们真正的中间件函数 -- 但是我们 await 后面跟着的 next 并不是它，而是封装它的同步函数。
 
 而对于 koa 的实现（只保留主干部分），其 next 函数如下:
 
@@ -1015,9 +1011,25 @@ return function (context, next) {
 }
 ```
 
-fn 是我们的中间件函数，它执行的结果是一个 promise，而 `Promise.resolve()` 是幂等的，next() 的返回值本质上就是我们的中间件函数，这就解释了为什么 `await next()` 是有效的。
+fn 是我们的中间件函数，它执行的结果是一个 promise，而 `Promise.resolve()` 是幂等的，`next()` 的返回值本质上就是我们的中间件函数，这就解释了为什么 `await next()` 是有效的。
+
+:::tip Promise.resolve() 的幂等性
+
+所谓 `Promise.resolve()` 的幂等性，就是说如果传入的值本身是一个 promise，其行为相当于一个空包装，即：
+
+```javascript
+let p = Promise.resolve(7);
+setTimeout(console.log, 0, p === Promise.resolve(p));
+// true
+setTimeout(console.log, 0, p === Promise.resolve(Promise.resolve(p)));
+// true
+```
+
+:::
 
 ## 参考资料
+
+Matt Frisble，JavaScript 高级程序设计（第四版）
 
 expressjs，[express 代码仓库](https://github.com/expressjs/express)
 
