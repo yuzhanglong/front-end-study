@@ -8,22 +8,20 @@ const myPromise = () => new Promise((resolve) => {
   }, 2000);
 });
 
-
-app.use(async (ctx, next) => {
+const m1 = async (ctx, next) => {
   console.log("middleware 01");
   await next();
   console.log("after middleware 01 next");
-  ctx.body = "hello~";
-});
+  ctx.response.body = "hello world!";
+}
 
+const m2 = async (ctx, next) => {
+  const timeRes = await myPromise();
+  console.log(timeRes);
+}
+app.use(m1);
 
-app.use((ctx, next) => {
-  // const timeRes = await myPromise();
-  setTimeout(() => {
-    console.log("timeout!");
-  }, 1000);
-  // console.log(timeRes);
-});
+app.use(m2);
 
 
 app.listen(8000, () => {
