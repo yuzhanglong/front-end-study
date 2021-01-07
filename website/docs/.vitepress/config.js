@@ -49,7 +49,7 @@ function getBlogSidebar() {
       link: '/blog/vue-router-study'
     },
     {
-      text: 'express & koa 框架对比及原理分析',
+      text: 'express & koa 框架对比及源码解析',
       link: '/blog/express-and-koa'
     },
     {
