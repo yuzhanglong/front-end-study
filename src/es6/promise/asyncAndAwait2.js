@@ -4,19 +4,16 @@ const myPromise = () => new Promise((resolve) => {
   }, 1000);
 });
 
+const m1 = () => {
+  console.log("hello");
+}
 
-const next = async () => {
+const m2 = async () => {
   let res = await myPromise();
   console.log(res);
 }
 
-
-const foo = () => {
-  console.log("hello world");
-  next();
-  console.log("hello world 2");
-}
-
-
-
-foo();
+const fn1 = () => Promise.resolve(m1());
+const fn2 = () => Promise.resolve(m2());
+fn1();
+fn2();

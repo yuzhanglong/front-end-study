@@ -896,7 +896,7 @@ express 和 Koa 的共同之处在于核心都是**中间件**，那么又有什
 
 ### 针对异步代码
 
-express 框架在处理异步操作时略有些捉襟见肘，来看下面的代码，这两份代码都使用了类似的异步中间件：
+express 框架在处理某些异步操作时略有些捉襟见肘，来看下面的代码，这两份代码都使用了类似的异步中间件：
 
 **express**
 
@@ -982,49 +982,43 @@ after middleware 01 next
 
 我们想达成这样一个目的 -- 在第一个中间件中利用 **await** 来等待下一个异步中间件函数（它使用 await 执行了一个 `setTimeout()` 并打印结果）执行完成，但是只有 Koa 的版本能实现需求。
 
-为什么？本质就在于 await 关键词的特性 -- await 关键字期待（但实际上并不要求）一个实现 thenable 接口的对象，但常规的值也可以。如果是实现 thenable 接口的对象，则这个对象可以由 await
+为什么？我们先得知道 await 关键词的特性 -- await 关键字期待（但实际上并不要求）一个**实现 thenable 接口**的对象，但常规的值也可以。如果是实现 thenable 接口的对象，则这个对象可以由 await
 来“解包”。如果不是，则这个值就被当作已经 **resolved 的 Promise**。
 
-回顾一下上面的源码，koa 的 `next()` 函数是在 `compose()` 函数中经过 Promise 包装的！（可以往上翻到 `dispatch()` 函数源码部分）而 express 的 `next()`
-函数并没有经过包装，也就是没有实现 `thenable` 接口。那么即使 `next()` 是异步的，它会被执行，但我们不会等待它的结果，而是把它的结果设置为一个 **resolved 的 Promise**。
-
-那么对于 express，如何解决这个问题呢？
-
-## express 的异步实践
-
-学习了上面的源码，我们有如下结论：
-
-- 通过调用 `next()` 可以转移控制权到下一个中间件。
-- 通过调用 `res.end("xx")` 可以提早结束请求。
-- koa 的中间件函数是会被 promise 包装的。
-
-结合这些结论，我们有下面的几种方案：
-
-**在异步操作结束之后调用 `next()`**
+那么问题就成了 express 中间件参数的 next 是一个异步函数吗？答案为不是异步函数。你可能会问，我不是给 await 后面的 next 加了 async 了吗？实际上，express 对原本的 next
+还做了一层封装，此部分的代码前面已经讲了：
 
 ```javascript
-app.use((req, res, next) => {
-  console.log("middleware 01");
-  next();
-});
-
-app.use(async (req, res, next) => {
-  const myPromise = () => new Promise((resolve) => {
-    setTimeout(() => {
-      next();
-      resolve("promise resolved!");
-    }, 2000);
-  });
-
-  const timeRes = await myPromise();
-  console.log(timeRes);
-});
-
-app.use(async (req, res, next) => {
-  console.log("middleware 03");
-  res.end("hello~");
-});
+Layer.prototype.handle_request = function handle(req, res, next) {
+  var fn = this.handle;
+  if (fn.length > 3) {
+    return next();
+  }
+  try {
+    fn(req, res, next);
+  } catch (err) {
+    next(err);
+  }
+};
 ```
 
-**使用 promise 包装中间件**
+上面 `try` 块中包裹的 `fn` 就是我们真正的中间件函数 -- 但是我们 await 后面跟着的 next 并不是它。
 
+而对于 koa 的实现（只保留主干部分），其 next 函数如下:
+
+```javascript
+return function (context, next) {
+  function dispatch(i) {
+    let fn = middleware[i]
+    return Promise.resolve(fn(context, dispatch.bind(null, i + 1)));
+  }
+}
+```
+
+fn 是我们的中间件函数，它执行的结果是一个 promise，而 `Promise.resolve()` 是幂等的，next() 的返回值本质上就是我们的中间件函数，这就解释了为什么 `await next()` 是有效的。
+
+## 参考资料
+
+expressjs，[express 代码仓库](https://github.com/expressjs/express)
+
+koa，[koa 代码仓库](https://github.com/koajs/koa)
