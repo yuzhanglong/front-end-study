@@ -12,4 +12,3 @@ class SubType extends SuperType {
 
 
 const instance1 = new SubType();
-debugger;

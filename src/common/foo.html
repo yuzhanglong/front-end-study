@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <style>
+      * {
+        padding: 0;
+        margin: 0;
+      }
+
+      #box {
+        height: 500px;
+        width: 500px;
+        background: #409EFF;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="box">
+
+    </div>
+    <script>
+
+      const connect = (x1, y1, x2, y2, thickness, color) => {
+        // distance
+        let length = Math.sqrt(((x2 - x1) * (x2 - x1)) + ((y2 - y1) * (y2 - y1)));
+        // center
+        let cx = ((x1 + x2) / 2) - (length / 2);
+        let cy = ((y1 + y2) / 2) - (thickness / 2);
+        // angle
+        let angle = Math.atan2((y1 - y2), (x1 - x2)) * (180 / Math.PI);
+        // make hr
+        let htmlLine = "" +
+          "<div style='padding:0px; margin:0px; " +
+          "height:" + thickness + "px; " +
+          "background-color:" + color + "; " +
+          "line-height:1px; position:absolute; left:" +
+          cx + "px; top:" + cy + "px; width:" + length + "px;" +
+          " -moz-transform:rotate(" + angle + "deg); " +
+          "-webkit-transform:rotate(" + angle + "deg); " +
+          "-o-transform:rotate(" + angle + "deg); " +
+          "background: linear-gradient(#e66465, #9198e5);" +
+          "-ms-transform:rotate(" + angle + "deg);" +
+          " transform:rotate(" + angle + "deg);' />";
+        document.body.innerHTML += htmlLine;
+      }
+      let el = document.getElementById("box");
+      el.addEventListener('click', (e) => {
+        let x = e.offsetX;
+        let y = e.offsetY;
+        for (let i = 0; i < 500; i += 12) {
+          connect(x, y, 0, i, 12, "#ffffff");
+        }
+      });
+
+
+    </script>
+  </body>
+</html>

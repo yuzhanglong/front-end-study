@@ -2,7 +2,7 @@ module.exports = {
   lang: 'en-US',
   title: 'yzl-blog',
   head: [
-    // add jquert and fancybox
+    // add jquery and fancybox
     ['script', {src: 'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.slim.min.js'}],
     ['script', {src: 'https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.2/jquery.fancybox.min.js'}],
     ['link', {
@@ -15,9 +15,19 @@ module.exports = {
     docsDir: 'docs',
     nav: [],
     sidebar: {
-      '/blog': getBlogSidebar()
+      '/blog': getBlogSidebar(),
+      '/': getBaseSidebar()
     }
   }
+}
+
+function getBaseSidebar() {
+  return [
+    {
+      text: 'README',
+      link: '/index'
+    }
+  ]
 }
 
 function getBlogSidebar() {
@@ -35,6 +45,14 @@ function getBlogSidebar() {
       link: '/blog/axios-study'
     },
     {
+      text: 'vue-router-next 源码解析',
+      link: '/blog/vue-router-study'
+    },
+    {
+      text: 'express & koa 框架对比及源码解析',
+      link: '/blog/express-and-koa'
+    },
+    {
       text: 'webpack-loader & plugin 详解',
       link: '/blog/webpack-loader-and-plugin'
     },
@@ -49,6 +67,18 @@ function getBlogSidebar() {
     {
       text: 'typescript 数据结构与算法',
       link: '/blog/typescript-algorithm'
+    },
+    {
+      text: '分析浏览器和 NodeJS 的事件循环',
+      link: '/blog/event-loop'
+    },
+    {
+      text: 'typescript 工具类型解析',
+      link: '/blog/typescript-utility-types'
+    },
+    {
+      text: '谈谈前端性能优化',
+      link: '/blog/frontend-better-performance'
     }
   ]
 }

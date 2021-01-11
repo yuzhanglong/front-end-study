@@ -8,7 +8,8 @@ https://www.bilibili.com/video/BV14k4y117LL
 
 ### 概念
 
-**MVVM** 是 **Model-View-ViewModel** 的缩写。是一种设计思想。Model 层代表数据模型，也可以在 Model 中定义数据修改和操作的业务逻辑；View 代表 UI 组件，它负责将数据模型转化成 UI 展现出来，ViewModel 是一个同步 View 和 Model 的对象。
+**MVVM** 是 **Model-View-ViewModel** 的缩写。是一种设计思想。Model 层代表数据模型，也可以在 Model 中定义数据修改和操作的业务逻辑；View 代表 UI 组件，它负责将数据模型转化成 UI
+展现出来，ViewModel 是一个同步 View 和 Model 的对象。
 
 ### 和MVC的区别
 
@@ -18,7 +19,7 @@ https://www.bilibili.com/video/BV14k4y117LL
 - **View**：视图界面，用来展示UI界面和响应用户交互
 - **Controller**：控制器(大管家角色)，监听模型数据的改变和控制视图行为、处理用户交互。
 
-随着项目复杂度的上升，MVC的弊端被展现出来 --  复杂业务逻辑界面的Controller非常庞大，维护困难。
+随着项目复杂度的上升，MVC的弊端被展现出来 -- 复杂业务逻辑界面的Controller非常庞大，维护困难。
 
 MVVM主要解决了MVC中**大量的DOM操作**使页面渲染性能降低，加载速度变慢，影响用户体验。和当 Model 频繁发生变化，开发者需要**主动更新**到View层。
 
@@ -82,7 +83,8 @@ class MVVM {
 
 ![](http://cdn.yuzzl.top/blog/20201031195828.png)
 
-很明显，我们要把像`{{user.name}}`/`{{user.age}}`这样的**模板语法**（mustache语法）解析成我们定义的数据（data），这个过程称为**编译**（**Compile**），接下来，我们编写`Compile`类。
+很明显，我们要把像`{{user.name}}`/`{{user.age}}`这样的**模板语法**（mustache语法）解析成我们定义的数据（data），这个过程称为**编译**（**Compile**
+），接下来，我们编写`Compile`类。
 
 ### 编写Compiler类
 
@@ -102,13 +104,19 @@ class Compiler {
     // 调用 compile 编译旧的节点
     // 将新的节点插入el中
   }
-  compile(参数1：要编译的节点){
-      // TODO: 编译
-  }
+
+  compile(参数1
+
+：
+  要编译的节点
+) {
+  // TODO: 编译
+}
 }
 ```
 
-接下来就是取出这些节点，然后进行一系列操作处理它们，再插入节点，我们知道，每一次插入节点就会引起DOM树的变化，从而触发浏览器的渲染，如果多次重复进行这个操作就会造成性能问题，但是如果我们先把节点处理好，再**一次性插入**，就会大大提高效率，所以我们需要使用文档碎片 -- **DocumentFragment**，具体的API在这里不再赘述。
+接下来就是取出这些节点，然后进行一系列操作处理它们，再插入节点，我们知道，每一次插入节点就会引起DOM树的变化，从而触发浏览器的渲染，如果多次重复进行这个操作就会造成性能问题，但是如果我们先把节点处理好，再**一次性插入**
+，就会大大提高效率，所以我们需要使用文档碎片 -- **DocumentFragment**，具体的API在这里不再赘述。
 
 所以，我们的构造函数最终为：
 
@@ -121,6 +129,7 @@ class Compiler {
     this.compile(fragment);
     this.el.appendChild(fragment);
   }
+
   compile(node) {
     // TODO: 编译
   }
@@ -134,7 +143,8 @@ class Compiler {
 编译函数传入一个根节点，**递归地遍历、处理每一个元素**。（节点其实是一颗树，对树进行遍历我们当然用递归），我们可以写出如下代码，注意，节点可以是文本。所以我们需要分类讨论，（另外，如果是文本，那么我们也不需要递归处理了）
 
 ```javascript
-compile(node) {
+compile(node)
+{
   // 获取子节点
   let childNodes = node.childNodes;
   // 遍历子节点
@@ -157,7 +167,8 @@ compile(node) {
 模板语法都在文本节点里面出现，我们可以利用正则来取出模板，然后进行相应的替换。
 
 ```javascript
-compileText(node) {
+compileText(node)
+{
   // 内容
   let content = node.textContent;
   // 匹配 {{}}
@@ -174,8 +185,8 @@ compileText(node) {
 
 - 获取大括号里面的内容，例如`{{user.name}}`中的`user.name`。
 - 取到内容之后（例如`user.name`），依靠这个字符串来修改节点内容，其中：
-  - 首先按每个`.`来分割，然后去vm的`$data`中逐层寻找，最终获得这个值（`getValue()`）
-  - 拿到所有的值之后，执行`textUpdater`，更新内容。
+    - 首先按每个`.`来分割，然后去vm的`$data`中逐层寻找，最终获得这个值（`getValue()`）
+    - 拿到所有的值之后，执行`textUpdater`，更新内容。
 
 ```javascript
 CompileUtil = {
@@ -214,19 +225,20 @@ CompileUtil = {
 用过Vue的人都知道，**v-model**称为**指令**，我们需要解析这些指令, 代码如下。
 
 ```javascript
-compileElement(node) {
+compileElement(node)
+{
   let attributes = node.attributes;
   [...attributes].forEach(attr => {
     // js解构语法
-    let { name, value: expr } = attr;
-      
+    let {name, value: expr} = attr;
+
     // 判断是不是指令
     if (this.isDirective(name)) {
       // 按照横线分割，例如 v-model => v + model
       let [a, directive] = name.split("-");
       // 按照横线分割，例如 v-model => v + model
       let [directiveName, eventName] = directive.split(":");
-      
+
       // 我们已经获取到指令了！接下来就是按这些指令分类讨论，进行操作，后面会讲到
       CompileUtil[directiveName](node, expr, this.vm, eventName);
     }
@@ -234,18 +246,20 @@ compileElement(node) {
 }
 
 // 是否为指令 例如 v-xxx
-isDirective(attrName) {
+isDirective(attrName)
+{
   return attrName.startsWith('v-');
 }
 ```
 
 我们已经获取到指令了！接下来就是按这些指令分类讨论，进行操作，首先我们来学习一下两个重要思想 -- **发布订阅模式**和**数据劫持**。
 
-### **发布订阅模式**和数据劫持
+### 发布订阅模式和数据劫持
 
 #### Observer
 
-既然要实现所谓的双向绑定，那么就需要一个**Observer**来劫持我们的**getter**和**setter**，这样我们在值被修改时做些什么，JavaScript的`Object.defineProperty()`就是一个很好的材料。
+既然要实现所谓的双向绑定，那么就需要一个**Observer**来劫持我们的**getter**和**setter**，这样我们在值被修改时做些什么，JavaScript的`Object.defineProperty()`
+就是一个很好的材料。
 
 > 提示：ES6的**Proxy**是一个更好的选择，我们在最后会提到。
 
@@ -268,7 +282,7 @@ class Dep {
   addSub(watcher) {
     this.subs.push(watcher);
   }
-  
+
   // 通知所有观察者 -- 我的值改变了
   notify() {
     this.subs.forEach(watcher => watcher.update());
@@ -314,7 +328,8 @@ class Watcher {
 刚才的处理文本节点，就需要加入Watcher，代码修改为：
 
 ```javascript
-text(node, expr, vm) {
+text(node, expr, vm)
+{
   let fn = this.updater['textUpdater'];
   let content = expr.replace(/\{\{(.+?)\}\}/g, (...args) => {
     new Watcher(vm, args[1], () => {
@@ -325,7 +340,8 @@ text(node, expr, vm) {
     return this.getValue(vm, args[1]);
   });
   fn(node, content);
-},
+}
+,
 ```
 
 一旦值被改变，回调函数会被执行，从而达到view更新的效果。
@@ -335,23 +351,25 @@ text(node, expr, vm) {
 类似的，**v-html**也是差不多的道理：
 
 ```javascript
-html(node, expr, vm) {
-    let fn = this.updater['htmlUpdater'];
-    new Watcher(vm, expr, (newValue) => {
-        fn(node, newValue);
-    });
-    let value = this.getValue(vm, expr);
-    fn(node, value);
+html(node, expr, vm)
+{
+  let fn = this.updater['htmlUpdater'];
+  new Watcher(vm, expr, (newValue) => {
+    fn(node, newValue);
+  });
+  let value = this.getValue(vm, expr);
+  fn(node, value);
 }
 ```
 
-#####  v-model
+##### v-model
 
 v-model不过是多了一个事假监听功能(这里只考虑input，别的事件如果需要的话，如法炮制即可 -- 使用`addEventListener`这个API)：
 
 ```javascript
 // node 为节点 expr为表达式 vm为当前实例
-model(node, expr, vm) {
+model(node, expr, vm)
+{
   let fn = this.updater['modelUpdater'];
   // 添加一个观察者, 如果将来数据发生更新，那么会拿新值给输入框赋值
   new Watcher(vm, expr, (newValue) => {
@@ -363,7 +381,8 @@ model(node, expr, vm) {
   })
   let value = this.getValue(vm, expr);
   fn(node, value);
-},
+}
+,
 ```
 
 #### 实现methods
@@ -372,17 +391,17 @@ model(node, expr, vm) {
 
 ```javascript
 let vm = new MVVM({
-    el: "#app",
-    data: {
-        user: {
-            name: "yzl"
-        },
+  el: "#app",
+  data: {
+    user: {
+      name: "yzl"
     },
-    methods: {
-        change() {
-            this.user.name = "23123";
-        }
+  },
+  methods: {
+    change() {
+      this.user.name = "23123";
     }
+  }
 })
 ```
 
@@ -418,11 +437,11 @@ class MVVM {
 
 ```javascript
 for (let key in computed) {
-    Object.defineProperty(this.$data, key, {
-        get: () => {
-            return computed[key].call(this);
-        }
-    })
+  Object.defineProperty(this.$data, key, {
+    get: () => {
+      return computed[key].call(this);
+    }
+  })
 }
 ```
 
@@ -431,19 +450,20 @@ for (let key in computed) {
 我们可以将data**代理到MVVM对象**上，方便调用者取值。
 
 ```javascript
-proxy(data) {
-    for (let key in data) {
-        if (data.hasOwnProperty(key)) {
-            Object.defineProperty(this, key, {
-                get() {
-                    return data[key];
-                },
-                set(value) {
-                    data[key] = value;
-                }
-            });
+proxy(data)
+{
+  for (let key in data) {
+    if (data.hasOwnProperty(key)) {
+      Object.defineProperty(this, key, {
+        get() {
+          return data[key];
+        },
+        set(value) {
+          data[key] = value;
         }
+      });
     }
+  }
 }
 ```
 
@@ -788,9 +808,10 @@ vue2的虚拟DOM是**全量的对比**。
 例如下面的HTML节点：
 
 ```html
+
 <div>
-    <p>passage</p>
-    <p>{{message}}</p>
+  <p>passage</p>
+  <p>{{message}}</p>
 </div>
 ```
 
@@ -875,8 +896,6 @@ export const usePagination = (requestMethod, params) => {
 }
 ```
 
-
-
 **App.vue**
 
 我们用`settimeout`来模拟网络请求。
@@ -884,51 +903,53 @@ export const usePagination = (requestMethod, params) => {
 ```javascript
 <template>
   <div>
-    <p>{{ pagination }}</p>
-    <button @click="pagination.changeCurrentPage">改变页码</button>
-  </div>
+    <p>{{pagination}}</p>
+    <button
+    @click="pagination.changeCurrentPage">改变页码
+  </button>
+</div>
 </template>
 
 <script>
-import {usePagination} from "./Composable/usePagination";
+  import {usePagination} from "./Composable/usePagination";
 
-export default {
+  export default {
   name: 'App',
   setup() {
-    const testPromise = () => {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve({
-            "code": "00000", "message": "success", "request": null, "data": {
-              "total": 13,
-              "count": 15,
-              "page": 0,
-              "totalPage": 1,
-              "items": [
-                {
-                  "id": 10011,
-                  "name": "最大连续和",
-                  "characterTags": ["DP"],
-                  "createTime": 1599539054591,
-                  "closed": false
-                }, {
-                  "id": 10012,
-                  "name": "字符串匹配",
-                  "characterTags": ["测试"],
-                  "createTime": 1596104002325,
-                  "closed": false
-                }
-              ]
-            }
-          });
-        }, 1000);
-      })
-    }
-    let pagination = usePagination(testPromise, {});
-    return {
-      pagination
-    }
-  },
+  const testPromise = () => {
+  return new Promise((resolve) => {
+  setTimeout(() => {
+  resolve({
+  "code": "00000", "message": "success", "request": null, "data": {
+  "total": 13,
+  "count": 15,
+  "page": 0,
+  "totalPage": 1,
+  "items": [
+{
+  "id": 10011,
+  "name": "最大连续和",
+  "characterTags": ["DP"],
+  "createTime": 1599539054591,
+  "closed": false
+}, {
+  "id": 10012,
+  "name": "字符串匹配",
+  "characterTags": ["测试"],
+  "createTime": 1596104002325,
+  "closed": false
+}
+  ]
+}
+});
+}, 1000);
+})
+}
+  let pagination = usePagination(testPromise, {});
+  return {
+  pagination
+}
+},
 }
 </script>
 ```
@@ -946,6 +967,7 @@ export default {
 下面是一个简单的计数器案例：
 
 ```vue
+
 <template>
   <div>
     <p>{{ count }}</p>
@@ -976,27 +998,29 @@ export default {
 ```javascript
 <template>
   <div>
-    <p>{{ count.value }}</p>
-    <button @click="count.add()">hello</button>
-  </div>
+    <p>{{count.value}}</p>
+    <button
+    @click="count.add()">hello
+  </button>
+</div>
 </template>
 
 <script>
-import {reactive} from "vue";
+  import {reactive} from "vue";
 
-export default {
+  export default {
   name: 'App',
   components: {},
   setup() {
-    // 设置初始值为0
-    let count = reactive({
-      value: 123,
-      add: () => {
-        count.value++;
-      }
-    });
-    return {count};
-  }
+  // 设置初始值为0
+  let count = reactive({
+  value: 123,
+  add: () => {
+  count.value++;
+}
+});
+  return {count};
+}
 }
 </script>
 ```
@@ -1028,6 +1052,7 @@ export default {
 请看下面代码：
 
 ```vue
+
 <template>
   <div>
     <p>{{ state.name }}</p>
@@ -1102,8 +1127,6 @@ shallow意为“浅的”。它创建一个响应式代理，该代理跟踪其�
 如下图，点击按钮，视图不会变化。
 
 ![](http://cdn.yuzzl.top/blog/20201103001132.png)
-
-
 
 ## TODO
 
