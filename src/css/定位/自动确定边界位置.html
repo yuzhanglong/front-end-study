@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>自动确定边界位置</title>
+    <style>
+      [id*="number"] {
+        width: 25px;
+        height: 25px;
+        background-color: #409EFF;
+        position: absolute;
+      }
+
+      #number1 {
+        top: 0;
+        left: 0;
+        margin: 0;
+      }
+
+      #number2 {
+        top: 0;
+        left: 60px;
+        margin: 10px 0;
+        bottom: 9999px;
+      }
+
+      #number3 {
+        left: 0;
+        width: 100px;
+        margin: 10px;
+        bottom: 0;
+      }
+
+      #number4 {
+        top: 0;
+        height: 100px;
+        right: 0;
+        width: 50px;
+      }
+
+      #number5 {
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        margin: auto;
+      }
+
+      body > div {
+        position: relative;
+        height: 200px;
+        width: 200px;
+        border: 1px solid;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <div id="number1">
+        1
+      </div>
+      <div id="number2">
+        2
+      </div>
+      <div id="number3">
+        3
+      </div>
+      <div id="number4">
+        4
+      </div>
+      <div id="number5">
+        5
+      </div>
+    </div>
+  </body>
+</html>

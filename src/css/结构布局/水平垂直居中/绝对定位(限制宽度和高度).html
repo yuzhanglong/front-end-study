@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>绝对定位（限制宽度和高度）</title>
+    <style type="text/css">
+      #wrapper {
+        height: 300px;
+        border: 1px solid;
+        position: relative;
+      }
+
+      #content {
+        height: 100px;
+        width: 100px;
+        background-color: #409eff;
+        margin: -50px 0 0 -50px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+      }
+
+      /* 当然，我们也可以通过 calc 调节 top left 来定位 */
+      #content2 {
+        height: 80px;
+        width: 80px;
+        background-color: #ffffff;
+        position: absolute;
+        top: calc(50% - 40px);
+        left: calc(50% - 40px);
+      }
+
+      /*使用 translate */
+      #content3 {
+        height: 60px;
+        width: 60px;
+        top: 50%;
+        left: 50%;
+        position: absolute;
+        background-color: #409eff;
+        transform: translate(-50%, -50%);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="wrapper">
+      <div id="content"></div>
+      <div id="content2"></div>
+      <div id="content3"></div>
+    </div>
+  </body>
+</html>

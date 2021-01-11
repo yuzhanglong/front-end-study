@@ -1,4 +1,5 @@
 # React
+
 参考资料：
 https://mp.weixin.qq.com/s/3yoHo6UXI2VOPO9zWI2aCQ
 
@@ -53,7 +54,8 @@ const data = <h2>hello world</h2>;
 
 #### React.CreateElement()
 
-它需要三个参数`type`/`config`/`children`，分别表示**当前React元素的类型**/**jsx的属性**/**存放在标签里面的内容**，最终返回一个`ReactElement`对象(树) -- 也就是所谓的**虚拟DOM**。
+它需要三个参数`type`/`config`/`children`，分别表示**当前React元素的类型**/**jsx的属性**/**存放在标签里面的内容**，最终返回一个`ReactElement`对象(树) -- 也就是所谓的**
+虚拟DOM**。
 
 ![](http://cdn.yuzzl.top/blog/20201107135536.png)
 
@@ -62,20 +64,20 @@ const data = <h2>hello world</h2>;
 ```javascript
 // packages/react/src/ReactElement.js
 const childrenLength = arguments.length - 2;
-  if (childrenLength === 1) {
-    props.children = children;
-  } else if (childrenLength > 1) {
-    const childArray = Array(childrenLength);
-    for (let i = 0; i < childrenLength; i++) {
-      childArray[i] = arguments[i + 2];
-    }
-    if (__DEV__) {
-      if (Object.freeze) {
-        Object.freeze(childArray);
-      }
-    }
-    props.children = childArray;
+if (childrenLength === 1) {
+  props.children = children;
+} else if (childrenLength > 1) {
+  const childArray = Array(childrenLength);
+  for (let i = 0; i < childrenLength; i++) {
+    childArray[i] = arguments[i + 2];
   }
+  if (__DEV__) {
+    if (Object.freeze) {
+      Object.freeze(childArray);
+    }
+  }
+  props.children = childArray;
+}
 ```
 
 很明显，他使用了`arguments`这个默认属性，来处理多参数的问题，孩子大于1时，创建了一个数组，遍历传入的孩子，加入数组，赋给孩子。
@@ -97,16 +99,20 @@ const childrenLength = arguments.length - 2;
 ### 优点
 
 为什么采用虚拟DOM：
+
 - 难以跟踪状态的改变。
 - 操作真实DOM性能较低。
 
 ## Redux
+
 ### 核心
+
 redux的核心主要有以下三部分。
 
 #### store
 
 store可以理解为状态中心，用来保存状态，例如现在有一个计数器的初始状态：
+
 ```javascript
 const initialState = {
   counter: 0
@@ -114,9 +120,11 @@ const initialState = {
 // 通过redux.createStore()初始化store
 const store = redux.createStore(reducer);
 ```
+
 #### action
 
 action可以理解为**动作、行为**，通过它来改变`store`的状态：
+
 ```javascript
 const action1 = {
   type: "INCREMENT"
@@ -136,8 +144,11 @@ const action4 = {
   num: 10
 }
 ```
+
 #### reducer
+
 `state`和`action`中间的桥梁，根据`action`来处理`state`:
+
 ```javascript
 function reducer(state = initialState, action) {
   switch (action.type) {
@@ -154,10 +165,13 @@ function reducer(state = initialState, action) {
   }
 }
 ```
+
 ### 状态订阅与更新
+
 #### 订阅
 
 通过`subscribe`传入回调函数来订阅`store`的变化，请看下面的代码：
+
 ```javascript
 // store
 const store = redux.createStore(reducer);
@@ -169,7 +183,9 @@ store.subscribe(() => {
 })
 
 ```
+
 #### 更新
+
 通过`store.dispatch`来对`store`进行更新，更新完成之后，订阅时传入的回调函数会被执行：
 
 ```javascript
@@ -180,10 +196,13 @@ store.dispatch(action4);
 ```
 
 ### Redux + React
+
 上面已经理清了Redux数据处理的基本流程，那么Redux如何结合React？结合上面的普通redux代码，我们试着写出一个react组件。
 
 #### store初始化
+
 首先，组件创建时时初始化`store`并订阅`store`：
+
 ```jsx
 useEffect(() => {
   setCount(store.getState().counter);
@@ -192,10 +211,11 @@ useEffect(() => {
   });
 }, []);
 ```
+
 在上面的代码中，我们使用`useEffect`来初始化计数器的状态`counter = 5`，然后传入回调函数，订阅变动, 一旦发生变化，我们会执行`setCount`进行`render`。
 
-
 #### 业务逻辑触发store修改
+
 触发某个业务逻辑时执行`dispatch(action)`：
 
 ```jsx
@@ -211,9 +231,11 @@ return (
   </div>
 )
 ```
+
 在上面的代码中，按钮单击，执行了`store.dispatch(addAction(number))`，计数器加一。
 
 代码汇总如下：
+
 ```jsx
 /*
  * File: Home.js
@@ -258,39 +280,48 @@ const Home = () => {
 }
 export default Home;
 ```
+
 #### 基于高阶组件的封装
+
 可以发现，如果有多个组件需要依赖这个`store`，我们会有大量的重复代码，非常难以管理，于是我们对其进行进一步封装，来看下图：
 ![](http://cdn.yuzzl.top/blog/20201109200208.png)
 
 ##### 存在的问题
+
 这个`connent`高阶组件工作顺利，但是会发现这个封装还不够完美 -- 我们的`connent`还是依赖着`store`这一业务代码，假如它是一个库的话，那么是不尽人意的，来看看如何优化。
 
 ##### 进一步封装
+
 我们可以使用`UseContext`钩子来处理：
 ![](http://cdn.yuzzl.top/blog/20201109211250.png)
 
 #### React-redux源码浅析
+
 TODO
 
 ### Redux中间件
+
 redux有一个中间件的概念，这个中间件的目的是在`dispatch`/`action`和最终到达的`reducer`之间扩展自己的代码，例如日志记录、网络请求。
 
 #### redux-thunk
 
 ##### 介绍及实践
+
 我们都知道Redux规定`action`是一个简单对象（`plain object`），如果我们需要`action`为函数，将它执行过程中的某个内容`dispatch`就好了，redux满足了我们这个要求，请看下图：
+
 - main.js
-![](http://cdn.yuzzl.top/blog/20201112185228.png)
+  ![](http://cdn.yuzzl.top/blog/20201112185228.png)
 
 - 主要逻辑
-![](http://cdn.yuzzl.top/blog/20201112185931.png)
+  ![](http://cdn.yuzzl.top/blog/20201112185931.png)
 
 ##### 底层原理
+
 `redux-thunk`是一个**标准的redux中间件**，它的代码**只有14行**，（但是它有15.5k Star！！），来学习一下:
 
 ```javascript
 function createThunkMiddleware(extraArgument) {
-  return ({ dispatch, getState }) => next => action => {
+  return ({dispatch, getState}) => next => action => {
     if (typeof action === 'function') {
       return action(dispatch, getState, extraArgument);
     }
@@ -304,14 +335,15 @@ thunk.withExtraArgument = createThunkMiddleware;
 
 export default thunk;
 ```
+
 这个中间件的核心功能无非就是就是接受所有传入的`action`, 如果它是**函数**，则执行之，我们可以利用浏览器调试的方法来实践一下：
 ![](http://cdn.yuzzl.top/blog/20201112190749.png)
 ![](http://cdn.yuzzl.top/blog/20201112190947.png)
 
-
 #### Redux中间件原理
-回顾一下初始化中间件的代码：
-这里我们导入两个中间件（一个是`redux-thunk`，还有一个是一个简单的控制台打印）
+
+回顾一下初始化中间件的代码： 这里我们导入两个中间件（一个是`redux-thunk`，还有一个是一个简单的控制台打印）
+
 ```javascript
 import {applyMiddleware, createStore} from "redux";
 import reducer from "./reducer";
@@ -334,7 +366,8 @@ export default store;
 下面我们进入源码来看看`createStore`的整个过程，为了方便感受，我们使用Chrome的调试工具。
 
 ![](http://cdn.yuzzl.top/blog/20201112224425.png)
-忽略掉一些边界处理、异常处理，首先程序走到了红框处，当`preloadedState`为`function`时，将`enhancer`指向它。然后执行`enhancer`(绿色部分), 也就是执行`const middlewares = applyMiddleware(thunkMiddleware, loggerMiddleware)`的返回值。
+忽略掉一些边界处理、异常处理，首先程序走到了红框处，当`preloadedState`为`function`时，将`enhancer`指向它。然后执行`enhancer`(绿色部分),
+也就是执行`const middlewares = applyMiddleware(thunkMiddleware, loggerMiddleware)`的返回值。
 
 我们单步进入`enhancer` (也就是执行`enhancer(createStore)`),返回一个函数:
 
@@ -343,7 +376,8 @@ export default store;
 再次单步进入，=也就是执行`enhancer(createStore)(reducer, preloadedState)`:
 
 ![](http://cdn.yuzzl.top/blog/20201112234317.png)
-我们又执行了一次`createStore`, 第一个参数为`void 0`, 第二个参数为`arguments`,也就是`reducer`和`preloadedState(null)`, 再次单步进入，这次我们主要执行**红框部分**的逻辑：
+我们又执行了一次`createStore`, 第一个参数为`void 0`, 第二个参数为`arguments`,也就是`reducer`和`preloadedState(null)`, 再次单步进入，这次我们主要执行**红框部分**
+的逻辑：
 
 ![](http://cdn.yuzzl.top/blog/20201112235443.png)
 
@@ -355,14 +389,12 @@ export default store;
 
 ![](http://cdn.yuzzl.top/blog/20201113103927.png)
 
-
 - （①处）初始化为中间件提供的API:`middlewareAPI`
 - （②处）遍历传入的中间件，并以`middlewareAPI`为参数调用他们，一个标准中间件的结构长这样（为了便于理解我使用`function`而不是箭头函数），最后返回一个由一个个函数组成的数组，数组的每一项便是红框里面的内容：
 
 ![](http://cdn.yuzzl.top/blog/20201113105831.png)
 
 ![](http://cdn.yuzzl.top/blog/20201113102845.png)
-
 
 - （③处）利用`compose`将上面数组的`middlewares`链接到一起，构成一个新的函数, 来看`compose`:
 
@@ -378,19 +410,25 @@ function compose() {
   });
 }
 ```
+
 首先我们需要知道`reduce`的语法，他其实就是为数组的每一项调用`reducer`，它是一个函数，两个参数的意义分别为：
 
 - 上一次调用`reducer`的返回值
 - 本次遍历到的内容
 
 上面的代码返回一个新的**函数** -- 这个函数一旦被执行，将链式地调用每一个传入的函数，也就是执行这一行代码：
+
 ```javascript
 return a(b.apply(void 0, arguments));
 ```
+
 如果有多个函数，那么我们很容易的到下面的执行链 -- 将所有的中间件**自右向左**链式调用,后一个函数的返回值作为前一个函数的参数：
 
 ```javascript
-函数1(函数2(函数3 ... (参数)))
+函数1(函数2(函数3
+...
+(参数)
+))
 ```
 
 - （④处）执行这个链式的函数，参数为`store.dispatch`, 并返回一个新的函数`F(x)`：
@@ -400,13 +438,16 @@ return a(b.apply(void 0, arguments));
 我们令最里面那个红框为`f(action)`, 则最终返回的函数为：
 
 ```javascript
-F(action) = f(f(action)))
+F(action) = f(f(action))
+)
 ```
+
 这个函数会覆盖原来的`dispatch`暴露给用户，以后用户一旦调用`dispatch(action)`即`F(action)`, 就会链式地调用每一个`f(action)`，我们拿`redux-thunk`源码再次体会一下：
 
 ![](http://cdn.yuzzl.top/blog/20201113110357.png)
 
-用户一旦调用`dispatch(action)`, 执行红框部分，redux-thunk 执行这个函数式的`action` ,并传入redux提供的`dispatch`，我们的`action`就可以在函数中执行这个`dispatch`来进行`store`的更新。
+用户一旦调用`dispatch(action)`, 执行红框部分，redux-thunk 执行这个函数式的`action` ,并传入redux提供的`dispatch`，我们的`action`就可以在函数中执行这个`dispatch`
+来进行`store`的更新。
 
 如果传入的`action`不是函数，那么我们将它传给下一个中间件。
 
@@ -498,7 +539,8 @@ export default TryUseImperativeHandle;
 - 绘制
 - 其他耗时的操作
 
-当React决定要加载或者更新组件树时，会做很多事，比如调用各个组件的生命周期函数，计算和比对VDOM，最后更新DOM树，这整个过程是**同步**进行的。假如更新一个组件需要1毫秒，如果有200个组件要更新，那就需要200毫秒，在这200毫秒的更新过程中，浏览器那个唯一的主线程都在专心运行更新操作，无暇去做任何其他的事情。假如用户在某个输入框中输入一些东西，那么必然会造成一些卡顿。
+当React决定要加载或者更新组件树时，会做很多事，比如调用各个组件的生命周期函数，计算和比对VDOM，最后更新DOM树，这整个过程是**同步**
+进行的。假如更新一个组件需要1毫秒，如果有200个组件要更新，那就需要200毫秒，在这200毫秒的更新过程中，浏览器那个唯一的主线程都在专心运行更新操作，无暇去做任何其他的事情。假如用户在某个输入框中输入一些东西，那么必然会造成一些卡顿。
 
 于是我们可以使用这个API：`requestIdleCallback()`，这个API会在浏览器处理上述事件之后再来执行回调。
 
@@ -638,8 +680,6 @@ export default DemoHooks;
 
 ![](http://cdn.yuzzl.top//blog/20201116232803.png)
 
-
-
 ### 高阶组件
 
 #### 扩展props
@@ -655,13 +695,13 @@ const enhanceAge = (Wrapper) => {
   }
 }
 
-const User = (props) =>{
- return (
-   <div>
-     <div>name:{props.name}</div>
-     <div>age:{props.age}</div>
-   </div>
- )
+const User = (props) => {
+  return (
+    <div>
+      <div>name:{props.name}</div>
+      <div>age:{props.age}</div>
+    </div>
+  )
 }
 
 const En = enhanceAge(User);
@@ -691,9 +731,9 @@ const Login = () => {
 const enhanceAuth = (WrapperCmp) => {
   return (props) => {
     const {isLogin} = props;
-    if(isLogin){
+    if (isLogin) {
       return <WrapperCmp {...props}/>
-    }else {
+    } else {
       return <Login/>
     }
   }
@@ -742,7 +782,7 @@ function withRouter(Component) {
   const displayName = `withRouter(${Component.displayName || Component.name})`;
   const C = props => {
     // 提取出ref以及剩下的props
-    const { wrappedComponentRef, ...remainingProps } = props;
+    const {wrappedComponentRef, ...remainingProps} = props;
 
     return (
       <RouterContext.Consumer>
@@ -752,7 +792,7 @@ function withRouter(Component) {
             context,
             `You should not use <${displayName} /> outside a <Router>`
           );
-          
+
           // 将context传入component
           return (
             <Component
@@ -769,7 +809,7 @@ function withRouter(Component) {
   // 设置名称
   C.displayName = displayName;
   C.WrappedComponent = Component;
-	
+
   // 这是调用了一个库，叫hoist-non-react-statics
   // 当你给一个组件添加一个HOC时，
   // 原来的组件会被一个container的组件包裹。
@@ -791,41 +831,42 @@ const getPrototypeOf = Object.getPrototypeOf;
 const objectPrototype = Object.prototype;
 
 export default function hoistNonReactStatics(targetComponent, sourceComponent, excludelist) {
-    if (typeof sourceComponent !== 'string') { // don't hoist over string (html) components
+  if (typeof sourceComponent !== 'string') { // don't hoist over string (html) components
 
-        if (objectPrototype) {
-            const inheritedComponent = getPrototypeOf(sourceComponent);
-            if (inheritedComponent && inheritedComponent !== objectPrototype) {
-                hoistNonReactStatics(targetComponent, inheritedComponent, excludelist);
-            }
-        }
-
-        let keys = getOwnPropertyNames(sourceComponent);
-
-        if (getOwnPropertySymbols) {
-            keys = keys.concat(getOwnPropertySymbols(sourceComponent));
-        }
-
-        const targetStatics = getStatics(targetComponent);
-        const sourceStatics = getStatics(sourceComponent);
-
-        for (let i = 0; i < keys.length; ++i) {
-            const key = keys[i];
-            if (!KNOWN_STATICS[key] &&
-                !(excludelist && excludelist[key]) &&
-                !(sourceStatics && sourceStatics[key]) &&
-                !(targetStatics && targetStatics[key])
-            ) {
-            		
-                const descriptor = getOwnPropertyDescriptor(sourceComponent, key);
-                try {
-                    // 利用defineProperty绑定静态方法到targetComponent下
-                    defineProperty(targetComponent, key, descriptor);
-                } catch (e) {}
-            }
-        }
+    if (objectPrototype) {
+      const inheritedComponent = getPrototypeOf(sourceComponent);
+      if (inheritedComponent && inheritedComponent !== objectPrototype) {
+        hoistNonReactStatics(targetComponent, inheritedComponent, excludelist);
+      }
     }
-    return targetComponent;
+
+    let keys = getOwnPropertyNames(sourceComponent);
+
+    if (getOwnPropertySymbols) {
+      keys = keys.concat(getOwnPropertySymbols(sourceComponent));
+    }
+
+    const targetStatics = getStatics(targetComponent);
+    const sourceStatics = getStatics(sourceComponent);
+
+    for (let i = 0; i < keys.length; ++i) {
+      const key = keys[i];
+      if (!KNOWN_STATICS[key] &&
+        !(excludelist && excludelist[key]) &&
+        !(sourceStatics && sourceStatics[key]) &&
+        !(targetStatics && targetStatics[key])
+      ) {
+
+        const descriptor = getOwnPropertyDescriptor(sourceComponent, key);
+        try {
+          // 利用defineProperty绑定静态方法到targetComponent下
+          defineProperty(targetComponent, key, descriptor);
+        } catch (e) {
+        }
+      }
+    }
+  }
+  return targetComponent;
 };
 ```
 
@@ -858,10 +899,10 @@ export default function hoistNonReactStatics(targetComponent, sourceComponent, e
 
 ```javascript
 setTimeout(() => {
-	this.setState({
-		message:"hello world"
-	});
-	console.log(this.state.message);
+  this.setState({
+    message: "hello world"
+  });
+  console.log(this.state.message);
 }, 0);
 ```
 
@@ -897,26 +938,13 @@ React的diff算法复杂度为**O(n)**，整体方案如下：
 
 ##### 同类型元素对比
 
-
-
 ##### 子节点递归
-
-
 
 React会同时遍历两个子节点的列表，有差异时会生成一个**mutation**，我们只要把这个**mutation**插入DOM即可。
 
 但是这种情况太理想了！如果是下面这种情况，那么就会带来不必要的渲染了（创建了3个mutation）！
 
-
-
-
-
-
-
-
-
 > 注意：
->
 > - key必须唯一
 > - key不要用随机数 -- 在下一次重新渲染的时候，会重新生成
 > - 使用index作为key毫无意义

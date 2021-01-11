@@ -1,4 +1,10 @@
-# 一些有趣的ES6案例分析
+# 一些有趣的 ES6 案例分析
+
+## 总述
+
+本文收集了个人在平时学习中的一些有趣的 ES6 案例。
+
+本文不定期更新，随着我的学习，这篇文章会不断地补充完善。
 
 [[toc]]
 
@@ -305,7 +311,7 @@ readFile(fileA)
 
 `Promise` 挺不错，但是也有一些问题，例如大量冗余的代码 -- 跟着一大堆 `then`，异步逻辑一多，代码会非常难以维护。
 
-我们可能会期望这样的代码，在 `console.log(result)` 中拿到结果"hello world"：
+我们可能会期望这样的代码，在 `console.log(result)` 中拿到结果 "hello world"：
 
 ```javascript
 function foo() {
@@ -315,7 +321,7 @@ function foo() {
       resolve("hello world");
     }, 1000);
   });
-  const res2 = yield new Promise((resolve, reject) => {
+  const res2 = new Promise((resolve, reject) => {
     setTimeout(() => {
       resolve("yzl!");
     }, 1000);
@@ -332,6 +338,7 @@ function foo() {
 ```javascript
 function* bar() {
   console.log('hi~');
+
   // 利用 setTimeout 模拟网络请求
   const res1 = yield new Promise((resolve, reject) => {
     setTimeout(() => {
@@ -343,9 +350,10 @@ function* bar() {
       resolve("yzl!");
     }, 1000);
   });
-  // 这里是无法拿到 hello world 的
+
+  // 我们希望拿到 hello world!
   console.log(res1);
-  // 这里是无法拿到 yzl 的
+  // 我们希望拿到 yzl!
   console.log(res2);
 }
 ```
@@ -470,3 +478,257 @@ function co(gen) {
 redux 有一些中间件提供了一些解决方案，例如 `redux-thunk` 和 `redux-saga`，其中，`redux-saga` 是基于 generator 的一个不错的实践，结合下图，来看看它的用法。
 
 <a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201211132141.png">![](http://cdn.yuzzl.top/blog/20201211132141.png)</a>
+
+## 异步工具 -- Promise、async 和 await
+
+### 实现 promise 的链式调用
+
+你用过 vue-router 吗？如果你用过，你应该知道 vue-router 可以在某个守卫上注册多次，且这些守卫都会按你添加的顺序执行。
+
+实际上其底层就是 promise **链式调用**的一种体现，我们可以写一个类似的链式 Promise：
+
+```typescript
+// 链式的 Promise
+const promises = new Array(10).fill(null).map((item, index) => {
+  return () => {
+    return Promise.resolve("promise " + index + " resolved!");
+  }
+});
+
+const reducer = (promise, guard) => {
+  return promise.then((res) => {
+    console.log(res);
+    return guard(res);
+  });
+}
+
+promises.reduce(reducer, Promise.resolve());
+```
+
+运行结果如下：
+
+![promise](http://cdn.yuzzl.top/blog/20201217185242.png)
+
+这里巧妙地利用了数组的 `reduce` API，通过一个 **resolved Promise** 作为初值，让**后一个 promise** 作为**前一个 promise** 的 then 回调的返回值。
+
+### Promise 的超时中断
+
+用 promise 封装 ajax 请求，如果这个请求超时了，我们该如何优雅地中断？来看下面代码：
+
+```javascript
+// 本质上利用了闭包
+let cancelToken = undefined;
+const myPromise = new Promise((resolve, reject) => {
+  let timeout = setTimeout(() => {
+    resolve("promise resolved!");
+  }, 3000);
+
+  cancelToken = () => {
+    clearTimeout(timeout);
+    reject("promise rejected!");
+  };
+});
+
+myPromise
+  .then(res => {
+    console.log(res);
+  })
+  .catch(err => {
+    console.log(err);
+  });
+
+cancelToken();
+```
+
+输出：
+
+```
+promise rejected!
+```
+
+`cancelToken` 在 Promise 中会成为一个函数，这个函数一旦执行，则调用 promise 中的 **reject** 方法。
+
+值得注意的是，不要忘记在 `cancelToken` 函数中将定时器清除掉，否则 reject 之后定时器还会继续执行。
+
+知名的网络请求库 **axios** 的**网络请求中断**功能就是通过这个方法实现的，只不过把这里的 `clearTimeout(timeout)` 换成 `XMLHttpRequest.abort()` 即可。
+
+### 超时中断的另一种方案
+
+上面说到利用 `cancelToken` 方法来进行超时中断，实际上我们还可以使用 `Promise.race(iterable)` 方法来实现。
+
+它的原理是传入多个 promise，一旦某个 promise 解决或拒绝，返回的 promise 就会解决或拒绝。
+
+```javascript
+// 中断方案2 基于 promise.race()
+
+let t = undefined;
+const cancelablePromise = (promise) => {
+  let p2 = new Promise((resolve, reject) => {
+    setTimeout(() => {
+      reject('超过 1s，中断 promise！');
+      clearTimeout(t);
+    }, 1000);
+  });
+  return Promise.race([promise, p2]);
+}
+
+
+const myPromise2 = new Promise((resolve, reject) => {
+  t = setTimeout(() => {
+    resolve("promise resolved!");
+  }, 3000);
+});
+
+cancelablePromise(myPromise2)
+  .then(res => {
+    console.log(res);
+  })
+  .catch(err => {
+    console.log(err);
+  })
+```
+
+`Promise.race()` 的实现很简单，返回一个 promise，一旦传入的多个 promise 中的某个 promise 解决或拒绝，返回的 promise就会解决或拒绝：
+
+```javascript
+const isPromise = (p) => {
+  if ((typeof p === "object" && p !== null) || typeof p === "function") {
+    return typeof p.then === "function";
+  }
+  return false;
+}
+
+Promise.race = (promises) => {
+  return new Promise((resolve, reject) => {
+    for (let i = 0; i < promises.length; i++) {
+      let currentPromise = promises[i];
+      if (isPromise(currentPromise)) {
+        currentPromise.then(resolve, reject)
+      } else {
+        resolve(currentPromise);
+      }
+    }
+  })
+}
+```
+
+### 实现 Promise.all()
+
+`promise.all()` 传入多个 promise，这些 promise 全部 resolved 才成功否则执行失败逻辑：
+
+```javascript
+const isPromise = (p) => {
+  if ((typeof p === "object" && p !== null) || typeof p === "function") {
+    return typeof p.then === "function";
+  }
+  return false;
+}
+
+Promise.myAll = (promises) => {
+  return new Promise((resolve, reject) => {
+    let res = [];
+
+    const processData = (index, data) => {
+      res[index] = data;
+      if (res.length === promises.length) {
+        resolve(res);
+      }
+    }
+
+
+    for (let i = 0; i < promises.length; i++) {
+      let currentPromise = promises[i];
+      if (isPromise(currentPromise)) {
+        currentPromise.then(res => {
+          processData(i, res);
+        }, reject);
+      } else {
+        processData(i, currentPromise);
+      }
+    }
+  })
+}
+
+const testPromises = new Array(10)
+  .fill(null)
+  .map((item, index) => {
+    return Promise.resolve("promise " + index + " resolved!");
+  });
+
+Promise
+  .all(testPromises)
+  .then(res => {
+    console.log(res);
+  });
+```
+
+### 让异步编程更简单的 async 和 await
+
+使用 promise 处理异步已经比较优雅了，但是我们会发现有大量的 then 的代码块，不利于维护，代码也不好看：
+
+```javascript
+const promise1 = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve("promise1 resolved!")
+    }, 1000);
+  })
+}
+
+const promise2 = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve("promise2 resolved!")
+    }, 1000);
+  })
+}
+
+const promise3 = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve("promise3 resolved!")
+    }, 1000);
+  })
+}
+
+
+promise1()
+  .then(res => {
+    console.log(res);
+    return promise2();
+  })
+  .then(res => {
+    console.log(res);
+    return promise3();
+  })
+  .then(res => {
+    console.log(res);
+  })
+```
+
+使用 async / await 之后，它看起来更加优雅，更加像同步代码：
+
+```javascript
+const foo = async () => {
+  let res1 = await promise1();
+  console.log(res1);
+  let res2 = await promise2();
+  console.log(res2);
+  let res3 = await promise3();
+  console.log(res3);
+}
+
+foo().then(res => {
+  console.log(res);
+})
+```
+
+## 参考资料
+
+Matt Frisble，JavaScript 高级程序设计（第四版）
+
+MDN，[async和await:让异步编程更简单](https://developer.mozilla.org/zh-CN/docs/learn/JavaScript/%E5%BC%82%E6%AD%A5/Async_await)
+
+Dan Abramov，[Why Do React Elements Have a $$typeof Property?](https://overreacted.io/why-do-react-elements-have-typeof-property/)
+
+Vincent Driessen，[Iterables vs. Iterators vs. Generators](https://nvie.com/posts/iterators-vs-generators/)
