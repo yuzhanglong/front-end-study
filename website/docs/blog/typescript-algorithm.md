@@ -34,67 +34,67 @@
 export type Comparator<T> = ((object1: T, object2: T) => number) | undefined;
 
 abstract class Sort<T> {
-    protected array: T[];
+  protected array: T[];
 
-    protected comparator: Comparator<T>;
+  protected comparator: Comparator<T>;
 
-    public sort(array: T[], comparator: Comparator<T> = undefined): void {
-        this.array = array;
-        // 数组为空
-        if (this.array == null) {
-            return;
-        }
-        // 长度为 1 or 0 的数组，返回
-        if (this.array.length < 2) {
-            return;
-        }
-
-        this.comparator = comparator;
-
-        // 执行排序
-        this.runSort();
+  public sort(array: T[], comparator: Comparator<T> = undefined): void {
+    this.array = array;
+    // 数组为空
+    if (this.array == null) {
+      return;
+    }
+    // 长度为 1 or 0 的数组，返回
+    if (this.array.length < 2) {
+      return;
     }
 
-    public abstract runSort(): void;
+    this.comparator = comparator;
 
-    protected compare(index1: number, index2: number): number {
-        if (this.isArrayIndexOutOfBounds(index1) || this.isArrayIndexOutOfBounds(index2)) {
-            throw new Error("数组下标越界");
-        }
-        let el1: T = this.array[index1];
-        let el2: T = this.array[index2];
-        return this.compareByElement(el1, el2);
-    }
+    // 执行排序
+    this.runSort();
+  }
 
-    protected compareByElement(el1: T, el2: T) {
-        if (!this.isComparatorAccepted()) {
-            if (typeof el1 === "number" && typeof el2 === "number") {
-                return el1 - el2;
-            } else {
-                throw new Error("非数值类型请传入比较器函数");
-            }
-        } else {
-            return this.comparator(el1, el2);
-        }
-    }
+  public abstract runSort(): void;
 
-    protected swap(index1: number, index2: number) {
-        let tmp: T = this.array[index1];
-        this.array[index1] = this.array[index2];
-        this.array[index2] = tmp;
+  protected compare(index1: number, index2: number): number {
+    if (this.isArrayIndexOutOfBounds(index1) || this.isArrayIndexOutOfBounds(index2)) {
+      throw new Error("数组下标越界");
     }
+    let el1: T = this.array[index1];
+    let el2: T = this.array[index2];
+    return this.compareByElement(el1, el2);
+  }
 
-    private isComparatorAccepted(): boolean {
-        return this.comparator !== undefined && this.comparator !== null && typeof this.comparator === "function";
+  protected compareByElement(el1: T, el2: T) {
+    if (!this.isComparatorAccepted()) {
+      if (typeof el1 === "number" && typeof el2 === "number") {
+        return el1 - el2;
+      } else {
+        throw new Error("非数值类型请传入比较器函数");
+      }
+    } else {
+      return this.comparator(el1, el2);
     }
+  }
 
-    public getArray(): T[] {
-        return this.array;
-    }
+  protected swap(index1: number, index2: number) {
+    let tmp: T = this.array[index1];
+    this.array[index1] = this.array[index2];
+    this.array[index2] = tmp;
+  }
 
-    private isArrayIndexOutOfBounds(index: number): boolean {
-        return index >= this.array.length || index < 0;
-    }
+  private isComparatorAccepted(): boolean {
+    return this.comparator !== undefined && this.comparator !== null && typeof this.comparator === "function";
+  }
+
+  public getArray(): T[] {
+    return this.array;
+  }
+
+  private isArrayIndexOutOfBounds(index: number): boolean {
+    return index >= this.array.length || index < 0;
+  }
 }
 
 export default Sort;
@@ -127,92 +127,92 @@ const EXPECTED_SORTED_ARRAY = [-47, -46, -36, 2, 3, 4, 5, 15, 19, 26.71, 27, 38.
 
 describe('test bubble sort', () => {
 
-    test('test number array', () => {
-        let arr = TEST_ARRAY.slice();
-        let sort = new BubbleSort<number>();
-        sort.sort(arr);
-        expect(sort.getArray()).toStrictEqual(EXPECTED_SORTED_ARRAY);
-    });
+  test('test number array', () => {
+    let arr = TEST_ARRAY.slice();
+    let sort = new BubbleSort<number>();
+    sort.sort(arr);
+    expect(sort.getArray()).toStrictEqual(EXPECTED_SORTED_ARRAY);
+  });
 });
 
 describe('test selection sort', () => {
-    test('test number array', () => {
-        let arr = TEST_ARRAY.slice();
-        let sort = new SelectionSort<number>();
-        sort.sort(arr);
-        expect(sort.getArray()).toStrictEqual(EXPECTED_SORTED_ARRAY);
-    });
+  test('test number array', () => {
+    let arr = TEST_ARRAY.slice();
+    let sort = new SelectionSort<number>();
+    sort.sort(arr);
+    expect(sort.getArray()).toStrictEqual(EXPECTED_SORTED_ARRAY);
+  });
 });
 
 describe('test insertion sort', () => {
-    test('test number array', () => {
-        let arr = TEST_ARRAY.slice();
-        let sort = new InsertionSort<number>();
-        sort.sort(arr);
-        expect(sort.getArray()).toStrictEqual(EXPECTED_SORTED_ARRAY);
-    });
+  test('test number array', () => {
+    let arr = TEST_ARRAY.slice();
+    let sort = new InsertionSort<number>();
+    sort.sort(arr);
+    expect(sort.getArray()).toStrictEqual(EXPECTED_SORTED_ARRAY);
+  });
 
-    test('test by binary search', () => {
-        let arr = TEST_ARRAY.slice();
-        let sort = new BinarySearchInsertionSort<number>();
-        sort.sort(arr);
-        expect(sort.getArray()).toStrictEqual(EXPECTED_SORTED_ARRAY);
-    });
+  test('test by binary search', () => {
+    let arr = TEST_ARRAY.slice();
+    let sort = new BinarySearchInsertionSort<number>();
+    sort.sort(arr);
+    expect(sort.getArray()).toStrictEqual(EXPECTED_SORTED_ARRAY);
+  });
 });
 
 describe('test merge sort', () => {
-    test('test number array', () => {
-        let arr = TEST_ARRAY.slice();
-        let sort = new MergeSort<number>();
-        sort.sort(arr);
-        expect(sort.getArray()).toStrictEqual(EXPECTED_SORTED_ARRAY);
-    });
+  test('test number array', () => {
+    let arr = TEST_ARRAY.slice();
+    let sort = new MergeSort<number>();
+    sort.sort(arr);
+    expect(sort.getArray()).toStrictEqual(EXPECTED_SORTED_ARRAY);
+  });
 });
 
 describe('test quick sort', () => {
-    test('test number array', () => {
-        let arr = TEST_ARRAY.slice();
-        let sort = new QuickSort<number>();
-        sort.sort(arr);
-        expect(sort.getArray()).toStrictEqual(EXPECTED_SORTED_ARRAY);
-    });
+  test('test number array', () => {
+    let arr = TEST_ARRAY.slice();
+    let sort = new QuickSort<number>();
+    sort.sort(arr);
+    expect(sort.getArray()).toStrictEqual(EXPECTED_SORTED_ARRAY);
+  });
 
-    test('test random quick sort', () => {
-        let arr = TEST_ARRAY.slice();
-        let sort = new RandomQuickSort<number>();
-        sort.sort(arr);
-        expect(sort.getArray()).toStrictEqual(EXPECTED_SORTED_ARRAY);
-    });
+  test('test random quick sort', () => {
+    let arr = TEST_ARRAY.slice();
+    let sort = new RandomQuickSort<number>();
+    sort.sort(arr);
+    expect(sort.getArray()).toStrictEqual(EXPECTED_SORTED_ARRAY);
+  });
 });
 
 
 describe('test counting sort', () => {
-    test('test number array', () => {
-        let arr = [3, 44, 38, -47, 15, -36, 26, 27, 2, -46, 4, 19, 50, 48, 5];
-        const expected = [-47, -46, -36, 2, 3, 4, 5, 15, 19, 26, 27, 38, 44, 48, 50];
-        let sort = new CountingSort();
-        sort.sort(arr);
-        expect(sort.getArray()).toStrictEqual(expected);
-    });
+  test('test number array', () => {
+    let arr = [3, 44, 38, -47, 15, -36, 26, 27, 2, -46, 4, 19, 50, 48, 5];
+    const expected = [-47, -46, -36, 2, 3, 4, 5, 15, 19, 26, 27, 38, 44, 48, 50];
+    let sort = new CountingSort();
+    sort.sort(arr);
+    expect(sort.getArray()).toStrictEqual(expected);
+  });
 });
 
 
 describe('test heap sort', () => {
-    test('test number array', () => {
-        let arr = TEST_ARRAY.slice();
-        let sort = new HeapSort<number>();
-        sort.sort(arr);
-        expect(sort.getArray()).toStrictEqual(EXPECTED_SORTED_ARRAY);
-    });
+  test('test number array', () => {
+    let arr = TEST_ARRAY.slice();
+    let sort = new HeapSort<number>();
+    sort.sort(arr);
+    expect(sort.getArray()).toStrictEqual(EXPECTED_SORTED_ARRAY);
+  });
 });
 
 describe('test shell sort', () => {
-    test('test number array', () => {
-        let arr = TEST_ARRAY.slice();
-        let sort = new ShellSort<number>();
-        sort.sort(arr);
-        expect(sort.getArray()).toStrictEqual(EXPECTED_SORTED_ARRAY);
-    });
+  test('test number array', () => {
+    let arr = TEST_ARRAY.slice();
+    let sort = new ShellSort<number>();
+    sort.sort(arr);
+    expect(sort.getArray()).toStrictEqual(EXPECTED_SORTED_ARRAY);
+  });
 });
 ```
 
@@ -243,55 +243,55 @@ describe('test shell sort', () => {
 import Sort from "./Sort";
 
 class HeapSort<T> extends Sort<T> {
-    private heapSize;
+  private heapSize;
 
-    public runSort(): void {
-        this.heapSize = this.array.length;
-        let lastParent = (this.heapSize >> 1) - 1;
-        // 遍历每一个可能有孩子的节点进行建堆
-        for (let i = lastParent; i >= 0; i--) {
-            this.heapify(i, this.heapSize - 1);
-        }
-
-        // 每次将最大的父亲节点放到底部，然后将最后一个元素放到堆顶
-        // 注意，放到底部的父亲节点被移出堆了，所以我们在 heapify 时的结束坐标需要减一
-        for (let i = this.heapSize - 1; i > 0; i--) {
-            this.swap(0, i);
-            this.heapify(0, i - 1);
-        }
+  public runSort(): void {
+    this.heapSize = this.array.length;
+    let lastParent = (this.heapSize >> 1) - 1;
+    // 遍历每一个可能有孩子的节点进行建堆
+    for (let i = lastParent; i >= 0; i--) {
+      this.heapify(i, this.heapSize - 1);
     }
 
-    /**
-     * 堆的调整，将堆的末端子节点作调整，使得子节点永远小于父节点
-     *
-     * @param start 开始坐标，即父亲节点
-     * @param end 结束坐标
-     */
-    public heapify(start: number, end: number) {
-        // 拿到父亲节点
-        let dad = start;
-        // 左孩子节点
-        let son = (dad << 1) + 1;
-        // 当下标大于堆的最大值时，跳出循环
-        while (son <= end) {
-            // 右侧子节点下标合法，并且右侧节点大于左侧节点
-            if (son + 1 <= end && this.compare(son, son + 1) < 0) {
-                // 准备和右孩子交换
-                son++;
-            }
-            // 如果父节点比任何一个子节点都大，则我们不处理
-            if (this.compare(dad, son) > 0) {
-                return;
-            } else {
-                // 交换父亲和选出来的最大的孩子
-                this.swap(dad, son);
-                // 让新的孩子成为父亲，为接下来的调整做准备
-                dad = son;
-                // 孩子的孩子
-                son = (dad << 1) + 1;
-            }
-        }
+    // 每次将最大的父亲节点放到底部，然后将最后一个元素放到堆顶
+    // 注意，放到底部的父亲节点被移出堆了，所以我们在 heapify 时的结束坐标需要减一
+    for (let i = this.heapSize - 1; i > 0; i--) {
+      this.swap(0, i);
+      this.heapify(0, i - 1);
     }
+  }
+
+  /**
+   * 堆的调整，将堆的末端子节点作调整，使得子节点永远小于父节点
+   *
+   * @param start 开始坐标，即父亲节点
+   * @param end 结束坐标
+   */
+  public heapify(start: number, end: number) {
+    // 拿到父亲节点
+    let dad = start;
+    // 左孩子节点
+    let son = (dad << 1) + 1;
+    // 当下标大于堆的最大值时，跳出循环
+    while (son <= end) {
+      // 右侧子节点下标合法，并且右侧节点大于左侧节点
+      if (son + 1 <= end && this.compare(son, son + 1) < 0) {
+        // 准备和右孩子交换
+        son++;
+      }
+      // 如果父节点比任何一个子节点都大，则我们不处理
+      if (this.compare(dad, son) > 0) {
+        return;
+      } else {
+        // 交换父亲和选出来的最大的孩子
+        this.swap(dad, son);
+        // 让新的孩子成为父亲，为接下来的调整做准备
+        dad = son;
+        // 孩子的孩子
+        son = (dad << 1) + 1;
+      }
+    }
+  }
 }
 
 export default HeapSort;
@@ -344,21 +344,21 @@ export default HeapSort;
 import Sort from "./Sort";
 
 class ShellSort<T> extends Sort<T> {
-    public runSort(): void {
-        // 初始化 gap 为 length / 2 并逐步缩小
-        for (let gap = this.array.length >> 1; gap > 0; gap >>= 1) {
-            // 从第 gap个元素开始执行插入排序
-            for (let i = gap; i < this.array.length; i++) {
+  public runSort(): void {
+    // 初始化 gap 为 length / 2 并逐步缩小
+    for (let gap = this.array.length >> 1; gap > 0; gap >>= 1) {
+      // 从第 gap个元素开始执行插入排序
+      for (let i = gap; i < this.array.length; i++) {
 
-                let currentElement = i;
-                // 如果第 currentElement 个元素比第 currentElement - gap 个元素小，则交换
-                while (currentElement - gap >= 0 && (this.compare(currentElement, currentElement - gap) < 0)) {
-                    this.swap(currentElement, currentElement - gap);
-                    currentElement -= gap;
-                }
-            }
+        let currentElement = i;
+        // 如果第 currentElement 个元素比第 currentElement - gap 个元素小，则交换
+        while (currentElement - gap >= 0 && (this.compare(currentElement, currentElement - gap) < 0)) {
+          this.swap(currentElement, currentElement - gap);
+          currentElement -= gap;
         }
+      }
     }
+  }
 }
 
 export default ShellSort;
@@ -380,17 +380,17 @@ export default ShellSort;
 import Sort from "./Sort";
 
 class InsertionSort<T> extends Sort<T> {
-    public runSort(): void {
-        for (let begin = 1; begin < this.array.length; begin++) {
-            // 拿到当前元素
-            let currentElementIndex = begin;
-            // 在 currentElementIndex 之前的元素都是已经排好序的，倒着逐一比较即可
-            while (currentElementIndex >= 1 && this.compare(currentElementIndex, currentElementIndex - 1) < 0) {
-                this.swap(currentElementIndex, currentElementIndex - 1);
-                currentElementIndex--;
-            }
-        }
+  public runSort(): void {
+    for (let begin = 1; begin < this.array.length; begin++) {
+      // 拿到当前元素
+      let currentElementIndex = begin;
+      // 在 currentElementIndex 之前的元素都是已经排好序的，倒着逐一比较即可
+      while (currentElementIndex >= 1 && this.compare(currentElementIndex, currentElementIndex - 1) < 0) {
+        this.swap(currentElementIndex, currentElementIndex - 1);
+        currentElementIndex--;
+      }
     }
+  }
 }
 
 export default InsertionSort;
@@ -410,47 +410,47 @@ export default InsertionSort;
 import Sort from "./Sort";
 
 class BinarySearchInsertionSort<T> extends Sort<T> {
-    public runSort(): void {
-        for (let begin = 1; begin < this.array.length; begin++) {
-            this.insert(begin, this.findElementByByBinarySearch(begin));
-        }
+  public runSort(): void {
+    for (let begin = 1; begin < this.array.length; begin++) {
+      this.insert(begin, this.findElementByByBinarySearch(begin));
     }
+  }
 
-    /**
-     * 向排序后的列表中插入一个元素
-     *
-     * @param source 源数据，即将要执行插入的元素
-     * @param target 目标插入位置，在这个位置之后的元素全部右移
-     */
-    private insert(source: number, target: number) {
-        let elementToBeInserted: T = this.array[source];
-        for (let i = source; i > target; i--) {
-            this.array[i] = this.array[i - 1];
-        }
-        this.array[target] = elementToBeInserted;
+  /**
+   * 向排序后的列表中插入一个元素
+   *
+   * @param source 源数据，即将要执行插入的元素
+   * @param target 目标插入位置，在这个位置之后的元素全部右移
+   */
+  private insert(source: number, target: number) {
+    let elementToBeInserted: T = this.array[source];
+    for (let i = source; i > target; i--) {
+      this.array[i] = this.array[i - 1];
     }
+    this.array[target] = elementToBeInserted;
+  }
 
-    /**
-     * 利用二分搜索找到 index 位置元素的待插入位置
-     * 已经排好序数组的区间范围是 [0, index)
-     *
-     * @param startIndex 开始下标
-     * @return 寻找到的最小数字的下标
-     */
-    private findElementByByBinarySearch(startIndex: number): number {
-        let start = 0;
-        let end = startIndex;
-        while (start < end) {
-            let mid = (start + end) >>> 1;
-            //
-            if (this.compare(startIndex, mid) < 0) {
-                end = mid;
-            } else {
-                start = mid + 1;
-            }
-        }
-        return start;
+  /**
+   * 利用二分搜索找到 index 位置元素的待插入位置
+   * 已经排好序数组的区间范围是 [0, index)
+   *
+   * @param startIndex 开始下标
+   * @return 寻找到的最小数字的下标
+   */
+  private findElementByByBinarySearch(startIndex: number): number {
+    let start = 0;
+    let end = startIndex;
+    while (start < end) {
+      let mid = (start + end) >>> 1;
+      //
+      if (this.compare(startIndex, mid) < 0) {
+        end = mid;
+      } else {
+        start = mid + 1;
+      }
     }
+    return start;
+  }
 }
 
 export default BinarySearchInsertionSort;
@@ -475,61 +475,61 @@ export default BinarySearchInsertionSort;
 import Sort from "./Sort";
 
 class MergeSort<T> extends Sort<T> {
-    public runSort(): void {
-        this.sortByIndexRange(0, this.array.length);
+  public runSort(): void {
+    this.sortByIndexRange(0, this.array.length);
+  }
+
+  /**
+   * 对 [begin, end) 范围的数据进行归并排序
+   *
+   * @param begin 起始位置
+   * @param end 结束位置（不包含）
+   *
+   */
+  public sortByIndexRange(begin: number, end: number) {
+    // 区间内只有1个元素，已经划分到最小了，结束递归
+    if (end - begin < 2) {
+      return;
     }
 
-    /**
-     * 对 [begin, end) 范围的数据进行归并排序
-     *
-     * @param begin 起始位置
-     * @param end 结束位置（不包含）
-     *
-     */
-    public sortByIndexRange(begin: number, end: number) {
-        // 区间内只有1个元素，已经划分到最小了，结束递归
-        if (end - begin < 2) {
-            return;
-        }
+    // 中间元素
+    let mid = (begin + end) >> 1;
 
-        // 中间元素
-        let mid = (begin + end) >> 1;
+    // 对 [begin, mid) 范围的数据进行归并排序
+    this.sortByIndexRange(begin, mid);
 
-        // 对 [begin, mid) 范围的数据进行归并排序
-        this.sortByIndexRange(begin, mid);
+    // 对 [mid, end) 范围的数据进行归并排序
+    this.sortByIndexRange(mid, end);
 
-        // 对 [mid, end) 范围的数据进行归并排序
-        this.sortByIndexRange(mid, end);
+    this.merge(begin, mid, end);
+  }
 
-        this.merge(begin, mid, end);
+  /**
+   * 将 [begin, mid) 和 [mid, end) 范围的序列合并成一个有序序列
+   *
+   * @param begin 起始位置
+   * @param mid 中间位置
+   * @param end 末位置
+   */
+  private merge(begin: number, mid: number, end: number) {
+    let tmp: T[] = [];
+    let leftIndex = begin;
+    let rightIndex = mid;
+
+    while (leftIndex < mid && rightIndex < end) {
+      tmp.push((this.compare(leftIndex, rightIndex) > 0) ? this.array[rightIndex++] : this.array[leftIndex++]);
+    }
+    while (leftIndex < mid) {
+      tmp.push(this.array[leftIndex++]);
+    }
+    while (rightIndex < end) {
+      tmp.push(this.array[rightIndex++]);
     }
 
-    /**
-     * 将 [begin, mid) 和 [mid, end) 范围的序列合并成一个有序序列
-     *
-     * @param begin 起始位置
-     * @param mid 中间位置
-     * @param end 末位置
-     */
-    private merge(begin: number, mid: number, end: number) {
-        let tmp: T[] = [];
-        let leftIndex = begin;
-        let rightIndex = mid;
-
-        while (leftIndex < mid && rightIndex < end) {
-            tmp.push((this.compare(leftIndex, rightIndex) > 0) ? this.array[rightIndex++] : this.array[leftIndex++]);
-        }
-        while (leftIndex < mid) {
-            tmp.push(this.array[leftIndex++]);
-        }
-        while (rightIndex < end) {
-            tmp.push(this.array[rightIndex++]);
-        }
-
-        for (let i = begin; i < end; i++) {
-            this.array[i] = tmp.shift();
-        }
+    for (let i = begin; i < end; i++) {
+      this.array[i] = tmp.shift();
     }
+  }
 }
 
 export default MergeSort;
@@ -557,72 +557,72 @@ export default MergeSort;
 import Sort from "./Sort";
 
 class QuickSort<T> extends Sort<T> {
-    public runSort(): void {
-        this.quickSort(0, this.array.length);
+  public runSort(): void {
+    this.quickSort(0, this.array.length);
+  }
+
+  /**
+   * 对 [begin, end) 范围的元素进行快速排序
+   *
+   * @param begin 起始位置
+   * @param end 结束位置
+   */
+  private quickSort(begin: number, end: number) {
+    if (end - begin < 2) {
+      return;
     }
 
-    /**
-     * 对 [begin, end) 范围的元素进行快速排序
-     *
-     * @param begin 起始位置
-     * @param end 结束位置
-     */
-    private quickSort(begin: number, end: number) {
-        if (end - begin < 2) {
-            return;
+    let pivot = this.partition(begin, end);
+
+    this.quickSort(begin, pivot);
+    this.quickSort(pivot + 1, end);
+  }
+
+  /**
+   * 构造 [begin, end) 范围的轴点元素
+   *
+   * @param begin 起始下标
+   * @param end 结束下标（开区间）
+   * @return 轴点的下标
+   */
+  protected partition(begin: number, end: number): number {
+    // 以 begin 作为轴点元素
+    this.choosePivot(begin, end);
+    let pivotElement: T = this.array[begin];
+    end--;
+
+    while (begin < end) {
+      while (begin < end) {
+        // 右边的元素大于轴点元素
+        if (this.compareByElement(pivotElement, this.array[end]) < 0) {
+          // 右指针左移
+          end--;
+        } else {
+          // 右边的元素小于轴点元素，我们把它放到左边
+          this.array[begin++] = this.array[end];
+          break;
         }
+      }
 
-        let pivot = this.partition(begin, end);
-
-        this.quickSort(begin, pivot);
-        this.quickSort(pivot + 1, end);
-    }
-
-    /**
-     * 构造 [begin, end) 范围的轴点元素
-     *
-     * @param begin 起始下标
-     * @param end 结束下标（开区间）
-     * @return 轴点的下标
-     */
-    protected partition(begin: number, end: number): number {
-        // 以 begin 作为轴点元素
-        this.choosePivot(begin, end);
-        let pivotElement: T = this.array[begin];
-        end--;
-
-        while (begin < end) {
-            while (begin < end) {
-                // 右边的元素大于轴点元素
-                if (this.compareByElement(pivotElement, this.array[end]) < 0) {
-                    // 右指针左移
-                    end--;
-                } else {
-                    // 右边的元素小于轴点元素，我们把它放到左边
-                    this.array[begin++] = this.array[end];
-                    break;
-                }
-            }
-
-            while (begin < end) {
-                // 左边的元素小于轴点元素
-                if (this.compareByElement(pivotElement, this.array[begin]) > 0) {
-                    // 右指针左移
-                    begin++;
-                } else {
-                    // 右边的元素小于轴点元素，我们把它放到左边
-                    this.array[end--] = this.array[begin];
-                    break;
-                }
-            }
+      while (begin < end) {
+        // 左边的元素小于轴点元素
+        if (this.compareByElement(pivotElement, this.array[begin]) > 0) {
+          // 右指针左移
+          begin++;
+        } else {
+          // 右边的元素小于轴点元素，我们把它放到左边
+          this.array[end--] = this.array[begin];
+          break;
         }
-        this.array[begin] = pivotElement;
-        return begin;
+      }
     }
+    this.array[begin] = pivotElement;
+    return begin;
+  }
 
-    protected choosePivot(begin: number, end: number) {
-        return;
-    }
+  protected choosePivot(begin: number, end: number) {
+    return;
+  }
 }
 
 export default QuickSort;
@@ -642,10 +642,10 @@ export default QuickSort;
 import QuickSort from "./QuickSort";
 
 class RandomQuickSort<T> extends QuickSort<T> {
-    protected choosePivot(begin: number, end: number) {
-        let randomIndexAddition = parseInt(String((Math.random() * (end - begin))));
-        this.swap(begin, begin + randomIndexAddition);
-    }
+  protected choosePivot(begin: number, end: number) {
+    let randomIndexAddition = parseInt(String((Math.random() * (end - begin))));
+    this.swap(begin, begin + randomIndexAddition);
+  }
 }
 
 export default RandomQuickSort;
@@ -672,38 +672,38 @@ export default RandomQuickSort;
 import Sort from "./Sort";
 
 class CountingSort extends Sort<number> {
-    // 计数排序只可以处理数字
-    public runSort(): void {
-        let posCountArray = [];
-        let negCountArray = [];
-        this.array.forEach(res => {
-            if (res >= 0) {
-                posCountArray[res] >= 1 ? posCountArray[res]++ : (posCountArray[res] = 1);
-            } else {
-                let index = res * (-1);
-                negCountArray[index] >= 1 ? negCountArray[index]++ : (negCountArray[index] = 1);
-            }
-        });
+  // 计数排序只可以处理数字
+  public runSort(): void {
+    let posCountArray = [];
+    let negCountArray = [];
+    this.array.forEach(res => {
+      if (res >= 0) {
+        posCountArray[res] >= 1 ? posCountArray[res]++ : (posCountArray[res] = 1);
+      } else {
+        let index = res * (-1);
+        negCountArray[index] >= 1 ? negCountArray[index]++ : (negCountArray[index] = 1);
+      }
+    });
 
-        this.array = [];
-        for (let i = negCountArray.length; i > 0; i--) {
-            if (negCountArray[i] > 0) {
-                let cnt = negCountArray[i];
-                while (cnt--) {
-                    this.array.push(i * (-1));
-                }
-            }
+    this.array = [];
+    for (let i = negCountArray.length; i > 0; i--) {
+      if (negCountArray[i] > 0) {
+        let cnt = negCountArray[i];
+        while (cnt--) {
+          this.array.push(i * (-1));
         }
-
-        for (let i = 0; i < posCountArray.length; i++) {
-            if (posCountArray[i] > 0) {
-                let cnt = posCountArray[i];
-                while (cnt--) {
-                    this.array.push(i);
-                }
-            }
-        }
+      }
     }
+
+    for (let i = 0; i < posCountArray.length; i++) {
+      if (posCountArray[i] > 0) {
+        let cnt = posCountArray[i];
+        while (cnt--) {
+          this.array.push(i);
+        }
+      }
+    }
+  }
 }
 
 export default CountingSort;
@@ -727,15 +727,15 @@ export default CountingSort;
 import Sort from "./Sort";
 
 class BubbleSort<T> extends Sort<T> {
-    public runSort(): void {
-        for (let i = 0; i < this.array.length - 1; i++) {
-            for (let j = 0; j < this.array.length - i - 1; j++) {
-                if (this.compare(j, j + 1) > 0) {
-                    this.swap(j, j + 1);
-                }
-            }
+  public runSort(): void {
+    for (let i = 0; i < this.array.length - 1; i++) {
+      for (let j = 0; j < this.array.length - i - 1; j++) {
+        if (this.compare(j, j + 1) > 0) {
+          this.swap(j, j + 1);
         }
+      }
     }
+  }
 }
 
 export default BubbleSort;
@@ -757,29 +757,29 @@ export default BubbleSort;
 import Sort from "./Sort";
 
 class SelectionSort<T> extends Sort<T> {
-    public runSort(): void {
-        for (let i = 0; i < this.array.length; i++) {
-            let index = this.findElement(i);
-            this.swap(index, i);
-        }
+  public runSort(): void {
+    for (let i = 0; i < this.array.length; i++) {
+      let index = this.findElement(i);
+      this.swap(index, i);
     }
+  }
 
-    /**
-     * 从传入的开始下标寻找，找到一个最小的，并返回
-     * 已经排好序数组的区间范围是 [0, index)
-     *
-     * @param startIndex 开始下标
-     * @return 寻找到的最小数字的下标
-     */
-    private findElement(startIndex: number) {
-        let minIndex = startIndex;
-        for (let i = startIndex + 1; i < this.array.length; i++) {
-            if (this.compare(i, minIndex) < 0) {
-                minIndex = i;
-            }
-        }
-        return minIndex;
+  /**
+   * 从传入的开始下标寻找，找到一个最小的，并返回
+   * 已经排好序数组的区间范围是 [0, index)
+   *
+   * @param startIndex 开始下标
+   * @return 寻找到的最小数字的下标
+   */
+  private findElement(startIndex: number) {
+    let minIndex = startIndex;
+    for (let i = startIndex + 1; i < this.array.length; i++) {
+      if (this.compare(i, minIndex) < 0) {
+        minIndex = i;
+      }
     }
+    return minIndex;
+  }
 }
 
 export default SelectionSort;
@@ -857,39 +857,178 @@ export default SelectionSort;
 
 ```typescript
 export const combinationSum = (num: number[], target: number): number[][] => {
-    const result = []
-    const current = []
+  const result = []
+  const current = []
 
-    num = num.sort((a, b) => a - b);
+  num = num.sort((a, b) => a - b);
 
-    const solve = (sum, index) => {
-        // 超出范围，不会执行
-        if (sum > target) {
-            return;
-        }
-        // 值相等，保存结果
-        if (sum == target) {
-            let res = [...current];
-            result.push(res);
-            return;
-        }
-
-        for (let i = index; i < num.length; i++) {
-            if (i === index || num[i] !== num[i - 1]) {
-                current.push(num[i])
-                solve(sum + num[i], i + 1);
-                current.pop()
-            }
-        }
+  const solve = (sum, index) => {
+    // 超出范围，不会执行
+    if (sum > target) {
+      return;
     }
-    solve(0, 0)
-    return result;
+    // 值相等，保存结果
+    if (sum == target) {
+      let res = [...current];
+      result.push(res);
+      return;
+    }
+
+    for (let i = index; i < num.length; i++) {
+      if (i === index || num[i] !== num[i - 1]) {
+        current.push(num[i])
+        solve(sum + num[i], i + 1);
+        current.pop()
+      }
+    }
+  }
+  solve(0, 0)
+  return result;
 }
 ```
 
-### 贪心算法
+### 二分查找
 
-### 分治算法
+二分查找是一种在有序数组中查找某一特定元素的搜索算法。
+
+搜索过程从数组的中间元素开始，如果中间元素正好是要查找的元素，则搜索过程结束。
+
+如果某一特定元素大于或者小于中间元素，则在数组大于或小于中间元素的那一半中查找，而且跟开始一样从中间元素开始比较。
+
+如果在某一步骤数组为空，则代表找不到。这种搜索算法**每一次比较都使搜索范围缩小一半**。
+
+上述过程可以抽象成一棵决策树，例如对于数组 `[3,4,5,7,24,30,42,54,63,72,87,95]` ，我们可以绘制出如下的决策树：
+
+![](http://cdn.yuzzl.top/blog/20210111233458.png)
+
+例如我们要查找 **24**，所需要走的路径为 **30 -> 5 -> 7 -> 24**。
+
+下面来看这一道题：
+
+![](http://cdn.yuzzl.top/blog/20210112001250.png)
+
+它要我们输出在数组中第一个大于等于查找值的位置。我们可以使用二分查找算法。
+
+维护两个变量 **begin**、**end**，分别表示**起始下标**（0）和**结束下标**（len - 1）。
+
+由于数组是有序的，获取中间值 `mid = (begin + end) / 2`。
+
+如果 `mid` 对应的元素大于等于查找值，那么它**可能是**最终答案，我们让 `end` 等于 `mid` 缩小范围并开始下一轮循环。
+
+如果 `mid` 的元素小于查找值，说明 `mid` 及其左边的值都不符合要求，那么我们让 `begin = mid + 1` 即可。
+
+解法如下：
+
+```typescript
+/**
+ * 得到数组中第一个大于等于查找值的位置
+ *
+ * @param num int 整型 查找值
+ * @param arr int 整型一维数组 有序数组
+ * @return int 整型 数组中第一个大于等于查找值的位置
+ */
+const lowerBound = (num: number, arr: number[]): number => {
+    if (num > arr[arr.length - 1]) {
+      return arr.length + 1;
+    }
+    let begin = 0;
+    let end = arr.length - 1;
+    while (begin < end) {
+      let mid = (begin + end) >> 1;
+      if (num <= arr[mid]) {
+        end = mid;
+      } else {
+        begin = mid + 1;
+      }
+    }
+    return end + 1;
+  }
+```
+
+再来一个问题：**升序排列**的整数数组 nums 在预先未知的某个点上进行了旋转（例如， `[0,1,2,4,5,6,7]` 经旋转后可能变为 `[4,5,6,7,0,1,2]` ）。请你在数组中搜索 target
+，如果数组中存在这个目标值，则返回它的索引，否则返回 -1 。
+
+什么叫转动？来看下面的例子：
+
+```
+0 2 4 7 9
+9 0 2 4 7
+7 9 0 2 4
+4 7 9 0 2
+2 4 7 9 0
+```
+
+可以看出，通过所谓转动，原来有序的数组变成了一个无序的数组，但是也有很显著的特点 -- 它是由两个**有序数组**组成的！
+
+我们只需要找到待查元素**在哪个有序区间**，然后再查找不就可以了吗？
+
+那么问题就成了**如何找旋转临界点**。我们可以用二分查找的方式寻找临界点！
+
+我们可以维护一个 **left** 和 一个 **right** 下标，获取中间值，如果中间值大于 `num[0]`，说明轴点在中间值右侧，让 `left = mid`，继续搜索即可。
+
+反之，他可能是个临界点，于是让 `right = mid`，最终，`right` 的值就是轴点的值。
+
+```typescript
+/**
+ * 搜索旋转数组
+ *
+ * @param nums 旋转数组
+ * @param target 搜索数字
+ */
+export const searchInRotatedSortedArray = (nums: number[], target: number): number => {
+    // 获取轴点
+    let left = 0;
+    let right = nums.length - 1;
+    while (left < right) {
+      let mid = (left + right) >> 1;
+      if (nums[mid] < nums[0]) {
+        right = mid;
+      } else {
+        left = mid + 1;
+      }
+    }
+    // 拿到轴点
+    let pivot = right;
+
+    if (target >= nums[0]) {
+      // 在左递增区间查找
+      return binarySearch(nums, 0, pivot + 1, target);
+    } else {
+      // 在右递增区间查找
+      return binarySearch(nums, pivot, nums.length, target);
+    }
+  }
+
+/**
+ * 执行二分搜索
+ *
+ * @param nums 被搜索的数组
+ * @param start 开始坐标
+ * @param end 结束坐标
+ * @param target 搜索数字
+ * @return 对应下标，如果不存在则返回 -1
+ */
+export const binarySearch = (nums: number[], start: number, end: number, target: number) => {
+  let left = start;
+  let right = end - 1;
+  while (left <= right) {
+    let mid = (left + right) >> 1;
+    if (nums[mid] === target) {
+      return mid;
+    }
+    if (nums[mid] > target) {
+      right = mid - 1;
+    } else {
+      left = mid + 1;
+    }
+  }
+  return -1;
+}
+```
+
+### 贪心
+
+### 分治
 
 
 
