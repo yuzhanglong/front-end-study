@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Client -- 扫码登录页面</title>
+  </head>
+  <body>
+    <div>
+      扫码登录测试
+    </div>
+    <div>
+      <button id="show-code-button">
+        点我唤起扫码框
+      </button>
+      <button id="hide-code-button">
+        点我关闭扫码框
+      </button>
+      <div id="code">
+      </div>
+    </div>
+
+    <script>
+      // 拿到扫码框
+      const showCodeButton = document.getElementById("show-code-button");
+      const codeContainer = document.getElementById("code");
+      const hideCodeButton = document.getElementById("hide-code-button");
+
+      showCodeButton.addEventListener("click", () => {
+        showCode();
+      });
+
+      hideCodeButton.addEventListener("click", () => {
+        codeContainer.innerHTML = "";
+      });
+
+      // 展示扫码框
+      const showCode = () => {
+        // 建立 websocket 服务
+        const codeWebsocket = new WebSocket("ws://localhost:8000");
+        codeWebsocket.onmessage = (e) => {
+          const res = JSON.parse(e.data);
+          const handlerFn = messageHandler[res.type];
+          // 匹配到相应的函数，执行之
+          if (typeof handlerFn === "function") {
+            handlerFn(res);
+          }
+        }
+        // 连接建立成功
+        codeWebsocket.onopen = () => {
+          // 发送消息，请求随机 id
+          codeWebsocket.send("get_code");
+        }
+      }
+
+      const messageHandler = {
+        // 获得 codeId 接下来我们要生成二维码
+        "CODE_ID": (res) => {
+          console.log("haha");
+          const uid = res.data.uid;
+          const imgElement = document.createElement("img");
+          imgElement.src = `http://localhost:8000/login_qr_code/${uid}`;
+          codeContainer.innerHTML = "";
+          codeContainer.appendChild(imgElement);
+        },
+
+        // 二维码被扫描，等待客户端确认
+        "SCANNED": (res) => {
+
+        },
+        // 登录成功，保存获得的 token
+        "SUCCESS": (res) => {
+
+        }
+      }
+    </script>
+  </body>
+</html>
