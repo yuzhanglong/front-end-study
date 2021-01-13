@@ -1,8 +1,8 @@
 const uuid = require("uuid");
 
 const initWebsocket = (wss) => {
-  wss.on("connection", (ws, req) => {
-    console.log(`[SERVER] connection` + uuid.v4());
+  wss.on("connection", (ws) => {
+    console.log(`[SERVER] connection`);
     // 接收到数据
     ws.on('message', (msg) => {
       console.log(`[SERVER] Received: ${msg}`);
@@ -21,7 +21,11 @@ const initWebsocket = (wss) => {
 const messageUtil = {
   "get_code": (ws) => {
     const uid = uuid.v4();
-    ws.loginUid = uid;
+    console.log("获取二维码----" + uid);
+    ws.qrCodeCondition = {
+      uid: uid,
+      status: 0
+    }
     return JSON.stringify({
       status: "success",
       data: {
