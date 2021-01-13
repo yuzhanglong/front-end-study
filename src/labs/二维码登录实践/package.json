@@ -10,7 +10,9 @@
   "license": "ISC",
   "dependencies": {
     "koa": "^2.13.1",
+    "koa-bodyparser": "^4.3.0",
     "koa-router": "^10.0.0",
+    "koa2-cors": "^2.0.6",
     "qr-image": "^3.2.0",
     "uuid": "^8.3.2",
     "ws": "^7.4.2"
