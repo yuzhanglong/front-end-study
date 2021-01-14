@@ -1,30 +1,33 @@
-const Koa = require('koa');
-const WebSocket = require('ws');
+/*
+ * File: login.js
+ * Description: 登录路由
+ * Created: 2021-1-14 12:52:06
+ * Author: yuzhanglong
+ * Email: yuzl1123@163.com
+ */
+
 const Router = require("koa-router");
 const qr = require('qr-image')
-const bodyParser = require('koa-bodyparser');
-const {initWebsocket} = require("./ws/ws");
-const cors = require('koa2-cors');
-const {sendData} = require("./ws/ws");
-const myRouter = new Router();
-const {verify, generateToken} = require('./utils/jwt');
+const {generateToken, verify} = require("../utils/jwt");
+const {sendData} = require("../ws/wsLogin");
+const {getWss} = require("../ws");
+
+const loginRouter = new Router();
+
 
 const JWT_SECRET = "KEY";
 
-let wss;
 
 // 首页
-myRouter.get("/", (ctx) => {
+loginRouter.get("/", (ctx) => {
   ctx.body = "hello world!";
 });
 
 // 登录
-myRouter.get("/login_qr_code/:uid", (ctx) => {
+loginRouter.get("/login_qr_code/:uid", (ctx) => {
   const uid = ctx.request.params.uid;
-
   // 对 uid 过期验证逻辑，略去
   const isExpired = false;
-
 
   if (!uid || isExpired) {
     ctx.body = {
@@ -41,7 +44,7 @@ myRouter.get("/login_qr_code/:uid", (ctx) => {
 
 // 获取 TOKEN，这里就不考虑数据库、用户名/密码，略去手工登录操作
 // 而是直接通过 yzl520 这个 USER_ID 生成 TOKEN
-myRouter.get("/get_token", (ctx) => {
+loginRouter.get("/get_token", (ctx) => {
   const USER_ID = "yzl520";
   const token = generateToken(USER_ID);
   ctx.body = {
@@ -52,16 +55,17 @@ myRouter.get("/get_token", (ctx) => {
   }
 });
 
-// 执行登录
-myRouter.post("/login_by_code", (ctx, next) => {
+// 登录及确认登录（模拟手机上的账号密码登录）
+loginRouter.post("/login_by_code", (ctx, next) => {
   // 用户的 token 来自手机端
   const token = ctx.request.body["token"];
   const tokenData = verify(token, JWT_SECRET);
 
   // codeId
   const uuid = ctx.request.body["uuid"];
-  if (wss && tokenData) {
-    // 可以在 wss.clients 中找到相应的结果
+  const wss = getWss();
+  if (wss && wss.clients && tokenData) {
+    // 可以在 wss.clients 中找到相应的客户端
     const clients = wss.clients;
 
     // 找到对应的 ws 客户端
@@ -101,18 +105,8 @@ myRouter.post("/login_by_code", (ctx, next) => {
   }
 });
 
-const app = new Koa();
 
-app.use(cors());
-app.use(bodyParser());
-app.use(myRouter.routes());
+module.exports = {
+  loginRouter: loginRouter
+}
 
-const server = app.listen(8000, () => {
-  console.log("your project is running successfully!");
-});
-
-wss = new WebSocket.Server({
-  server: server
-});
-
-initWebsocket(wss);
