@@ -20,10 +20,12 @@
     </div>
 
     <script>
-      // 拿到扫码框
+      // DOM 元素
       const showCodeButton = document.getElementById("show-code-button");
       const codeContainer = document.getElementById("code");
       const hideCodeButton = document.getElementById("hide-code-button");
+
+      // 必要的变量
       let uuid = null;
       let codeWebsocket = null;
 
@@ -53,17 +55,18 @@
         // 连接建立成功
         codeWebsocket.onopen = () => {
           // 发送消息，请求随机 id
-          codeWebsocket.send("get_code");
+          codeWebsocket.send("GET_CODE");
         }
       }
 
+      // websocket 消息处理
       const messageHandler = {
         // 获得 codeId 接下来我们要生成二维码
         "CODE_ID": (res) => {
           const imgElement = document.createElement("img");
           uuid = res.data.uuid;
           imgElement.src = `http://localhost:8000/login_qr_code/${uuid}`;
-          codeContainer.innerHTML = "";
+          codeContainer.innerHTML = uuid;
           codeContainer.appendChild(imgElement);
         },
         // 二维码被扫描，等待客户端确认
