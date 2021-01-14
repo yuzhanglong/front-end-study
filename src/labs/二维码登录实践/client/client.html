@@ -3,7 +3,6 @@
   <head>
     <meta charset="UTF-8">
     <title>Client -- 扫码登录页面</title>
-    <script src="https://cdn.bootcdn.net/ajax/libs/axios/0.21.0/axios.min.js"></script>
   </head>
   <body>
     <div>
@@ -25,7 +24,7 @@
       const showCodeButton = document.getElementById("show-code-button");
       const codeContainer = document.getElementById("code");
       const hideCodeButton = document.getElementById("hide-code-button");
-      let uid = null;
+      let uuid = null;
       let codeWebsocket = null;
 
       showCodeButton.addEventListener("click", () => {
@@ -39,10 +38,13 @@
       // 展示扫码框
       const showCode = () => {
         // 建立 websocket 服务
+        if (codeWebsocket) {
+          codeWebsocket.close();
+        }
         codeWebsocket = new WebSocket("ws://localhost:8000");
         codeWebsocket.onmessage = (e) => {
           const res = JSON.parse(e.data);
-          const handlerFn = messageHandler[res.type];
+          const handlerFn = messageHandler[res.data.type];
           // 匹配到相应的函数，执行之
           if (typeof handlerFn === "function") {
             handlerFn(res);
@@ -59,27 +61,17 @@
         // 获得 codeId 接下来我们要生成二维码
         "CODE_ID": (res) => {
           const imgElement = document.createElement("img");
-          uid = res.data.uid;
-          imgElement.src = `http://localhost:8000/login_qr_code/${uid}`;
+          uuid = res.data.uuid;
+          imgElement.src = `http://localhost:8000/login_qr_code/${uuid}`;
           codeContainer.innerHTML = "";
           codeContainer.appendChild(imgElement);
         },
         // 二维码被扫描，等待客户端确认
         "SCANNED": () => {
-          const sendConfirm = () => {
-            axios.post("http://localhost:8000/login_by_code", {
-              "token": "YOUR_TOKEN",
-              "codeId": uid
-            })
-          }
           codeContainer.innerHTML =
             `<div>
               <div>扫描成功，请点击确认按钮以登录</div>
-              <button id="login-confirm">确认登录</button>
              </div>`
-          document.getElementById("login-confirm").addEventListener('click', () => {
-            sendConfirm();
-          })
         },
         // 登录成功，保存获得的 token
         "SUCCESS": () => {

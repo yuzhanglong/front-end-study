@@ -1,5 +1,14 @@
 const uuid = require("uuid");
 
+const sendData = (client, status, data) => {
+  if (client && client.send) {
+    client.send(JSON.stringify({
+      status: status,
+      data: data
+    }));
+  }
+}
+
 const initWebsocket = (wss) => {
   wss.on("connection", (ws) => {
     console.log(`[SERVER] connection`);
@@ -9,7 +18,7 @@ const initWebsocket = (wss) => {
       // 发送数据
       const fn = messageUtil[msg];
       if (fn) {
-        ws.send(fn(ws));
+        fn(ws);
       } else {
         ws.send("bad command!");
       }
@@ -22,20 +31,18 @@ const messageUtil = {
   "get_code": (ws) => {
     const uid = uuid.v4();
     console.log("获取二维码----" + uid);
-    ws.qrCodeCondition = {
-      uid: uid,
+    ws.loginCondition = {
+      uuid: uid,
       status: 0
     }
-    return JSON.stringify({
-      status: "success",
-      data: {
-        uid: uid
-      },
+    sendData(ws, "ok", {
+      uuid: uid,
       type: "CODE_ID"
     });
   }
 }
 
 module.exports = {
-  initWebsocket: initWebsocket
+  initWebsocket: initWebsocket,
+  sendData: sendData
 }
