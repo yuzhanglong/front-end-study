@@ -79,6 +79,10 @@ function getBlogSidebar() {
     {
       text: '谈谈前端性能优化',
       link: '/blog/frontend-better-performance'
+    },
+    {
+      text: '基于 Koa 和 Websocket 实现二维码登录',
+      link: '/blog/qr-code-login'
     }
   ]
 }

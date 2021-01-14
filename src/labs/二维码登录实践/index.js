@@ -4,8 +4,12 @@ const Router = require("koa-router");
 const qr = require('qr-image')
 const bodyParser = require('koa-bodyparser');
 const {initWebsocket} = require("./ws/ws");
-const cors = require('koa2-cors')
+const cors = require('koa2-cors');
+const {sendData} = require("./ws/ws");
 const myRouter = new Router();
+const {verify, generateToken} = require('./utils/jwt');
+
+const JWT_SECRET = "KEY";
 
 let wss;
 
@@ -21,6 +25,7 @@ myRouter.get("/login_qr_code/:uid", (ctx) => {
   // 对 uid 过期验证逻辑，略去
   const isExpired = false;
 
+
   if (!uid || isExpired) {
     ctx.body = {
       message: "二维码已过期"
@@ -34,49 +39,55 @@ myRouter.get("/login_qr_code/:uid", (ctx) => {
   }
 });
 
+// 获取 TOKEN，这里就不考虑数据库、用户名/密码，略去手工登录操作
+// 而是直接通过 yzl520 这个 USER_ID 生成 TOKEN
+myRouter.get("/get_token", (ctx) => {
+  const USER_ID = "yzl520";
+  const token = generateToken(USER_ID);
+  ctx.body = {
+    message: "登录成功~",
+    data: {
+      token: token
+    }
+  }
+});
+
 // 执行登录
 myRouter.post("/login_by_code", (ctx, next) => {
   // 用户的 token 来自手机端
   const token = ctx.request.body["token"];
+  const tokenData = verify(token, JWT_SECRET);
 
   // codeId
-  const codeId = ctx.request.body["codeId"];
-
-  if (wss) {
+  const uuid = ctx.request.body["uuid"];
+  if (wss && tokenData) {
     // 可以在 wss.clients 中找到相应的结果
     const clients = wss.clients;
+
     // 找到对应的 ws 客户端
-    let targetClient = [...clients].find((client) => client.qrCodeCondition.uid === codeId);
+    let targetClient = [...clients].find((client) => client.loginCondition.uuid === uuid);
     if (targetClient) {
-      if (targetClient.qrCodeCondition.status === 0) {
-        targetClient.send(JSON.stringify({
-          status: "success",
-          data: {
-            uid: codeId
-          },
+      if (targetClient.loginCondition.status === 0) {
+        sendData(targetClient, "ok", {
+          uuid: uuid,
           type: "SCANNED"
-        }));
-        targetClient.qrCodeCondition.status++;
+        });
+        targetClient.loginCondition.status++;
         ctx.body = {
           message: "用户已经扫描了二维码，请点击确认按钮以确认登录"
         }
-      } else if (targetClient.qrCodeCondition.status === 1) {
-        // 派发新的token
-        targetClient.send(JSON.stringify({
-          status: "success",
-          data: {
-            uid: codeId
-          },
-          type: "SUCCESS"
-        }));
+      } else if (targetClient.loginCondition.status === 1) {
+        sendData(targetClient, "ok", {
+          uuid: uuid,
+          type: "SUCCESS",
+          token: generateToken(tokenData.userId)
+        });
 
         ctx.body = {
-          message: "登录成功~",
-          data: {
-            token: "NEW TOKEN"
-          }
+          message: "登录成功~"
         }
-        targetClient.qrCodeCondition.status++;
+
+        targetClient.loginCondition.status++;
       } else {
         ctx.body = {
           message: "二维码已经失效！"
