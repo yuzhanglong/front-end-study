@@ -1,3 +1,11 @@
+---
+date: 2020-12-02
+
+tags:
+
+- Webpack
+---
+
 # webpack-loader & plugin 详解
 
 [[toc]]
@@ -355,7 +363,8 @@ html-webpack-plugin 的基本流程如下图：
 
 ```javascript
 const htmlWebpackPluginHooksMap = new WeakMap();
-function getHtmlWebpackPluginHooks (compilation) {
+
+function getHtmlWebpackPluginHooks(compilation) {
   let hooks = htmlWebpackPluginHooksMap.get(compilation);
   // Setup the hooks only once
   if (hooks === undefined) {
@@ -365,7 +374,7 @@ function getHtmlWebpackPluginHooks (compilation) {
   return hooks;
 }
 
-function createHtmlWebpackPluginHooks () {
+function createHtmlWebpackPluginHooks() {
   return {
     beforeAssetTagGeneration: new AsyncSeriesWaterfallHook(['pluginArgs']),
     alterAssetTags: new AsyncSeriesWaterfallHook(['pluginArgs']),
@@ -385,17 +394,12 @@ module.exports = {
 多个 plugin 对象**的，我们可以渲染多份模板，像这样：
 
 ```javascript
-{
+const config = {
   entry: 'index.js',
-    output
-:
-  {
+  output: {
     path: __dirname + '/dist',
-      filename
-  :
-    'index_bundle.js'
-  }
-,
+    filename: 'index_bundle.js'
+  },
   plugins: [
     new HtmlWebpackPlugin(),
     new HtmlWebpackPlugin({
@@ -409,23 +413,13 @@ module.exports = {
 回到主题，html-webpack-plugin 提供的 `hooks` 其实是这些东西：
 
 ```javascript
-{
+const config = {
   beforeAssetTagGeneration: new AsyncSeriesWaterfallHook(['pluginArgs']),
-    alterAssetTags
-:
-  new AsyncSeriesWaterfallHook(['pluginArgs']),
-    alterAssetTagGroups
-:
-  new AsyncSeriesWaterfallHook(['pluginArgs']),
-    afterTemplateExecution
-:
-  new AsyncSeriesWaterfallHook(['pluginArgs']),
-    beforeEmit
-:
-  new AsyncSeriesWaterfallHook(['pluginArgs']),
-    afterEmit
-:
-  new AsyncSeriesWaterfallHook(['pluginArgs'])
+  alterAssetTags: new AsyncSeriesWaterfallHook(['pluginArgs']),
+  alterAssetTagGroups: new AsyncSeriesWaterfallHook(['pluginArgs']),
+  afterTemplateExecution: new AsyncSeriesWaterfallHook(['pluginArgs']),
+  beforeEmit: new AsyncSeriesWaterfallHook(['pluginArgs']),
+  afterEmit: new AsyncSeriesWaterfallHook(['pluginArgs'])
 }
 ```
 
@@ -524,24 +518,16 @@ module.exports = XXXXXXWebpackPlugin;
 我们前面提到，我们的 plugin 是基于 html-webpack-plugin 的，所以`constructorz` 中需要传入 html-webpack-plugin 的实例， 以及用户的 CDN 配置：
 
 ```typescript
-constructor(htmlWebpackPlugin
-:
-HtmlExternalsWebpackPlugin, scriptSources
-:
-string[]
-)
-{
-  // TODO: 你的业务逻辑
-  this.htmlWebpackPlugin = htmlWebpackPlugin;
-  this.scriptSources = scriptSources;
-}
+class MyPlugin {
+  constructor(htmlWebpackPlugin: HtmlExternalsWebpackPlugin, scriptSources: string[]) {
+    // TODO: 你的业务逻辑
+    this.htmlWebpackPlugin = htmlWebpackPlugin;
+    this.scriptSources = scriptSources;
+  }
 
-apply(compiler
-:
-Compiler
-)
-{
-  // TODO: 你的业务逻辑
+  apply(compiler: Compiler) {
+    // TODO: 你的业务逻辑
+  }
 }
 ```
 
@@ -633,6 +619,6 @@ class HtmlExternalsWebpackPlugin {
 
 ## 参考资料
 
-- webpack 官网：https://webpack.js.org
+webpack，[webpack 官网网站](https://webpack.js.org)
 
-- 干货！撸一个webpack插件：https://juejin.cn/post/6844903713312604173
+掘金，[干货！撸一个webpack插件](https://juejin.cn/post/6844903713312604173)

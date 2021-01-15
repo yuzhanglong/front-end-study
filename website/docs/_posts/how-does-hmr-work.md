@@ -1,4 +1,13 @@
-# webpack热更新(HMR)工作原理
+---
+date: 2020-12-07
+
+tags:
+
+- JavaScript
+- Webpack
+---
+
+# webpack 热更新(HMR)工作原理
 
 [[toc]]
 

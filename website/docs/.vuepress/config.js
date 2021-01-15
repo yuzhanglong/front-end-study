@@ -2,7 +2,6 @@ module.exports = {
   lang: 'en-US',
   title: 'yzl-blog',
   head: [
-    // add jquery and fancybox
     ['script', {src: 'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.slim.min.js'}],
     ['script', {src: 'https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.2/jquery.fancybox.min.js'}],
     ['link', {
@@ -21,7 +20,33 @@ module.exports = {
       description: 'hello world~',
       email: 'yuzl1123@163.com',
       location: 'HangZhou City, China',
-      avatar: 'https://avatars1.githubusercontent.com/u/56540811?s=400&u=0e3102e70a29e7eb128a6333a073955329677f43&v=4',
-    }
+      avatar: 'http://cdn.yuzzl.top/blog/20210115165658.png',
+    },
+    header: {
+      background: {
+        url: 'http://cdn.yuzzl.top/blog/20210115170459.png',
+        useGeo: false,
+      },
+      showTitle: true,
+    },
+    footer: {
+      poweredBy: false,
+      poweredByTheme: false,
+      custom: 'Copyright 2020 <a href="https://github.com/yuzhanglong" target="_blank">yuzhanglong</a> | MIT License',
+    },
+    pagination: {
+      perPage: 15,
+    },
+    nav: [
+      {text: "主页", link: "/", exact: true},
+      {
+        text: "往期博文",
+        link: "/posts/",
+        exact: false,
+      },
+      {
+        text: 'Github', link: 'https://github.com/yuzhanglong'
+      },
+    ],
   }
 }
