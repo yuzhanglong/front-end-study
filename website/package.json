@@ -4,11 +4,12 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "docs:dev": "vitepress dev docs",
-    "docs:build": "vitepress build docs",
-    "docs:serve": "vitepress serve docs"
+    "docs:dev": "vuepress dev docs",
+    "docs:build": "vuepress build docs"
   },
-  "devDependencies": {
-    "vitepress": "^0.9.1"
+  "dependencies": {
+    "lru-cache": "^6.0.0",
+    "vuepress": "^1.8.0",
+    "vuepress-theme-meteorlxy": "^1.9.0"
   }
 }
