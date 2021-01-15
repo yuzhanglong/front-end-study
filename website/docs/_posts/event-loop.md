@@ -1,3 +1,13 @@
+---
+date: 2020-12-25
+
+tags:
+
+- Node.js
+- JavaScript
+
+---
+
 # 分析浏览器和 NodeJS 的事件循环
 
 [[toc]]
@@ -334,4 +344,5 @@ set immediate4
 
 nodejs官网，[The Node.js Event Loop, Timers, and process.nextTick()](https://nodejs.org/en/docs/guides/event-loop-timers-and-nexttick/)
 
-Deepal Jayasekara，[NodeJS Event Loop 系列文章](https://blog.insiderattack.net/event-loop-and-the-big-picture-nodejs-event-loop-part-1-1cb67a182810)
+Deepal
+Jayasekara，[NodeJS Event Loop 系列文章](https://blog.insiderattack.net/event-loop-and-the-big-picture-nodejs-event-loop-part-1-1cb67a182810)
