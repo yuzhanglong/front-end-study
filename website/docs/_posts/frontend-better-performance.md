@@ -1,3 +1,12 @@
+---
+date: 2020-12-22
+
+tags:
+
+- 性能优化
+
+---
+
 # 谈谈前端性能优化
 
 之前我写过一篇文章，主要是面向 React 框架的性能优化，实际上，面向浏览器、资源请求也可以作出很多的优化，本文对这些方案作了总结。
@@ -515,4 +524,5 @@ Web Worker 的 API 使用这里不再赘述，[MDN](https://developer.mozilla.or
 
 - MDN，[requestIdleCallback](https://developer.mozilla.org/zh-CN/docs/Web/API/Window/requestIdleCallback)
 
-- Mariko Kosaka，[Inside look at modern web browser](https://developers.google.com/web/updates/2018/09/inside-browser-part1)
+- Mariko
+  Kosaka，[Inside look at modern web browser](https://developers.google.com/web/updates/2018/09/inside-browser-part1)

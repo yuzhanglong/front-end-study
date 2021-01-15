@@ -1,3 +1,12 @@
+---
+date: 2021-12-26
+
+tags:
+
+- JavaScript
+
+---
+
 # 一些有趣的 ES6 案例分析
 
 ## 总述
@@ -729,6 +738,7 @@ Matt Frisble，JavaScript 高级程序设计（第四版）
 
 MDN，[async和await:让异步编程更简单](https://developer.mozilla.org/zh-CN/docs/learn/JavaScript/%E5%BC%82%E6%AD%A5/Async_await)
 
-Dan Abramov，[Why Do React Elements Have a $$typeof Property?](https://overreacted.io/why-do-react-elements-have-typeof-property/)
+Dan
+Abramov，[Why Do React Elements Have a $$typeof Property?](https://overreacted.io/why-do-react-elements-have-typeof-property/)
 
 Vincent Driessen，[Iterables vs. Iterators vs. Generators](https://nvie.com/posts/iterators-vs-generators/)
