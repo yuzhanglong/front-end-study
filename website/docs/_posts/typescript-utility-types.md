@@ -1,3 +1,10 @@
+---
+date: 2020-12-20
+
+tags:
+
+- TypeScript
+---
 # Typescript Utility Types 解读
 
 Typescript 有一套 **Utility Types**（实用工具类型），非常有意思，本文将介绍它们，并探究其原理：
