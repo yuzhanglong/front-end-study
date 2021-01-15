@@ -23,7 +23,6 @@ app.use(bodyParser());
 // 登录相关路由
 app.use(loginRouter.routes());
 
-
 // 监听端口
 const server = app.listen(8000, () => {
   console.log("your project is running successfully!");
@@ -32,3 +31,5 @@ const server = app.listen(8000, () => {
 // websocket 初始化
 const wss = createWss(server);
 initWebsocket(wss);
+
+module.exports = app;

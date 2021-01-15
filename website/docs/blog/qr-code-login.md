@@ -2,13 +2,19 @@
 
 扫描二维码登录这个场景经常遇到，本文将介绍二维码登录的实现原理，并使用 Koa 框架实现一个简单的二维码登录 DEMO。
 
+你可以[点击这里](https://github.com/yuzhanglong/yzl-blog/tree/main/src/labs/%E4%BA%8C%E7%BB%B4%E7%A0%81%E7%99%BB%E5%BD%95%E5%AE%9E%E8%B7%B5)
+查看这个 DEMO 的源代码。
+
+本文大纲：
+[[toc]]
+
 ## 二维码登录原理
 
-二维码登录的实现流程如下，红色线表示 WebSocket 连接，白色线表示 http(s) 连接：
+二维码登录的实现流程如下图，其中红色线表示 **WebSocket** 连接，白色线表示 **http(s)** 连接：
 
-![](http://cdn.yuzzl.top/blog/20210113224809.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20210113224809.png">![](http://cdn.yuzzl.top/blog/20210113224809.png)</a>
 
-可以看出，基于 **WebSocket**，我们可以弥补 http 无状态的缺陷，让服务端和客户端建立一次持久的连接，而这个连接状态的改变和用户的扫描情况、确认情况息息相关。
+可以看出，基于 **WebSocket**，我们可以弥补 http 无状态的缺陷，让服务端和客户端建立一次持久的连接，而这个连接传输的信息和用户的扫描情况、确认情况息息相关。
 
 整个过程的核心主要有下面三个：
 
@@ -18,24 +24,53 @@
 
 :::tip
 
-你也可以用 **ajax 轮询**来替代 Websocket，前者是服务端向客户端主动推送状态，后者是客户端定期向服务端查询状态）.
+你也可以用 **ajax 轮询**来替代 WebSocket，前者是服务端向客户端主动推送状态，后者是客户端定期向服务端查询状态）.
+
+为了方便起见，下面的代码中没有去考虑 uuid 过期时间这个问题，在实际开发中，你可以利用 **redis** 来进行过期时间的设定，也可以利用 JWT 将 uuid 生成一个**有期限的 token** 发送给客户端。
+
 :::
 
 ## 实现二维码登录
 
-下面我们将以 Koa 框架为基础，来实现二维码登录。
+正如上图所示，二维码的登录流程很容易想到，也很好理解。但是真正写起代码来还是会有点小坑，下面我们将以 Koa 框架为基础，来实现二维码登录。
+
+### 实现效果
+
+**Step 1 唤起扫码框**
+
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20210115105846.png">![](http://cdn.yuzzl.top/blog/20210115105846.png)</a>
+
+**Step 2 获取 TOKEN，模拟手机端登录**
+
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20210115105923.png">![](http://cdn.yuzzl.top/blog/20210115105923.png)</a>
+
+**Step 3 模拟扫码操作，为了方便体验，这里直接使用客户端显示的 UUID，略去了将二维码转换成 uuid 的操作**
+
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20210115110026.png">![](http://cdn.yuzzl.top/blog/20210115110026.png)</a>
+
+此时，客户端收到用户已经扫码的消息，要求用户确认：
+
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20210115110106.png">![](http://cdn.yuzzl.top/blog/20210115110106.png)</a>
+
+**Step 4 用户再次点击确认按钮**
+
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20210115110139.png">![](http://cdn.yuzzl.top/blog/20210115110139.png)</a>
+
+此时，客户端收到服务端用户确认的消息和新的 TOKEN，并显示登录成功的信息，此时我们可以用这个 TOKEN 来调用其他需要登录权限的接口。
+
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20210115110216.png">![](http://cdn.yuzzl.top/blog/20210115110216.png)</a>
 
 ### 接口约定
 
 **获取 TOKEN**（模拟手机上的账号密码登录）
 
-方法：GET
+- 方法：GET
 
-路径：`http://localhost:8000/login_by_code`
+- 路径：`http://localhost:8000/login_by_code`
 
-参数样例：无（实际开发中为用户名、密码、验证码等必要的登录信息，这里做出了简化）
+- 参数样例：无（实际开发中为用户名、密码、验证码等必要的登录信息，这里做出了简化）
 
-返回样例：
+- 返回样例：
 
 ```json
 {
@@ -48,19 +83,19 @@
 
 **获取二维码**
 
-方法：GET
+- 方法：GET
 
-路径：`http://localhost:8000/login_qr_code/ + uuid`
+- 路径：`http://localhost:8000/login_qr_code/ + uuid`
 
-参数样例：无（实际开发中为用户名、密码、验证码等必要的登录信息，这里做出了简化）
+- 参数样例：无（实际开发中为用户名、密码、验证码等必要的登录信息，这里做出了简化）
 
 **登录及确认登录**（模拟手机上的账号密码登录）
 
-method：POST
+- 方法：POST
 
-路径：`http://localhost:8000/login_by_code`
+- 路径：`http://localhost:8000/login_by_code`
 
-参数样例：
+- 参数样例：
 
 ```json
 {
@@ -69,9 +104,9 @@ method：POST
 }
 ```
 
-返回样例：
+- 返回样例：
 
-**扫码成功时**
+扫码成功时
 
 ```json
 {
@@ -79,13 +114,50 @@ method：POST
 }
 ```
 
-**登录确认时**
+登录确认时
 
 ```json
 {
   "message": "登录成功~"
 }
 ```
+
+**登录业务 WebSocket**
+
+- 路径：`ws://localhost:8000`
+
+- 返回内容格式
+
+```json
+{
+  "status": "表示状态",
+  "data": {
+    "描述": "返回数据"
+  }
+}
+```
+
+- 消息内容
+
+| 消息内容        | 方向                |   描述             |
+| ----------- | -------------------- |------------------------------------------- |
+| GET_CODE   | client -> server     |  获取 uuid，可以通过这个 uuid 生成二维码并让手机端扫码 |
+| 用户在扫码时触发   | server -> client     |  data 的 type 字段应该为 SCANNED   |
+| 用户在扫码时触发   | server -> client     |  data 的 type 字段应该为 SUCCESS，并且会携带 token 字段，可以利用这个 token 调取其它接口   |
+
+- 示例
+
+用户获取 uuid 时响应：
+
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20210115100819.png">![](http://cdn.yuzzl.top/blog/20210115100819.png)</a>
+
+用户扫码之后响应：
+
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20210115100724.png">![](http://cdn.yuzzl.top/blog/20210115100724.png)</a>
+
+用户确认时响应：
+
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20210115100740.png">![](http://cdn.yuzzl.top/blog/20210115100740.png)</a>
 
 ### mobile 端
 
@@ -176,7 +248,7 @@ method：POST
 
 客户端的职责如下：
 
-- 用户点击某个按钮，弹出扫码框，和服务端建立 websocket 连接。
+- 用户点击某个按钮，弹出扫码框，和服务端建立 WebSocket 连接。
 - 基于 WebSocket，获得服务端发来的 uuid，利用该 uuid 生成二维码。
 - 在用户确认时，接收到 token，然后调用需要权限的接口。（转变为已登录状态）。
 
@@ -280,7 +352,7 @@ method：POST
 
 服务端我们采用 Koa 框架，这也是二维码登录的核心。其目录结构如下：
 
-![](http://cdn.yuzzl.top/blog/20210114160149.png)
+<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20210114160149.png">![](http://cdn.yuzzl.top/blog/20210114160149.png)</a>
 
 **jwt.js**
 
@@ -313,7 +385,7 @@ module.exports = {
 
 **ws/index.js**
 
-这个模块是处理全局 websocket 服务的：
+这个模块是处理全局 WebSocket 服务的：
 
 ```javascript
 /*
@@ -355,13 +427,150 @@ module.exports = {
 }
 ```
 
+**login.js**
+
+登录相关的接口路由。
+
+前面的图中说到，在用户扫码时，手机端会携带 uuid 调用 `/login_by_code` 接口，如果通过 uuid 匹配到正确的客户端？实际上，ws 库为多客户端连接提供了很好的 API。 在创建 websocket
+服务时，我们可以拿到一个 `WebSocket.Server` 对象：
+
+```javascript
+const wss = new WebSocket.Server({
+  server: server
+})
+```
+
+wss 里面有个 clients 属性，它是一个集合，每当有一个用户通过 WebSocket 连接，就会创建一个 WebSocket 对象，并放到这个集合里面。
+
+我们只需要在用户连接时，将 uuid 添加到 这个WebSocket 对象，就可以实现 uuid -- WebSocket 对象（客户端）的匹配。在接口中我们就可以查询到正确的客户端：
+
+```javascript
+// 找到对应的 ws 客户端
+let targetClient = [...clients].find((client) => client.loginCondition.uuid === uuid);
+```
+
+```javascript
+const Router = require("koa-router");
+const qr = require('qr-image')
+const {generateToken, verify} = require("../utils/jwt");
+const {sendData} = require("../ws/wsLogin");
+const {getWss} = require("../ws");
+
+const loginRouter = new Router();
+
+
+// 首页
+loginRouter.get("/", (ctx) => {
+  ctx.body = "hello world!";
+});
+
+// 通过 uuid 生成携带 uuid 的二维码
+loginRouter.get("/login_qr_code/:uid", (ctx) => {
+  const uid = ctx.request.params.uid;
+
+  // 对 uid 过期验证逻辑，略去
+  const isExpired = false;
+
+  if (!uid || isExpired) {
+    ctx.body = {
+      message: "二维码已过期"
+    }
+  } else {
+    ctx.response.set('content-type', 'image/png');
+    ctx.body = qr.image(uid, {
+      size: 12,
+      margin: 1
+    });
+  }
+});
+
+// 获取 TOKEN，这里就不考虑数据库、用户名/密码，略去手工登录操作
+// 而是直接通过 yzl520 这个 USER_ID 生成 TOKEN
+loginRouter.get("/get_token", (ctx) => {
+  const USER_ID = "yzl520";
+  const token = generateToken(USER_ID);
+  ctx.body = {
+    message: "登录成功~",
+    data: {
+      token: token
+    }
+  }
+});
+
+// 登录及确认登录（模拟手机上的账号密码登录）
+loginRouter.post("/login_by_code", (ctx) => {
+  // 用户的 token 来自手机端
+  const token = ctx.request.body["token"];
+  const tokenData = verify(token);
+
+  // codeId
+  const uuid = ctx.request.body["uuid"];
+  const wss = getWss();
+  if (wss && wss.clients && tokenData) {
+    // 可以在 wss.clients 中找到相应的客户端
+    const clients = wss.clients;
+
+    // 找到对应的 ws 客户端
+    let targetClient = [...clients].find((client) => client.loginCondition.uuid === uuid);
+    if (targetClient) {
+      if (targetClient.loginCondition.status === 0) {
+        sendData(targetClient, "ok", {
+          uuid: uuid,
+          type: "SCANNED"
+        });
+        targetClient.loginCondition.status++;
+        ctx.body = {
+          message: "用户已经扫描了二维码，请点击确认按钮以确认登录"
+        }
+      } else if (targetClient.loginCondition.status === 1) {
+        sendData(targetClient, "ok", {
+          uuid: uuid,
+          type: "SUCCESS",
+          token: generateToken(tokenData.userId)
+        });
+
+        ctx.body = {
+          message: "登录成功~"
+        }
+
+        targetClient.loginCondition.status++;
+      } else {
+        ctx.body = {
+          message: "二维码已经失效！"
+        }
+      }
+      return;
+    }
+  }
+  ctx.body = {
+    message: "登录失败"
+  }
+});
+
+
+module.exports = {
+  loginRouter: loginRouter
+}
+```
+
 **ws/wsLogin.js**
 
 这个模块是登录相关的 WebSocket 业务逻辑处理，属于核心代码：
 
-- 调用 `initWebSocket()`，传入全局 websocket 对象，我们可以为它绑定相关事件。
+- 调用 `initWebSocket()`，传入全局 WebSocket 对象，我们可以为它绑定相关事件。
 - 基于 `loginMessageHandler` 对象，我们可以根据客户端发来的消息匹配相应的业务逻辑操作函数。
 - 暴露 `sendData` 方法，在合适的时候可以让服务端向客户端发送消息，例如“用户已扫码”之类。
+
+另外，uuid 和 WebSocket 对象（相应的客户端）也在这个模块绑定：
+
+```javascript
+ws.loginCondition = {
+  uuid: uid,
+  status: 0
+}
+```
+
+代码如下：
 
 ```javascript
 /*
@@ -465,7 +674,6 @@ const wss = createWss(server);
 initWebsocket(wss);
 ```
 
-## 基于 Jest 的单元测试
+## 参考资料
 
-下面我们用测试框架 Jest 来测试我们的二维码登录服务，当然，你也可以选择手工测试。
-
+知乎问题，[微信扫描二维码登录网页是什么原理，前后两个事件是如何联系的？](https://www.zhihu.com/question/20368066)
