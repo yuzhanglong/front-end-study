@@ -10,7 +10,7 @@ const jwt = require("jsonwebtoken");
 
 
 // 验证 TOKEN 的有效性
-const verify = (token, secret) => {
+const verify = (token, secret = "KEY") => {
   try {
     return jwt.verify(token, secret);
   } catch (e) {

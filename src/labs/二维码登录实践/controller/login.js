@@ -15,17 +15,15 @@ const {getWss} = require("../ws");
 const loginRouter = new Router();
 
 
-const JWT_SECRET = "KEY";
-
-
 // 首页
 loginRouter.get("/", (ctx) => {
   ctx.body = "hello world!";
 });
 
-// 登录
+// 通过 uuid 生成携带 uuid 的二维码
 loginRouter.get("/login_qr_code/:uid", (ctx) => {
   const uid = ctx.request.params.uid;
+
   // 对 uid 过期验证逻辑，略去
   const isExpired = false;
 
@@ -56,10 +54,10 @@ loginRouter.get("/get_token", (ctx) => {
 });
 
 // 登录及确认登录（模拟手机上的账号密码登录）
-loginRouter.post("/login_by_code", (ctx, next) => {
+loginRouter.post("/login_by_code", (ctx) => {
   // 用户的 token 来自手机端
   const token = ctx.request.body["token"];
-  const tokenData = verify(token, JWT_SECRET);
+  const tokenData = verify(token);
 
   // codeId
   const uuid = ctx.request.body["uuid"];
