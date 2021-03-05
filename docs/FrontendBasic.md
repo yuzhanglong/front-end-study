@@ -1099,7 +1099,7 @@ JS引擎为模块创造一个**环境记录**（environment record）来管理�
 
 ### Antd中的国际化
 
-**antd**是个UI组件库，基于React编写，国际化是它的一大特性。
+**antd** 是个 UI 组件库，基于 React 编写，国际化是它的一大特性。
 
 ![](http://cdn.yuzzl.top//blog/20201119215426.png)
 
@@ -1272,7 +1272,7 @@ export default class LocaleReceiver extends React.Component<LocaleReceiverProps>
 }
 ```
 
-##### 自定义Hook
+##### 自定义 Hook
 
 另外也有国际化的自定义Hook，比上面的class组件代码简洁很多，利用**useContext**拿到全局数据。利用**useMemo**执行性能优化 -- 如果某处用上了`componentLocale()`
 ，那么这个函数不会由于组件的重新渲染而重新执行，除非`[componentName, defaultLocale, antLocale]`三者之一发生改变。
