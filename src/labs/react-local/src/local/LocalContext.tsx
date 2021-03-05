@@ -8,7 +8,7 @@
 
 
 import {createContext} from "react"
-import {Local} from "./types"
+import {Local} from "../types"
 
 const LocalContext = createContext<Local | undefined>(undefined)
 

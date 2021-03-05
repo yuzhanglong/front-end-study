@@ -8,7 +8,7 @@
 
 import React from 'react'
 import LocalContext from './LocalContext'
-import { Local } from './types'
+import { Local } from '../types'
 
 interface LocalProviderProps {
   local: Local
@@ -16,7 +16,9 @@ interface LocalProviderProps {
 
 const LocalProvider: React.FunctionComponent<LocalProviderProps> = (props) => {
   return (
-    <LocalContext.Provider value={props.local} />
+    <LocalContext.Provider value={props.local}>
+      {props.children}
+    </LocalContext.Provider>
   )
 }
 

@@ -8,6 +8,7 @@
 
 export interface Local {
   confirmText: string
+  cancelText: string
 }
 
 
