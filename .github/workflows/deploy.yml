@@ -5,7 +5,7 @@ on:
     branches:
       - main
 jobs:
-  build:
+  deploy-docs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -15,21 +15,18 @@ jobs:
         with:
           node-version: '14'
 
-      - name: Change base directory
-        run: cd website
-
-      - name: Install dependencies
-        run: yarn install
-
-      - name: Build docs
-        run: yarn build
+      - name: Install and build docs
+        run: |
+          cd ./website
+          yarn install
+          yarn docs:build
 
       - name: Deploy by ssh
         uses: easingthemes/ssh-deploy@v2.1.5
         env:
           SSH_PRIVATE_KEY: ${{ secrets.ACCESS_TOKEN }}
           ARGS: "-avz --delete"
-          SOURCE: "website/docs/.vuepress/dist/"
+          SOURCE: "./website/docs/.vuepress/dist/"
           REMOTE_HOST: "47.106.202.255"
           REMOTE_USER: "root"
           TARGET: "/home/blog-deploy"
