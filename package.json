@@ -1,0 +1,8 @@
+{
+  "name": "yzl-blog",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/yuzhanglong/yzl-blog.git",
+  "author": "coderyzl <yuzl1123@163.com>",
+  "license": "MIT"
+}
