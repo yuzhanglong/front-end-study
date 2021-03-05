@@ -110,7 +110,7 @@ Access-Control-Allow-Credentials: true
 
 ```javascript
 let img = new Image();
-img.onload = img.onerror = function () {
+img.onload = img.onerror = function() {
   alert("Done!");
 };
 img.src = "http://www.example.com/test?name=Nicholas";
@@ -141,9 +141,9 @@ https://query.asilu.com/weather/baidu?callback=handleResponse
 
 ```html
 <!DOCTYPE html>
-<html lang="en">
+<html lang='en'>
   <head>
-    <meta charset="UTF-8">
+    <meta charset='UTF-8'>
     <title>JSONP测试</title>
   </head>
   <body>
@@ -164,7 +164,7 @@ https://query.asilu.com/weather/baidu?callback=handleResponse
 上面的代码执行后，往**body**中插入了一个`<script>`标签，于是我们可以调用第三方接口，注意我们传入的query:**callback=handleResponse**，服务端会返回一个这样的文本：
 
 ```javascript
-handleResponse({"city": "杭州", "pm25": "66", "weather": ["数组的内容被省略了"]});
+handleResponse({ "city": "杭州", "pm25": "66", "weather": ["数组的内容被省略了"] });
 ```
 
 这下更明白JSONP实现的原理了吧，浏览器获取这串代码（js脚本），就会直接`handleResponse()` -- 也就是我们之前定义的：
@@ -280,15 +280,15 @@ server {
 
 ```html
 <!DOCTYPE html>
-<html lang="en">
+<html lang='en'>
   <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
     <title>POST MESSAGE -- 本地</title>
   </head>
   <body>
     <h4>主页面</h4>
-    <iframe id="iframe" src="http://182.254.197.28/"></iframe>
+    <iframe id='iframe' src='http://182.254.197.28/'></iframe>
     <script>
       const iframe = document.getElementById('iframe');
       iframe.onload = () => {
@@ -318,9 +318,9 @@ server {
 
 ```html
 <!doctype html>
-<html lang="en">
+<html lang='en'>
   <head>
-    <meta charset="utf-8"/>
+    <meta charset='utf-8' />
     <title>hello world</title>
     <script>
       // 接收domain1的数据
@@ -416,7 +416,7 @@ cookie数据**不是安全的**，任何人都可以获得，常见的 XSRF 攻�
     - Lax：`Lax`规则稍稍放宽，大多数情况也是不发送第三方 Cookie，但是**导航到目标网址的 Get 请求除外**，具体内容请看下表。
 
   | 请求类型  |      示例      |    正常情况 | Lax         |
-                                                                                                                                                                                    | :-------- | :------------: | ----------: | :---------- |
+                                                                                                                                                                                      | :-------- | :------------: | ----------: | :---------- |
   | 链接      |       `<a href="..."></a>`       | 发送 Cookie | 发送 Cookie |
   | 预加载    |       `<link rel="prerender" href="..."/>`       | 发送 Cookie | 发送 Cookie |
   | GET 表单  |       `<form method="GET" action="...">`       | 发送 Cookie | 发送 Cookie |
@@ -655,9 +655,9 @@ http://www.my-school.edu.cn/art/2020/10/30/art_16_40029.html
 
 ```html
 <!DOCTYPE html>
-<html lang="en">
+<html lang='en'>
   <head>
-    <meta charset="UTF-8">
+    <meta charset='UTF-8'>
     <title>Title</title>
   </head>
   <body>
@@ -717,9 +717,9 @@ window.addEventListener("hashchange", (event) => {
 
 ```html
 <!DOCTYPE html>
-<html lang="en">
+<html lang='en'>
   <head>
-    <meta charset="UTF-8">
+    <meta charset='UTF-8'>
     <title>Title</title>
     <script>
       const myHashTable = {
@@ -1033,9 +1033,9 @@ import(`${path}/foo.js`);
 
 ```html
 
-<script src="main.js" type="module"></script>
+<script src='main.js' type='module'></script>
 <!-- 这个js文件的代码不会被阻塞执行 -->
-<script src="main.js"></script>
+<script src='main.js'></script>
 ```
 
 设置了`type=module`的代码，相当于在`script`标签上也加上了 `async` 属性。
@@ -1092,213 +1092,6 @@ JS引擎为模块创造一个**环境记录**（environment record）来管理�
 如果模块执行的过程中发送了网络请求（这是一个副作用）, 因为潜在的副作用，你只希望模块执行一次。但是和实例化连接过程多次进行结果严格一直不同，每次的执行都会有不同的结果。
 
 这也是我们为什么有模块映射表的原因。模块映射表通过唯一的URL只为模块添加一条模块记录。这就保证了每个模块只执行一次。
-
-## 前端国际化
-
-前端国际化是个很有意思的东西。在前端的国际化本质上是文本的替换，所以如果优雅地处理这种类型的文本替换就很关键。通用的做法都是把文字资源统一管理，在页面中用id来占位，根据语言使用不同的资源去填充，或者设计一个特殊的注解之类的来区分不同语言的文字部分。
-
-### Antd中的国际化
-
-**antd**是个UI组件库，基于React编写，国际化是它的一大特性。
-
-![](http://cdn.yuzzl.top//blog/20201119215426.png)
-
-#### ConfigProvider
-
-我们是使用**ConfigProvider**来配置全局信息的，来看下面的代码：
-
-```typescript jsx
-export interface ConfigProviderProps {
-  getTargetContainer?: () => HTMLElement;
-  getPopupContainer?: (triggerNode: HTMLElement) => HTMLElement;
-  prefixCls?: string;
-  children?: React.ReactNode;
-  renderEmpty?: RenderEmptyHandler;
-  csp?: CSPConfig;
-  autoInsertSpaceInButton?: boolean;
-  form?: {
-    validateMessages?: ValidateMessages;
-    requiredMark?: RequiredMark;
-  };
-  input?: {
-    autoComplete?: string;
-  };
-  locale?: Locale;
-  pageHeader?: {
-    ghost: boolean;
-  };
-  componentSize?: SizeType;
-  direction?: DirectionType;
-  space?: {
-    size?: SizeType | number;
-  };
-  virtual?: boolean;
-  dropdownMatchSelectWidth?: boolean;
-}
-
-const ConfigProvider: React.FC<ConfigProviderProps> & {
-  ConfigContext: typeof ConfigContext;
-} = props => {
-  const renderProvider = (context: ConfigConsumerProps, legacyLocale: Locale) => {
-    const {
-      locale,
-      // 省略其他的 props item
-    } = props;
-
-    const config: ConfigConsumerProps = {
-      ...context,
-      getPrefixCls: getPrefixClsWrapper(context),
-      csp,
-      autoInsertSpaceInButton,
-      locale: locale || legacyLocale,
-      direction,
-      space,
-      virtual,
-      dropdownMatchSelectWidth,
-    };
-
-    const childrenWithLocale =
-      locale === undefined ? (
-        childNode
-      ) : (
-        <LocaleProvider locale={locale || legacyLocale} _ANT_MARK__={ANT_MARK}>
-          {childNode}
-        </LocaleProvider>
-      );
-
-    return (
-      <SizeContextProvider size={componentSize}>
-        <ConfigContext.Provider value={config}>{childrenWithLocale}</ConfigContext.Provider>
-      </SizeContextProvider>
-    );
-  };
-
-  return (
-    <LocaleReceiver>
-      {(_, __, legacyLocale) => (
-        <ConfigConsumer>
-          {context => renderProvider(context, legacyLocale as Locale)}
-        </ConfigConsumer>
-      )}
-    </LocaleReceiver>
-  );
-};
-```
-
-**ConfigProvider**在渲染一些其它配置的组件时，添加了**LocaleContext.Provider**，那么被它包裹的组件就可以使用Consumer等API来获取值了，我们来看看**LocaleProvider**：
-
-```tsx
-// LocaleContext
-const LocaleContext = createContext<(Partial<Locale> & { exist?: boolean }) | undefined>(undefined);
-
-export default LocaleContext;
-
-// LocaleProvider，导入了上面的LocaleContext
-export default class LocaleProvider extends React.Component<LocaleProviderProps, any> {
-  render() {
-    const {locale, children} = this.props;
-
-    return (
-      <LocaleContext.Provider value={{...locale, exist: true}}>{children}</LocaleContext.Provider>
-    );
-  }
-}
-```
-
-**LocaleProvider**组件导入LocaleContext，并返回**LocaleContext.Provider**，对于一些需要国际化的组件，只需要外层包裹**LocaleContext.Consumer**
-即可拿到全局数据。
-
-#### LocalReceiver
-
-##### Class组件
-
-**LocalReceiver**功能就是获取全局数据了，为了直观感受，我们看一下一个国际化组件**DatePicker**的有关内容：
-
-![](http://cdn.yuzzl.top//blog/20201120002512.png)
-
-来看看**LocalReceiver**的核心代码：
-
-```tsx
-export interface LocaleReceiverProps {
-  componentName?: string;
-  defaultLocale?: object | Function;
-  children: (locale: object, localeCode?: string, fullLocale?: object) => React.ReactNode;
-}
-
-interface LocaleInterface {
-  [key: string]: any;
-}
-
-export interface LocaleReceiverContext {
-  antLocale?: LocaleInterface;
-}
-
-export default class LocaleReceiver extends React.Component<LocaleReceiverProps> {
-  static defaultProps = {
-    componentName: 'global',
-  };
-
-  // 子组件 获取 LocaleContext，通过this.context就可以拿到共享的值
-  static contextType = LocaleContext;
-
-  getLocale() {
-    const {componentName, defaultLocale} = this.props;
-    const locale: object | Function =
-      defaultLocale || (defaultLocaleData as LocaleInterface)[componentName || 'global'];
-    const antLocale = this.context;
-    const localeFromContext = componentName && antLocale ? antLocale[componentName] : {};
-    return {
-      ...(typeof locale === 'function' ? locale() : locale),
-      ...(localeFromContext || {}),
-    };
-  }
-
-  getLocaleCode() {
-    const antLocale = this.context;
-    // && 都为真则返回后者 antdLocal.local 即 localeCode 是一个字符串，代表语言 例如 zh-cn
-    const localeCode = antLocale && antLocale.locale;
-    // 用户传入配置但是没有传入语言，使用默认
-    if (antLocale && antLocale.exist && !localeCode) {
-      return defaultLocaleData.locale;
-    }
-    return localeCode;
-  }
-
-  // 渲染，值得注意的是这里返回了this.props.children
-  // 它要求传入一个函数，通过这个回调函数我们就可以让子组件拿到local
-  render() {
-    return this.props.children(this.getLocale(), this.getLocaleCode(), this.context);
-  }
-}
-```
-
-##### 自定义Hook
-
-另外也有国际化的自定义Hook，比上面的class组件代码简洁很多，利用**useContext**拿到全局数据。利用**useMemo**执行性能优化 -- 如果某处用上了`componentLocale()`
-，那么这个函数不会由于组件的重新渲染而重新执行，除非`[componentName, defaultLocale, antLocale]`三者之一发生改变。
-
-```tsx
-type LocaleComponent = keyof Locale;
-
-export function useLocaleReceiver<T extends LocaleComponent>(
-  componentName: T,
-  defaultLocale?: Locale[T] | Function,
-): [Locale[T]] {
-  const antLocale = React.useContext(LocaleContext);
-
-  const componentLocale = React.useMemo(() => {
-    const locale = defaultLocale || defaultLocaleData[componentName || 'global'];
-    const localeFromContext = componentName && antLocale ? antLocale[componentName] : {};
-
-    return {
-      ...(typeof locale === 'function' ? (locale as Function)() : locale),
-      ...(localeFromContext || {}),
-    };
-  }, [componentName, defaultLocale, antLocale]);
-
-  return [componentLocale];
-}
-```
 
 ## TODO
 
