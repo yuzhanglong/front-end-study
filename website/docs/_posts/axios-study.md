@@ -51,7 +51,7 @@ axios
 
 ## 基本流程
 
-Axios的**一次基本流程**如下：
+Axios 的**一次基本流程**如下：
 
 - 初始化 axios 实例（包括配置处理、拦截器等）
 - 执行请求拦截器
@@ -413,7 +413,7 @@ Cancel.prototype.__CANCEL__ = true;
 module.exports = Cancel;
 ```
 
-- 当 Cancel**被执行**时，表明我们的 Cancel 被初始化，我们将 `Cancel.prototype.__CANCEL__ ` 置为 true，表示**已经被 Cancel**
+- 当 Cancel**被执行**时，表明我们的 Cancel 被初始化，我们将 `Cancel.prototype.__CANCEL__` 置为 true，表示**已经被 Cancel**
 
 - 在请求失败时（假设用户**主动 Cancel**），那么我们最终通过获取的请求对象来判断是否为用户主动取消(也就是错误对象是不是 Cancel 对象)，axios 为我们提供了下面这个方法：
 
@@ -1044,7 +1044,7 @@ module.exports = function xhrAdapter(config) {
 
 #### 核心内容 - XMLHttpRequest
 
-`XMLHttpRequest`是Ajax 风格通信的一种具体实现，这个对象最早由微软发明，然后被其他浏览器所借鉴。这个接口可以实现：
+`XMLHttpRequest`是 Ajax 风格通信的一种具体实现，这个对象最早由微软发明，然后被其他浏览器所借鉴。这个接口可以实现：
 
 - **异步**从服务器获取额外数据，即用户点击不用页面刷新也可以获取数据
 - 在页面**已加载后**从服务器请求/接收数据
@@ -1063,7 +1063,7 @@ module.exports = function xhrAdapter(config) {
 request.open(config.method.toUpperCase(), buildURL(fullPath, config.params, config.paramsSerializer), true);
 ```
 
-这段代码表示，为 `request` 这个 `XMLHttpRequest` 对象**准备**请求，**请求方法、url均来自用户配置**，且这个请求为异步请求。
+这段代码表示，为 `request` 这个 `XMLHttpRequest` 对象**准备**请求，**请求方法、url 均来自用户配置**，且这个请求为异步请求。
 
 ##### send() - 请求的正式执行
 
@@ -1152,7 +1152,7 @@ module.exports = function settle(resolve, reject, response) {
 
 ##### 实现方式
 
-请看来自XHR适配器的一部分代码:
+请看来自 XHR 适配器的一部分代码:
 
 ```javascript
  // HTTP basic authentication
@@ -1618,7 +1618,7 @@ module.exports = function httpAdapter(config) {
 
 JavaScript 语言自身只有字符串数据类型，没有二进制数据类型。
 
-但在处理像** TCP 流**或**文件流**时，必须使用到二进制数据。因此在 Node.js 中，定义了一个 Buffer 类，该类用来创建一个专门存放二进制数据的缓存区。
+但在处理像**TCP 流**或**文件流**时，必须使用到二进制数据。因此在 Node.js 中，定义了一个 Buffer 类，该类用来创建一个专门存放二进制数据的缓存区。
 
 在 Node.js 中，Buffer 类是随 Node 内核一起发布的核心库。Buffer 库为 Node.js 带来了一种存储原始数据的方法，可以让 Node.js 处理二进制数据。
 
@@ -1740,7 +1740,7 @@ module.exports = function enhanceError(error, config, code, request, response) {
 };
 ```
 
-> 注意 `toJSON()` 函数中 `this` 的指向。`this` 到底引用哪个对象必须到**函数被调用时**才可以确定。在 `toJson()` 执行时，this引用了 `error`
+> 注意 `toJSON()` 函数中 `this` 的指向。`this` 到底引用哪个对象必须到**函数被调用时**才可以确定。在 `toJson()` 执行时，this 引用了 `error`
 
 ## 参考资料
 
@@ -1750,7 +1750,7 @@ module.exports = function enhanceError(error, config, code, request, response) {
 | 前端安全系列之二：如何防止 CSRF 攻击        | https://zhuanlan.zhihu.com/p/46592479                  |
 | axios 中文文档                             | http://www.axios-js.com/zh-cn/                         |
 | XMLHttpRequest Living Standard            | https://xhr.spec.whatwg.org/#send-flag                 |
-| 《JavaScript高级程序设计》                | ---                                                    |
+| 《JavaScript 高级程序设计》                | ---                                                    |
 | Node.js Buffer(缓冲区)                    | https://www.runoob.com/nodejs/nodejs-buffer.html       |
 | Axios 源码解析 —— 一个小而美的 HttpClient | https://zhuanlan.zhihu.com/p/104568514                 |
 | 使用 Typescript 重构 axios                   | https://www.cnblogs.com/wangjiachen666/p/11234163.html |
