@@ -383,7 +383,7 @@ function Layer(path, options, fn) {
 
 我们以上图的代码为例，使用接口调试工具发起 get 请求，访问 **localhost:8000/home**，发起请求之后控制台输出如下：
 
-```
+```plain
 middleware 01 in app.use
 middleware 02 in app.use
 home and get method middleware 01
@@ -660,7 +660,7 @@ app.listen(8000, () => {
 
 输出结果如下，具体的分析过程不再赘述：
 
-```
+```plain
 your project is running successfully!
 middleware 01 in app.use
 middleware 02 in app.use
@@ -870,7 +870,7 @@ app.listen(8000, () => {
 });
 ```
 
-```
+```plain
 success!
 middleware 01 in app.use
 middleware 02 in app.use
@@ -972,7 +972,7 @@ app.listen(8000, () => {
 
 在 express 的代码中，我们得到输出：
 
-```
+```plain
 middleware 01
 after middleware 01 next
 promise resolved!
@@ -980,7 +980,7 @@ promise resolved!
 
 在 Koa 的代码中，我们得到输出，并且响应会有约两秒的延迟：
 
-```
+```plain
 middleware 01
 promise resolved!
 after middleware 01 next

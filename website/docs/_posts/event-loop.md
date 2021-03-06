@@ -116,7 +116,7 @@ console.log(foo("yzl"));
 
 值得注意的是，上面提到的回调队列是有优先级的顺序的，这里需要了解一下两个名词：
 
-- **宏任务队列**（macrotask queue）：**ajax**、**setTimeout**、**setInterval**、**DOM监听**等。
+- **宏任务队列**（macrotask queue）：**ajax**、**setTimeout**、**setInterval**、**DOM 监听**等。
 - **微任务队列**（microtask queue）：Promise 的 then 回调、`queueMicrotask()` 等。
 
 :::tip
@@ -269,15 +269,15 @@ setImmediate(function () {
 
 这个程序的输出顺序是不能保证的。如果你多次运行这个程序，你会得到不同的输出。
 
-其原因在于 NodeJS 将最小超时时间设置为1毫秒。由于这个上限，即使您将计时器设置为0毫秒延迟，延迟实际上会被重写并设置为1毫秒。
+其原因在于 NodeJS 将最小超时时间设置为 1 毫秒。由于这个上限，即使您将计时器设置为 0 毫秒延迟，延迟实际上会被重写并设置为 1 毫秒。
 
 在事件循环的新一轮开始时，NodeJS 会执行 `uv_update_time(loop)`，通过系统调用来获取当前的时钟时间。
 
-根据 CPU 的忙碌程度，获取当前时钟时间可能在1毫秒内完成，也可能不完成。
+根据 CPU 的忙碌程度，获取当前时钟时间可能在 1 毫秒内完成，也可能不完成。
 
-如果获取时间的速度足够快，小于1毫秒的速度恢复，则 node.js 会检测到计时器没有过期，因为计时器过期需要1毫秒。
+如果获取时间的速度足够快，小于 1 毫秒的速度恢复，则 node.js 会检测到计时器没有过期，因为计时器过期需要 1 毫秒。
 
-但是，如果获取时间超过1毫秒，计时器将在时钟时间被检索时到期，这就导致 `setImmediate()` 先被打印。
+但是，如果获取时间超过 1 毫秒，计时器将在时钟时间被检索时到期，这就导致 `setImmediate()` 先被打印。
 
 ### 原生 Promise
 
@@ -318,7 +318,7 @@ setImmediate(() => console.log('set immediate4'));
 
 最终程序将打印如下内容：
 
-```
+```plain
 next tick1
 next tick2
 next tick3
@@ -342,7 +342,7 @@ set immediate4
 
 ## 参考资料
 
-nodejs官网，[The Node.js Event Loop, Timers, and process.nextTick()](https://nodejs.org/en/docs/guides/event-loop-timers-and-nexttick/)
+nodejs 官网，[The Node.js Event Loop, Timers, and process.nextTick()](https://nodejs.org/en/docs/guides/event-loop-timers-and-nexttick/)
 
 Deepal
 Jayasekara，[NodeJS Event Loop 系列文章](https://blog.insiderattack.net/event-loop-and-the-big-picture-nodejs-event-loop-part-1-1cb67a182810)

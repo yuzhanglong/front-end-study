@@ -13,7 +13,7 @@ Typescript 有一套 **Utility Types**（实用工具类型），非常有意思
 
 ## Partial
 
-`Partial<Type>` 意为 “部分的”，见文知意，就是所有属性都可选。`Partial<Type>` 用于构造一个类型，并将Type的**所有属性设置为可选**，来看下面这个案例：
+`Partial<Type>` 意为 “部分的”，见文知意，就是所有属性都可选。`Partial<Type>` 用于构造一个类型，并将 Type 的**所有属性设置为可选**，来看下面这个案例：
 
 ```typescript
 interface User {
@@ -70,7 +70,7 @@ type T1 = keyof {
 
 介绍完 `Partial`，顺便介绍一下和它完全相对的类型 `Required<Type>`。
 
-`Required<Type>` 构造一个由T的所有属性设置为 `required` 的类型。
+`Required<Type>` 构造一个由 T 的所有属性设置为 `required` 的类型。
 
 ```typescript
 interface Props {
@@ -420,7 +420,7 @@ type MyReturnType<T extends (...args: any[]) => any> = T extends (...args: any[]
 
 ## InstanceType
 
-`InstanceType<Type>` 在Type中构造一个由构造函数的实例类型组成的类型。
+`InstanceType<Type>` 在 Type 中构造一个由构造函数的实例类型组成的类型。
 
 ```typescript
 class C {
@@ -471,7 +471,7 @@ type MyThisParameterType<T> = T extends (this: infer U, ...args: any[]) => any ?
 
 ## OmitThisParameter
 
-`OmitThisParameter<Type>` 从“类型”中删除 this 参数。 如果Type没有显式声明此参数，则结果就是Type。 否则，将从Type中创建一个没有此参数的新函数类型。
+`OmitThisParameter<Type>` 从“类型”中删除 this 参数。 如果 Type 没有显式声明此参数，则结果就是 Type。 否则，将从 Type 中创建一个没有此参数的新函数类型。
 
 ```typescript
 function addX(this: { x: number }, y: number): number {

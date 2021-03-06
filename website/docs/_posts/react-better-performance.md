@@ -14,7 +14,7 @@ tags:
 
 ## 总述
 
-React为设计高性能的React应用程序提供了很多优化，可以通过遵循一些最佳实践来实现。性能优化的关键在于是否能够减少**不必要的Render**，触发Render主要有下面的情况：
+React 为设计高性能的 React 应用程序提供了很多优化，可以通过遵循一些最佳实践来实现。性能优化的关键在于是否能够减少**不必要的 Render**，触发 Render 主要有下面的情况：
 
 - 发生**setState**。
 - **props**的改变。
@@ -90,20 +90,20 @@ export default Main;
 
 <a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201126214822.png">![](http://cdn.yuzzl.top/blog/20201126214822.png)</a>
 
-页面初次渲染，打印了如上图的内容，这很正常 -- 每个组件都得被render一次。
+页面初次渲染，打印了如上图的内容，这很正常 -- 每个组件都得被 render 一次。
 
-但当我们点击Main组件中的**add按钮**时（如下图），三个组件被重新render了！但是**Footer组件**、**list组件**的render是毫无必要的。
+但当我们点击 Main 组件中的**add 按钮**时（如下图），三个组件被重新 render 了！但是**Footer 组件**、**list 组件**的 render 是毫无必要的。
 
 <a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201126215106.png">![](http://cdn.yuzzl.top/blog/20201126215106.png)</a>
 
-### 使用PureComponent
+### 使用 PureComponent
 
-设想一下，假如我们能够在List和Footer组件被渲染之前对比一下前后的`props`是否改变 、`state`是否改变，再决定是否渲染不就可以了吗？我们可以使用`shouldComponentUpdate`
-这个生命周期函数来实现，它返回一个布尔值，来定义是否render，下面是官方文档的截图：
+设想一下，假如我们能够在 List 和 Footer 组件被渲染之前对比一下前后的`props`是否改变 、`state`是否改变，再决定是否渲染不就可以了吗？我们可以使用`shouldComponentUpdate`
+这个生命周期函数来实现，它返回一个布尔值，来定义是否 render，下面是官方文档的截图：
 
 <a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201126215938.png">![](http://cdn.yuzzl.top/blog/20201126215938.png)</a>
 
-但是如果我们每个文件都写一遍，那么实在太麻烦了，所以我们可以使用**PureComponent**，下面我们尝试修改上面的Footer组件。
+但是如果我们每个文件都写一遍，那么实在太麻烦了，所以我们可以使用**PureComponent**，下面我们尝试修改上面的 Footer 组件。
 
 ```jsx
 class Footer extends React.PureComponent {
@@ -116,21 +116,21 @@ class Footer extends React.PureComponent {
 }
 ```
 
-从下图中可以看出，Footer组件没有被重新渲染，美中不足的是，List组件（它是一个函数式组件）仍然发生了渲染，我们下面会解决它。
+从下图中可以看出，Footer 组件没有被重新渲染，美中不足的是，List 组件（它是一个函数式组件）仍然发生了渲染，我们下面会解决它。
 
 <a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201126220259.png">![](http://cdn.yuzzl.top/blog/20201126220259.png)</a>
 
-### PureComponent原理
+### PureComponent 原理
 
-根据上面的描述，我们可以猜出`PureComponent`的原理无非就是比较前后props、state是否改变，我们先看看``PureComponent``：
+根据上面的描述，我们可以猜出`PureComponent`的原理无非就是比较前后 props、state 是否改变，我们先看看``PureComponent``：
 
 <a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201126221203.png">![](http://cdn.yuzzl.top/blog/20201126221203.png)</a>
 
-注意最后设置`isPureReactComponent`为**true**，React通过调用`checkShouldComponentUpdate`
+注意最后设置`isPureReactComponent`为**true**，React 通过调用`checkShouldComponentUpdate`
 来判断，这个函数位于`packages/react-reconciler/src/ReactFiberClassComponent.js`下，注意下面的两个红框：
 
 - 第一部分：判断开发者是否使用了`shouldComponentUpdate`，如果是，执行并返回结果。（ps.出现的`startPhaseTimer`貌似是一个计时功能，我们这里不做探讨）
-- 第二部分：如果这个组件是PureComponent，执行第二个红框的代码，也是核心部分了 -- 它通过调用`shallowEqual`比较**state**和**props**来决定是否需要更新。
+- 第二部分：如果这个组件是 PureComponent，执行第二个红框的代码，也是核心部分了 -- 它通过调用`shallowEqual`比较**state**和**props**来决定是否需要更新。
 
 <a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201126223041.png">![](http://cdn.yuzzl.top/blog/20201126223041.png)</a>
 
@@ -193,7 +193,7 @@ const objectIs: (x: any, y: any) => boolean =
 export default objectIs;
 ```
 
-可以看出，Object.is可以对基本数据类型做出非常精确的比较，但是对引用类型无能为力：
+可以看出，Object.is 可以对基本数据类型做出非常精确的比较，但是对引用类型无能为力：
 
 ```javascript
 Object.is([1, 2], [1, 2])
@@ -206,9 +206,9 @@ Object.is({a: 231}, {a: 231})
 
 ## Memo
 
-### 使用Memo
+### 使用 Memo
 
-同样是上面的例子，针对函数式组件，我们可以使用`memo`来避免多余的渲染，例如针对我们的List组件：
+同样是上面的例子，针对函数式组件，我们可以使用`memo`来避免多余的渲染，例如针对我们的 List 组件：
 
 ```jsx
 const List = memo(() => {
@@ -226,11 +226,11 @@ const List = memo(() => {
 
 <a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201126230938.png">![](http://cdn.yuzzl.top/blog/20201126230938.png)</a>
 
-可以看出，在`PureComponent`、`Memo`的配合下，计数器的更新值引起Main组件渲染，其他的组件没有出现无意义的渲染。
+可以看出，在`PureComponent`、`Memo`的配合下，计数器的更新值引起 Main 组件渲染，其他的组件没有出现无意义的渲染。
 
-### Memo原理
+### Memo 原理
 
-下面是Memo的代码：
+下面是 Memo 的代码：
 
 <a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201126231940.png">![](http://cdn.yuzzl.top/blog/20201126231940.png)</a>
 
@@ -246,7 +246,7 @@ const List = memo(() => {
 
 #### 避免内联样式
 
-使用内联样式，浏览器将花费更多时间执行脚本、渲染。例如下面的内联样式`backgroundColor`会被Babel解析成css中的`background-color`：
+使用内联样式，浏览器将花费更多时间执行脚本、渲染。例如下面的内联样式`backgroundColor`会被 Babel 解析成 css 中的`background-color`：
 
 ```jsx
 import React from "react";
@@ -312,7 +312,7 @@ class DoNotUseInlineObject extends React.PureComponent {
 export default DoNotUseInlineObject;
 ```
 
-`DoNotUseInlineObject`这个组件的重点在于父组件传给User的**Props**是个行内元素，当调用`render`时，React会重新创建对此对象的引用，这会导致两者判断不相同，就类似于下面的代码：
+`DoNotUseInlineObject`这个组件的重点在于父组件传给 User 的**Props**是个行内元素，当调用`render`时，React 会重新创建对此对象的引用，这会导致两者判断不相同，就类似于下面的代码：
 
 ```javascript
 const oldInfo = {
@@ -327,17 +327,17 @@ oldInfo === newInfo // false
 one === one // true
 ```
 
-这个比较在哪里呢？我们上面刚刚说过，其实就是`shallowEqual`，接下来，我们使用浏览器的开发者工具来Debug，以感受两者的区别。
+这个比较在哪里呢？我们上面刚刚说过，其实就是`shallowEqual`，接下来，我们使用浏览器的开发者工具来 Debug，以感受两者的区别。
 
-我们在`shallowEqual`函数的入口打上断点，它在`react-dom.development.js`的第12537行（不同版本可能会有差异，建议通过函数关键字来搜索）
+我们在`shallowEqual`函数的入口打上断点，它在`react-dom.development.js`的第 12537 行（不同版本可能会有差异，建议通过函数关键字来搜索）
 
 **使用内联对象**
 
-触发User组件的props比较，本质上是调用`shallowEqual`:
+触发 User 组件的 props 比较，本质上是调用`shallowEqual`:
 
 <a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201127235342.png">![](http://cdn.yuzzl.top/blog/20201127235342.png)</a>
 
-一直单步执行，直到这个地方，结果返回了一个false：
+一直单步执行，直到这个地方，结果返回了一个 false：
 
 <a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201127235625.png">![](http://cdn.yuzzl.top/blog/20201127235625.png)</a>
 
@@ -378,7 +378,7 @@ export default DoNotUseInlineObject;
 
 <a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201128000351.png">![](http://cdn.yuzzl.top/blog/20201128000351.png)</a>
 
-### React优化条件渲染
+### React 优化条件渲染
 
 条件渲染指的是根据某个值的不同来渲染不同的组件，例如，下面的代码会根据`flag`的不同来渲染不同的组件树：
 
@@ -409,21 +409,21 @@ const ConditionalRenderingCmp = () => {
 export default ConditionalRenderingCmp;
 ```
 
-这里会发生什么性能问题呢？要回答此问题，我们必须知道React中Diff算法针对同层节点是采用**同时遍历**来进行对比的，也就是说，当上面代码的flag改变，两个组件树进行diff，过程如下：
+这里会发生什么性能问题呢？要回答此问题，我们必须知道 React 中 Diff 算法针对同层节点是采用**同时遍历**来进行对比的，也就是说，当上面代码的 flag 改变，两个组件树进行 diff，过程如下：
 
 <a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201127010356.png">![](http://cdn.yuzzl.top/blog/20201127010356.png)</a>
 
-- flag vs Header，不同，生成mutation。
-- Header vs Content，不同，生成mutation。
-- Content，生成mutation。
+- flag vs Header，不同，生成 mutation。
+- Header vs Content，不同，生成 mutation。
+- Content，生成 mutation。
 
-但如果我们使用后者的方法，那么，diff将变成这样：
+但如果我们使用后者的方法，那么，diff 将变成这样：
 
 <a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201127010650.png">![](http://cdn.yuzzl.top/blog/20201127010650.png)</a>
 
-本质上是diff时，**header**和一个**null节点**进行比较，从而让下面得兄弟元素进行比较时是相等的，从而带来了性能优化。
+本质上是 diff 时，**header**和一个**null 节点**进行比较，从而让下面得兄弟元素进行比较时是相等的，从而带来了性能优化。
 
-> 提示：我们也可以使用设置key来达到类似的效果，关于key的内容后面也会讲到。
+> 提示：我们也可以使用设置 key 来达到类似的效果，关于 key 的内容后面也会讲到。
 
 我们可以这样优化代码：
 
@@ -446,54 +446,54 @@ const ConditionalRenderingCmp = () => {
 }
 ```
 
-怎么来验证上面的结论呢，我们可以查看浏览器的调试工具，尤其注意DOM元素的变化：
+怎么来验证上面的结论呢，我们可以查看浏览器的调试工具，尤其注意 DOM 元素的变化：
 
-优化之前的版本，我们可以看到**三个div都重新执行了DOM操作**（观察深色区域）：
+优化之前的版本，我们可以看到**三个 div 都重新执行了 DOM 操作**（观察深色区域）：
 
 <a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201127005120.png">![](http://cdn.yuzzl.top/blog/20201127005120.png)</a>
 
-优化之后的版本，注意**只有header进行了DOM操作**：
+优化之后的版本，注意**只有 header 进行了 DOM 操作**：
 
 <a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201127004928.png">![](http://cdn.yuzzl.top/blog/20201127004928.png)</a>
 
-### 正确地使用key
+### 正确地使用 key
 
-#### key的原理
+#### key 的原理
 
-key是服务于react的diff算法的，正确的使用key可以发挥出diff算法的效果。我们上面提到过类似的情况，我们再来温习一下：
+key 是服务于 react 的 diff 算法的，正确的使用 key 可以发挥出 diff 算法的效果。我们上面提到过类似的情况，我们再来温习一下：
 
-对于下面的DOM结构，React会同时遍历两个子节点的列表，有差异时会生成一个**mutation**。
+对于下面的 DOM 结构，React 会同时遍历两个子节点的列表，有差异时会生成一个**mutation**。
 
 <a data-fancybox title="" href="http://cdn.yuzzl.top//blog/20201118204722.png">![](http://cdn.yuzzl.top//blog/20201118204722.png)</a>
 
-但是这种情况太理想了！如果是下面这种情况，那么就会带来不必要的DOM操作了（创建了较多的mutation）！
+但是这种情况太理想了！如果是下面这种情况，那么就会带来不必要的 DOM 操作了（创建了较多的 mutation）！
 
 <a data-fancybox title="" href="http://cdn.yuzzl.top//blog/20201118205033.png">![](http://cdn.yuzzl.top//blog/20201118205033.png)</a>
 
-这种情况下，**Key**的作用就体现了，我们可以使用key来匹配。
+这种情况下，**Key**的作用就体现了，我们可以使用 key 来匹配。
 
 <a data-fancybox title="" href="http://cdn.yuzzl.top//blog/20201118210003.png">![](http://cdn.yuzzl.top//blog/20201118210003.png)</a>
 
-比较时，key为a的元素不变，添加了key为c的元素mutation，同时key为b的元素只进行**位移**
-，无需额外修改，最终。我们只创建了一个mutation。当然，我们的key必须唯一！除了这个注意的地方，下面还有几个关于key的注意点。
+比较时，key 为 a 的元素不变，添加了 key 为 c 的元素 mutation，同时 key 为 b 的元素只进行**位移**
+，无需额外修改，最终。我们只创建了一个 mutation。当然，我们的 key 必须唯一！除了这个注意的地方，下面还有几个关于 key 的注意点。
 
-#### key的注意点
+#### key 的注意点
 
 ##### 不要使用随机数
 
-随机数在下一次render时，每个元素会重新生成key，前后就无法匹配到了。
+随机数在下一次 render 时，每个元素会重新生成 key，前后就无法匹配到了。
 
-##### 不要使用index作为key
+##### 不要使用 index 作为 key
 
-一般情况下，我们不要使用index作为key。类似于上面的例子，当我们将一个`<li>`插入`ul`的最前面，由于`key`的存在（是一个固定的唯一数），其它的元素只是进行了**位移**。
+一般情况下，我们不要使用 index 作为 key。类似于上面的例子，当我们将一个`<li>`插入`ul`的最前面，由于`key`的存在（是一个固定的唯一数），其它的元素只是进行了**位移**。
 
-但是如果我们使用index作为key，那么在插入之后，最初具有键值1的元素具有键值2，React会认为所有的组件都被修改，于是进行了额外的渲染。
+但是如果我们使用 index 作为 key，那么在插入之后，最初具有键值 1 的元素具有键值 2，React 会认为所有的组件都被修改，于是进行了额外的渲染。
 
-## 使用Hooks
+## 使用 Hooks
 
 ### useCallback
 
-`useCallback`的功能在于让一个函数"可记忆化"(**memoized**)，当依赖（第二个参数）被改变时它才会执行更新，利用它我们可以让某些组件避免render。
+`useCallback`的功能在于让一个函数"可记忆化"(**memoized**)，当依赖（第二个参数）被改变时它才会执行更新，利用它我们可以让某些组件避免 render。
 
 来看下面的代码：
 
@@ -552,9 +552,9 @@ export default TryUseCallBack;
 
 <a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201127103935.png">![](http://cdn.yuzzl.top/blog/20201127103935.png)</a>
 
-- 点击第一个set按钮时，`addOne`被调用，cnt修改，导致**Main**组件重新render，addOne、addTwo被重新更新。
-- 点击第二个set按钮，道理一样。
-- 点击第三个set按钮，`setFlag`被调用，flag改变，但是addTwo由于**memoized**了，不会进行更新，从而第二个button不会触发render。
+- 点击第一个 set 按钮时，`addOne`被调用，cnt 修改，导致**Main**组件重新 render，addOne、addTwo 被重新更新。
+- 点击第二个 set 按钮，道理一样。
+- 点击第三个 set 按钮，`setFlag`被调用，flag 改变，但是 addTwo 由于**memoized**了，不会进行更新，从而第二个 button 不会触发 render。
 
 ### useMemo
 
@@ -597,7 +597,7 @@ export default TryUseMemo;
 
 ### 介绍
 
-想象一下我们直接将项目打包，体积可能会非常大。上线必然会遇到一些令人不适的问题 -- 极慢的首屏加载、CDN流量的浪费......懒加载可以让我们做到**按需加载**，来看下面这个案例：
+想象一下我们直接将项目打包，体积可能会非常大。上线必然会遇到一些令人不适的问题 -- 极慢的首屏加载、CDN 流量的浪费……懒加载可以让我们做到**按需加载**，来看下面这个案例：
 
 ```jsx
 import React, {useState} from "react";
@@ -618,13 +618,13 @@ export default LazyLoad;
 ```
 
 **LazyLoad**组件有一个按钮，按下按钮显示**OtherComponent**组件，在现实中这可能是个登录业务 --
-用户登录则展示管理面板。在页面一打开时就把所有组件加载意义不大，且会导致加载缓慢，我们可以使用react提供的懒加载组件`React.lazy`。
+用户登录则展示管理面板。在页面一打开时就把所有组件加载意义不大，且会导致加载缓慢，我们可以使用 react 提供的懒加载组件`React.lazy`。
 
-### 尝试React.lazy
+### 尝试 React.lazy
 
 我们将上面的代码稍作修改：
 
-React的懒加载通过，`import()`、`lazy()`、`Suspense`组件实现。
+React 的懒加载通过，`import()`、`lazy()`、`Suspense`组件实现。
 
 ```jsx
 import React, {lazy, Suspense, useState} from "react";
@@ -655,13 +655,13 @@ export default LazyLoad;
 
 <a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201127200315.png">![](http://cdn.yuzzl.top/blog/20201127200315.png)</a>
 
-红色方框的js文件只有在**按钮被单击**时才会加载。
+红色方框的 js 文件只有在**按钮被单击**时才会加载。
 
-### React.lazy原理
+### React.lazy 原理
 
-#### 从import()说起
+#### 从 import()说起
 
-`import()`被称为**动态import**，来看这样一个例子：
+`import()`被称为**动态 import**，来看这样一个例子：
 
 ```javascript
 // index.js
@@ -696,7 +696,7 @@ export default () => {
 
 当 Webpack 解析到该`import()`语法时，会自动进行代码分割。
 
-#### React-lazy实现
+#### React-lazy 实现
 
 `lazy`的代码如下，删除了开发环境下额外处理的部分，它返回一个`LazyComponent`对象，请务必留意这些代码，下面会提到：
 
@@ -717,7 +717,7 @@ export function lazy<T, R>(ctor: () => Thenable<T, R>): LazyComponent<T> {
 }
 ```
 
-在`packages/react-reconciler/src/ReactFiberBeginWork.js`下有一个`mountLazyComponent`函数，我们一眼可以看出红框部分是加载lazy组件的关键代码：
+在`packages/react-reconciler/src/ReactFiberBeginWork.js`下有一个`mountLazyComponent`函数，我们一眼可以看出红框部分是加载 lazy 组件的关键代码：
 
 <a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201127203611.png">![](http://cdn.yuzzl.top/blog/20201127203611.png)</a>
 
@@ -771,7 +771,7 @@ export function initializeLazyComponentType(
 
 这个函数主要干了这些事情：
 
-- 判断**lazyComponent对象**的`_status`变量是否为`Uninitialized`(未初始化，值为 -1) 。如果您对前面的内容还有记忆的话，开发者调用`lazy`函数时会初始化`_result`为 **-1**。
+- 判断**lazyComponent 对象**的`_status`变量是否为`Uninitialized`(未初始化，值为 -1) 。如果您对前面的内容还有记忆的话，开发者调用`lazy`函数时会初始化`_result`为 **-1**。
 - 准备加载组件，将状态设置为`Pending`(加载中，值为 0 )。
 - 调用`ctor()`函数，这个`ctor`的类型为`Thenable`(即带有`then`方法) ：
 
@@ -787,7 +787,7 @@ export type Thenable<T, R> = {
 - 执行`thenable.then()`，拿到对应的模块，如果此时状态为`Pending`，让`_result`指向`moduleObject.default`，至此，我们的**lazyComponent**初始化完毕。
 - 如果加载失败了，在`error`处捕获它，将状态置为`Reject`，结果置为`error`。
 
-我们回到上面的`readLazyComponentType`函数，如果结果不为`resolved`，则抛出“异常”，这个异常会交给`Suspence`组件处理，Suspence组件会渲染**fallback**中的内容。
+我们回到上面的`readLazyComponentType`函数，如果结果不为`resolved`，则抛出“异常”，这个异常会交给`Suspence`组件处理，Suspence 组件会渲染**fallback**中的内容。
 
 ## 参考资料
 
