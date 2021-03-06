@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang='en'>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>POST MESSAGE</title>
+  </head>
+  <body>
+    <h4>主页面</h4>
+    <iframe id='iframe' src='http://localhost:3000'></iframe>
+    <script>
+      const iframe = document.getElementById('iframe')
+      iframe.onload = () => {
+        const data = {
+          name: 'yzl',
+          age: 20
+        }
+        // 向domain2传送跨域数据
+        iframe.contentWindow.postMessage(JSON.stringify(data), 'http://localhost:3000')
+      }
+      window.addEventListener('message', (e) => {
+        console.log('本地接收到数据: ' + e.data)
+      }, false)
+    </script>
+  </body>
+</html>

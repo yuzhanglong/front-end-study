@@ -1,34 +1,32 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang='en'>
   <head>
-    <meta charset="UTF-8">
+    <meta charset='UTF-8'>
     <title>Title</title>
 
   </head>
   <body>
-    <div id="wrapper">
-      <button id="myBtn">hello world!</button>
+    <div id='wrapper'>
+      <button id='myBtn'>hello world!</button>
     </div>
 
     <script>
-      let btn = document.getElementById("myBtn");
-      let wrapper = document.getElementById("wrapper");
+      let btn = document.getElementById('myBtn')
+      let wrapper = document.getElementById('wrapper')
 
 
       btn.onclick = (event) => {
-        console.log(this);
-        console.log("button click!");
-        console.log(event.currentTarget); // true
-        console.log(event.target); // true
-      };
-
-      wrapper.onclick = function (event) {
-        console.log("wrapper click!");
-        console.log(event.currentTarget);
-        console.log(event.target); // true
+        console.log(this)
+        console.log('button click!')
+        console.log(event.currentTarget) // true
+        console.log(event.target) // true
       }
 
-
+      wrapper.onclick = function(event) {
+        console.log('wrapper click!')
+        console.log(event.currentTarget)
+        console.log(event.target) // true
+      }
     </script>
   </body>
 </html>
