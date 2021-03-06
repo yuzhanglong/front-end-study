@@ -104,7 +104,7 @@ Object.defineProperty(routerHistory, 'state', {
 window.MY_HISTORY = routerHistory;
 ```
 
-起一个空白的H5页面，只执行上面的方法，可以看出，这些路由操作全部如期望的一样执行，上升到框架层面，无非也是对这个 `routerHistory` 进行各种操作，例如让它变成响应式的，所以由此可见，封装一套**通用的路由操作API**
+起一个空白的 H5 页面，只执行上面的方法，可以看出，这些路由操作全部如期望的一样执行，上升到框架层面，无非也是对这个 `routerHistory` 进行各种操作，例如让它变成响应式的，所以由此可见，封装一套**通用的路由操作 API**
 至关重要。
 
 <a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201107213838.png">![](http://cdn.yuzzl.top/blog/20201107213838.png)</a>
@@ -158,7 +158,7 @@ function createCurrentLocation(
 ```
 
 这个函数的功能很简单，传入一个 `base` 和全局 `location`，进行一系列字符串操作，返回一个由**路径**、**search**(
-就是URL中的查询参数，即?a=1之类的) + **hash**（url 中#后面的值）拼接而成的字符串。
+就是 URL 中的查询参数，即?a=1 之类的) + **hash**（url 中#后面的值）拼接而成的字符串。
 
 最终这个字符串会被暴露给用户，其实就是上面提到的 `historyNavigation.location`。
 
@@ -232,7 +232,7 @@ interface StateEntry extends HistoryState {
 
 可见，`useHistoryStateNavigation` 首次调用 `changeLocation` 的目的就是初始化状态，因为默认的原生路由不会提供上面的状态信息。
 
-回到我们的 `useHistoryStateNavigation`，继续往下走，就是我们非常熟悉的API：
+回到我们的 `useHistoryStateNavigation`，继续往下走，就是我们非常熟悉的 API：
 
 ```typescript
 function replace(to: HistoryLocation, data?: HistoryState) {
@@ -328,7 +328,7 @@ window.addEventListener('popstate', popStateHandler)
 window.addEventListener('beforeunload', beforeUnloadListener)
 ```
 
-当用户点击浏览器的回退按钮（或者在Javascript代码中调用 `history.back()` 或者 `history.forward()` 方法，都会触发 `popState` 事件，从而执行 `popStateHandler`：
+当用户点击浏览器的回退按钮（或者在 Javascript 代码中调用 `history.back()` 或者 `history.forward()` 方法，都会触发 `popState` 事件，从而执行 `popStateHandler`：
 
 这个回调函数能够接收到很多属性，这里利用了对象解构，取到 `state` 属性（当前状态），然后做出一系列处理（看注释）：
 
@@ -394,7 +394,7 @@ function listen(callback: NavigationCallback) {
 
 ### createWebHashHistory
 
-这是 `VueRouter` 提供的第二种路由解决方案，在了解了上面的 `createWebHistory` 的基本流程之后，我们可以轻松写出 `createWebHashHistory` ,它只不过是在基础的URL之后加上了一个`#`
+这是 `VueRouter` 提供的第二种路由解决方案，在了解了上面的 `createWebHistory` 的基本流程之后，我们可以轻松写出 `createWebHashHistory` ,它只不过是在基础的 URL 之后加上了一个`#`
 ，来看它的实现：
 
 ```typescript
@@ -417,11 +417,11 @@ export function createWebHashHistory(base?: string): RouterHistory {
 
 ## PART 1 总结
 
-至此，`VueRouter` 的路由核心部分已经全部分析完成，这一部分的源码中没有提到任何 `Vue` 的知识，只是对**原生的API进行封装**。保证了其**高可用性**。此时，我们也可以手撕一个比较完美的路由基础库了。
+至此，`VueRouter` 的路由核心部分已经全部分析完成，这一部分的源码中没有提到任何 `Vue` 的知识，只是对**原生的 API 进行封装**。保证了其**高可用性**。此时，我们也可以手撕一个比较完美的路由基础库了。
 
-两种路由模式有什么不同？ hash路由利用了浏览器的特性：hash 值的变化并不会导致浏览器向服务器发出请求，浏览器不发出请求，也就不会刷新页面：
+两种路由模式有什么不同？ hash 路由利用了浏览器的特性：hash 值的变化并不会导致浏览器向服务器发出请求，浏览器不发出请求，也就不会刷新页面：
 
-```
+```plain
 // 不会刷新页面
 https://xxx.com/xxx/hello#helloworld  ===> https://xxx.com/xxx/hello#helloworld2
 ```
@@ -439,9 +439,9 @@ location / {
 
 更多的处理方案请自行阅读[官方文档 -- Example Server Configurations](https://next.router.vuejs.org/guide/essentials/history-mode.html#example-server-configurations)。
 
-`VueRouter` 的 `hashRouter` 是基于 `WebHistory` 的，只是在基础url之后加了一个 `#` ，这一操作不仅实现了 `hashRouter` 的特性，同时完美利用了之前封装好的 `HistoryAPI`。
+`VueRouter` 的 `hashRouter` 是基于 `WebHistory` 的，只是在基础 url 之后加了一个 `#` ，这一操作不仅实现了 `hashRouter` 的特性，同时完美利用了之前封装好的 `HistoryAPI`。
 
-## 路由vuetify
+## 路由 vuetify
 
 在这里，之前封装好的一套路由 API 将被赋予 `vue` 的特性, 这也是 `VueRouter` 源码的核心部分。主要的代码位于 `src/router.ts`
 下，下面展示一个 DEMO 代码（来自官网），来回顾一下 `VueRouter` 是如何使用的。
@@ -476,7 +476,7 @@ app.mount('#app')
 
 ### 路由初始化
 
-`createRouter()` 用来创建供Vue应用程序使用的Router实例。它返回一个 `router` 对象，里面就是我们熟悉的一系列 `vue-router` API：
+`createRouter()` 用来创建供 Vue 应用程序使用的 Router 实例。它返回一个 `router` 对象，里面就是我们熟悉的一系列 `vue-router` API：
 
 <a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201114190252.png">![](http://cdn.yuzzl.top/blog/20201114190252.png)</a>
 
@@ -551,7 +551,7 @@ const r = {
 const matcher = createRouterMatcher(options.routes, options)
 ```
 
-首先利用 `createRouterMatcher()` 初始化了 `matcher` 变量，这个函数返回值如下, 可以看出是路由处理的一套API，部分向外暴露给用户（可以对比一下本节的第一张图片），如 `addRoute`：
+首先利用 `createRouterMatcher()` 初始化了 `matcher` 变量，这个函数返回值如下, 可以看出是路由处理的一套 API，部分向外暴露给用户（可以对比一下本节的第一张图片），如 `addRoute`：
 
 ```typescript
 return {
@@ -757,7 +757,7 @@ export function useCallbacks<T>() {
 }
 ```
 
-这个函数被调用之后返回一个对象，并且，`add` 会在 `createRouter()` 主函数中作为我们熟悉的 `beforeEach` 等API暴露给调用者：
+这个函数被调用之后返回一个对象，并且，`add` 会在 `createRouter()` 主函数中作为我们熟悉的 `beforeEach` 等 API 暴露给调用者：
 
 <a data-fancybox title="" href="http://cdn.yuzzl.top/blog/image-20201115122627609.png">![](http://cdn.yuzzl.top/blog/image-20201115122627609.png)</a>
 
@@ -783,11 +783,11 @@ export const START_LOCATION_NORMALIZED: RouteLocationNormalizedLoaded = {
 const currentRoute = shallowRef<RouteLocationNormalizedLoaded>(START_LOCATION_NORMALIZED)
 ```
 
-使用vue的**响应式API** `shallowRef` 处理 `currentRoute` 使其成为响应式的元素，一旦它改变就会触发视图的更新。
+使用 vue 的**响应式 API** `shallowRef` 处理 `currentRoute` 使其成为响应式的元素，一旦它改变就会触发视图的更新。
 
 可参考官方文档：https://v3.vuejs.org/api/refs-api.html#shallowref
 
-#### install -- 向vue添加全局功能
+#### install -- 向 vue 添加全局功能
 
 这是 `vue` **插件机制**的体现，其文档如此介绍插件机制：
 
@@ -1277,7 +1277,7 @@ promises.reduce(reducer, Promise.resolve());
 
 这个方法主要做三件事情：
 
-- 调用之前封装好的**historyAPI**执行跳转（**url层面的跳转**）
+- 调用之前封装好的**historyAPI**执行跳转（**url 层面的跳转**）
 - 修改当前路由 `currentRoute`，前面说过，它是**响应式**的，视图层的更新将在之后自动被触发
 - 调用 `markAsReady()` 来进行一些初始化工作（这个工作只会执行**一次**）。
 
@@ -1479,7 +1479,7 @@ return () => {
 
 我们使用自定义组件 `router-link` 而不是使用常规标签 `<a>` 来创建链接。
 
-这样我们可以更改URL而无需重新加载页面。
+这样我们可以更改 URL 而无需重新加载页面。
 
 ```typescript
 export const RouterLinkImpl = defineComponent({

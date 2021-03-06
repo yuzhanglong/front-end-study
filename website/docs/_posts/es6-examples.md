@@ -52,7 +52,7 @@ let expectedTextButGotJSON = {
 let message = {text: expectedTextButGotJSON};
 ```
 
-然后在某段JSX中使用了它，攻击者就可以运行我们不期望的 html 代码：
+然后在某段 JSX 中使用了它，攻击者就可以运行我们不期望的 html 代码：
 
 ```jsx
 // React 0.13 中有风险
@@ -61,7 +61,7 @@ let message = {text: expectedTextButGotJSON};
 </p>
 ```
 
-但是React在之后的版本中使用了 `Symbol` 标记React元素：
+但是 React 在之后的版本中使用了 `Symbol` 标记 React 元素：
 
 ```javascript
 let el = {
@@ -76,12 +76,12 @@ let el = {
 }
 ```
 
-因为JSON不支持 `Symbol` 类型。所以即使服务器存在用JSON作为文本返回安全漏洞，JSON 里也不包含 `Symbol.for('react.element')`。React 会检测 `element.$$typeof`
+因为 JSON 不支持 `Symbol` 类型。所以即使服务器存在用 JSON 作为文本返回安全漏洞，JSON 里也不包含 `Symbol.for('react.element')`。React 会检测 `element.$$typeof`
 ，如果元素丢失或者无效，会**拒绝处理**该元素。
 
 ### vue-router-next 利用 Symbol 防止属性污染
 
-vue-router 利用 `app.provide` 这个API，将 `routerKey` 等全局对象挂载到全局 `vue` 实例上： 为了防止属性污染，`key` 值在这里被设置为一个 `Symbol`：
+vue-router 利用 `app.provide` 这个 API，将 `routerKey` 等全局对象挂载到全局 `vue` 实例上： 为了防止属性污染，`key` 值在这里被设置为一个 `Symbol`：
 
 ```typescript
 // PolySymbol 返回一个合适的 Symbol 如果浏览器环境不支持，则直接返回一个字符串
@@ -170,7 +170,7 @@ wm.get(element);
 
 另外，`Object.defineProperty()` 无法监听数组类型属性的变化，vue 使用了一些比较 hack 的方法来实现它，但是还有一些缺陷，例如通过下标修改数组的情况仍无法监测。
 
-Proxy 非常优雅地解决了这些问题，我们以 vue3 的 `reactive()` API为例了解一下，来看看官方这个 test：
+Proxy 非常优雅地解决了这些问题，我们以 vue3 的 `reactive()` API 为例了解一下，来看看官方这个 test：
 
 :::tip
 
@@ -258,7 +258,7 @@ function createGetter(isReadonly = false, shallow = false) {
 }
 ```
 
-注意这里的 `Reflect.get()` 这个 API 称为**反射**，Proxy对象的方法，就能在Reflect对象上找到对应的方法。这就让Proxy对象可以方便地调用对应的Reflect方法，完成**默认行为**。
+注意这里的 `Reflect.get()` 这个 API 称为**反射**，Proxy 对象的方法，就能在 Reflect 对象上找到对应的方法。这就让 Proxy 对象可以方便地调用对应的 Reflect 方法，完成**默认行为**。
 
 Reflect 的意义在于**保证原生行为能够正常执行**。
 
@@ -372,7 +372,7 @@ function* bar() {
 - 初始化生成器
 - 通过 `it1.next().value` 拿到第一个 `yield` 后面的内容，也就是第一个 `Promise` 对象。
 - 在调用 `Promise.then()`，在回调函数中拿到结果 `res`.
-- 在回调函数中调用 `iterator.next(res)`, next函数的参数即为上一个 `yield` 表达式的返回值，则 `res` 为 `hello world!`。
+- 在回调函数中调用 `iterator.next(res)`, next 函数的参数即为上一个 `yield` 表达式的返回值，则 `res` 为 `hello world!`。
 - 以此类推处理第二个 `yield`。
 
 ```javascript
@@ -394,7 +394,7 @@ it1.value.then(res => {
 `function* bar()` 中的内容算是比较优雅了（看着更像同步操作），但是依然有很大的问题：
 
 - 但是那坨分离出来的代码如何解决，也就是说，如何**自动执行 Generator 函数**？
-- 上面的代码只适用于2个 `Promise` 如果有很多的 `promise`，如何解决？
+- 上面的代码只适用于 2 个 `Promise` 如果有很多的 `promise`，如何解决？
 
 来看下面的 `generatorRunner()`，它可以自动执行 Generator 函数，同时使用递归地方式处理多个 `Promise`：
 
@@ -421,7 +421,7 @@ generatorRunner(bar);
 
 <a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201211000618.png">![](http://cdn.yuzzl.top/blog/20201211000618.png)</a>
 
-这种能够自动执行 `Generator` 的函数我们又称为**Thunk函数**。当然，这是一个比较简单的版本，现在我们有类似的库，名为**Co**
+这种能够自动执行 `Generator` 的函数我们又称为**Thunk 函数**。当然，这是一个比较简单的版本，现在我们有类似的库，名为**Co**
 ，[点击查看源码](https://github.com/tj/co/blob/master/index.js)。
 
 ```javascript
@@ -551,7 +551,7 @@ cancelToken();
 
 输出：
 
-```
+```plain
 promise rejected!
 ```
 
@@ -597,7 +597,7 @@ cancelablePromise(myPromise2)
   })
 ```
 
-`Promise.race()` 的实现很简单，返回一个 promise，一旦传入的多个 promise 中的某个 promise 解决或拒绝，返回的 promise就会解决或拒绝：
+`Promise.race()` 的实现很简单，返回一个 promise，一旦传入的多个 promise 中的某个 promise 解决或拒绝，返回的 promise 就会解决或拒绝：
 
 ```javascript
 const isPromise = (p) => {
@@ -736,7 +736,7 @@ foo().then(res => {
 
 Matt Frisble，JavaScript 高级程序设计（第四版）
 
-MDN，[async和await:让异步编程更简单](https://developer.mozilla.org/zh-CN/docs/learn/JavaScript/%E5%BC%82%E6%AD%A5/Async_await)
+MDN，[async 和 await:让异步编程更简单](https://developer.mozilla.org/zh-CN/docs/learn/JavaScript/%E5%BC%82%E6%AD%A5/Async_await)
 
 Dan
 Abramov，[Why Do React Elements Have a $$typeof Property?](https://overreacted.io/why-do-react-elements-have-typeof-property/)

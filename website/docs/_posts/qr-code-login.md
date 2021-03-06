@@ -451,7 +451,7 @@ const wss = new WebSocket.Server({
 
 wss 里面有个 clients 属性，它是一个集合，每当有一个用户通过 WebSocket 连接，就会创建一个 WebSocket 对象，并放到这个集合里面。
 
-我们只需要在用户连接时，将 uuid 添加到 这个WebSocket 对象，就可以实现 uuid -- WebSocket 对象（客户端）的匹配。在接口中我们就可以查询到正确的客户端：
+我们只需要在用户连接时，将 uuid 添加到 这个 WebSocket 对象，就可以实现 uuid -- WebSocket 对象（客户端）的匹配。在接口中我们就可以查询到正确的客户端：
 
 ```javascript
 // 找到对应的 ws 客户端

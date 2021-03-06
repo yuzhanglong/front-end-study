@@ -82,7 +82,7 @@ Cache-Control 中的 `max-age=x` 和 `Expires` 的值有所区别 --- 一个是�
 
 **ETag + If-None-Match**
 
-下面的代码利用 **ETag + If-None-Match** 实现缓存，服务端将文件计算 hash 值放入 Etag 返回，下次用户再次访问时 If-None-Match 会携带这个ETag，服务端将新的文件计算
+下面的代码利用 **ETag + If-None-Match** 实现缓存，服务端将文件计算 hash 值放入 Etag 返回，下次用户再次访问时 If-None-Match 会携带这个 ETag，服务端将新的文件计算
 hash，然后对比来判断是否 304。
 
 <a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201120200552.png">![](http://cdn.yuzzl.top/blog/20201120200552.png)</a>
@@ -111,7 +111,7 @@ hash，然后对比来判断是否 304。
 
 - 指向图像的 URL。
 - 可选地，再加一个空格之后，附加以下的其一：
-    - 一个宽度描述符，这是一个正整数，后面紧跟 'w' 符号。该整数宽度除以sizes属性给出的资源（source）大小来计算得到有效的像素密度，即换算成和 x 描述符等价的值。
+    - 一个宽度描述符，这是一个正整数，后面紧跟 'w' 符号。该整数宽度除以 sizes 属性给出的资源（source）大小来计算得到有效的像素密度，即换算成和 x 描述符等价的值。
     - 一个像素密度描述符，这是一个正浮点数，后面紧跟 'x' 符号。
 - 如果没有指定源描述符，那它会被指定为默认的 `1x`。
 
@@ -174,10 +174,10 @@ hash，然后对比来判断是否 304。
 
 ### GZIP 压缩
 
-说到资源的大小优化，一个经典的案例便是 **GZIP**。这是一种用来改进 web 应用程序性能的技术，web服务器和客户端（浏览器）必须共同支持 gzip。目前主流的浏览器，Chrome, firefox, IE
+说到资源的大小优化，一个经典的案例便是 **GZIP**。这是一种用来改进 web 应用程序性能的技术，web 服务器和客户端（浏览器）必须共同支持 gzip。目前主流的浏览器，Chrome, firefox, IE
 等都支持该协议。常见的服务器如 Apache，Nginx，IIS 同样支持 gzip。
 
-gzip压缩比率在 3 到 10 倍左右，可以大大节省服务器的网络带宽。
+gzip 压缩比率在 3 到 10 倍左右，可以大大节省服务器的网络带宽。
 
 **工作流程**
 
@@ -185,12 +185,12 @@ gzip压缩比率在 3 到 10 倍左右，可以大大节省服务器的网络带
 
 <a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201101225138.png">![](http://cdn.yuzzl.top/blog/20201101225138.png)</a>
 
-- 浏览器请求url，并在request header中设置属性 `accept-encoding:gzip`。表明浏览器支持 gzip，例如下图：
+- 浏览器请求 url，并在 request header 中设置属性 `accept-encoding:gzip`。表明浏览器支持 gzip，例如下图：
 
 <a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201101225226.png">![](http://cdn.yuzzl.top/blog/20201101225226.png)</a>
 
 - 服务器收到浏览器发送的请求之后，判断浏览器是否支持 gzip，如果支持 gzip，则向浏览器传送压缩过的内容，不支持则向浏览器发送未经压缩的内容。如果支持，response
-  headers返回 `content-encoding:gzip`
+  headers 返回 `content-encoding:gzip`
 
 <a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201101225238.png">![](http://cdn.yuzzl.top/blog/20201101225238.png)</a>
 
@@ -265,11 +265,11 @@ server{
 
 浏览器是前端代码的主要载体，如何针对浏览器的一些机制来进行优化就显得非常重要。所以我们需要理解浏览器是如何显示网页的。
 
-### 浏览器如何显示网页？
+### 浏览器如何显示网页
 
 浏览器如何渲染一个网页？主要分为以下步骤：
 
-**DOM树的生成**
+**DOM 树的生成**
 
 当渲染进程接收 HTML 数据时，**主线程**开始解析 HTML 并将其转换为文档对象模型（DOM）。
 
@@ -277,7 +277,7 @@ server{
 
 CSS 下载是异步的，不会阻塞浏览器构建 DOM 树，但它会阻塞渲染，也就是在构建渲染树时，会等到 css 下载解析完毕后才进行，这是为了防止 css 规则不断改变，避免了重复的构建。 对于 JS 也是一个道理。
 
-对于 ` <script>` 脚本，会暂停解析 HTML 文档，开始加载、解析并执行 JavaScript 代码。因为 JavaScript 可以使用 `document.write()` 的方法来改写文档，这会改变整个 DOM 结构。
+对于 `<script>` 脚本，会暂停解析 HTML 文档，开始加载、解析并执行 JavaScript 代码。因为 JavaScript 可以使用 `document.write()` 的方法来改写文档，这会改变整个 DOM 结构。
 
 遇到图片等资源时，异步下载，不会阻塞解析，下载完毕后直接用图片**替换**其应该所处的位置即可。
 
@@ -293,7 +293,7 @@ CSS 下载是异步的，不会阻塞浏览器构建 DOM 树，但它会阻塞�
 
 布局树（渲染树）可能与 DOM 树结构类似，但它仅包含页面上**可见内容**相关的信息。
 
-例如，下面的这些css元素不是布局树的一部分：
+例如，下面的这些 css 元素不是布局树的一部分：
 
 ```css
 #element {
@@ -338,7 +338,7 @@ div.style.marginTop = '30px';
 
 但有些 API 会强制刷新队列，引起重绘：
 
-```
+```plain
 offsetTop、offsetLeft、offsetWidth、offsetHeight
 scrollTop、scrollLeft、scrollWidth、scrollHeight
 clientTop、clientLeft、clientWidth、clientHeight
@@ -351,10 +351,10 @@ getBoundingClientRect
 总结一下，主要有下面这些方案：
 
 - 在过程中尽可能**缓存**一些布局信息。
-- 使用**文档片段**（`fragement`），它存在于内存中，并不在DOM树中，所以将子元素插入到文档片段时不会引起页面回流（对元素位置和几何上的计算）。
+- 使用**文档片段**（`fragement`），它存在于内存中，并不在 DOM 树中，所以将子元素插入到文档片段时不会引起页面回流（对元素位置和几何上的计算）。
   因此，使用文档片段通常会带来更好的性能。可参考[MDN 的相关介绍](https://developer.mozilla.org/zh-CN/docs/Web/API/Document/createDocumentFragment)。
 - 注意样式的修改，不要一条一条地修改，而是一起修改或者改变类名。
-- **利用 display 属性**，上面提到，`display:none` 不会进入布局树。如果对某个元素有大量的 DOM 操作，我们可以先为其css属性为 `display:none`，然后再进行操作，操作完成再恢复，
+- **利用 display 属性**，上面提到，`display:none` 不会进入布局树。如果对某个元素有大量的 DOM 操作，我们可以先为其 css 属性为 `display:none`，然后再进行操作，操作完成再恢复，
   这样只会触发**两次渲染**。
 - 使用一些基于**虚拟 DOM** 的前端开发框架，例如 vue、React。
 - 优化 JavaScript 执行，例如 `window.requestAnimationFrame()`，我们接下来会讲到这一部分。

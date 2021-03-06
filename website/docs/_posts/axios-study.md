@@ -13,21 +13,21 @@ tags:
 
 ## 总述
 
-`Axios` 是一个NB的**网络请求库**(前后端神器)，基于 `Promise` 封装了HTTP请求，用于**浏览器**和**node.js**，GitHub **77000+**
-Star（截至2020年10月18日）。也是前端必备的一个第三方库。
+`Axios` 是一个 NB 的**网络请求库**(前后端神器)，基于 `Promise` 封装了 HTTP 请求，用于**浏览器**和**node.js**，GitHub **77000+**
+Star（截至 2020 年 10 月 18 日）。也是前端必备的一个第三方库。
 
 
-Axios的代码**不算复杂**，反而**清晰易懂**、十分优雅（个人觉得特别是请求/响应拦截器的处理和cancelToken的处理），另外它涉及了很多JavaScript的基础知识，非常适合用来巩固基础。
+Axios 的代码**不算复杂**，反而**清晰易懂**、十分优雅（个人觉得特别是请求/响应拦截器的处理和 cancelToken 的处理），另外它涉及了很多 JavaScript 的基础知识，非常适合用来巩固基础。
 
 本文在讲源码的同时也会穿插一些涉及前端的知识。
 
-本文使用的axios版本: **v0.20.0**。
+本文使用的 axios 版本: **v0.20.0**。
 
 ## 项目结构
 
-axios的项目结构如下，省略了和本文无关的目录或文件和细节目录。它的源代码在 `lib` 下：
+axios 的项目结构如下，省略了和本文无关的目录或文件和细节目录。它的源代码在 `lib` 下：
 
-```
+```plain
 axios                                                             
 ├─ lib                                                             // 项目源码目录
 │  ├─ adapters                                                     // 请求适配器
@@ -53,7 +53,7 @@ axios
 
 Axios的**一次基本流程**如下：
 
-- 初始化axios实例（包括配置处理、拦截器等）
+- 初始化 axios 实例（包括配置处理、拦截器等）
 - 执行请求拦截器
 - 根据当前环境选择合适的网络适配器(adapter)（xhr -- 浏览器， http request -- node.js），并执行之（发送请求）
 - 处理响应数据
@@ -127,9 +127,9 @@ function createInstance(defaultConfig) {
 
 见名知义，`createInstance` 便是创建实例的核心函数了，它返回了 `instance` 这个变量，内部通过 `extend`、`bind` 这两个工具来进行加工。
 
-### instance的扩展
+### instance 的扩展
 
-第二行：`var instance = bind(Axios.prototype.request, context); `, 这里的`bind`函数如下:
+第二行：`var instance = bind(Axios.prototype.request, context);`, 这里的`bind`函数如下:
 
 ```javascript
 'use strict';
@@ -148,11 +148,11 @@ module.exports = function bind(fn, thisArg) {
 `bind()`最终返回一个`function`，这个`function`的作用：以`thisArg`为函数调用上下文(this)，调用`fn`。
 
 最终，`instance`变成了一个函数，即`Axios.prototype.request`，函数调用上下文(this)为`context`, 也就是`new Axios(defaultConfig)`,
-它来自在前一行新建的一个axios对象。
+它来自在前一行新建的一个 axios 对象。
 
 :::tip 关于 apply()
 
-给函数传参，并拥有控制函数调用上下文即函数体内 this 值的能力 ，在上面的例子中，函数的this为 thisArg，参数为args（一个数组），它通过一个简单的循环遍历得到。
+给函数传参，并拥有控制函数调用上下文即函数体内 this 值的能力 ，在上面的例子中，函数的 this 为 thisArg，参数为 args（一个数组），它通过一个简单的循环遍历得到。
 
 类似的，ECMAScript 中的函数还有一个方法：**call()**，只不过`call()`的参数需要一个一个列出来。
 :::
@@ -164,7 +164,7 @@ module.exports = function bind(fn, thisArg) {
 在上面代码出现的`arguments`是`wrap()`函数的参数。
 :::
 
-值得注意的是，虽然在ECMAScript5 中已经内置了这个方法：`Function.prototype.bind()`, 但由于兼容性问题（**iE9+**），不直接使用。
+值得注意的是，虽然在 ECMAScript5 中已经内置了这个方法：`Function.prototype.bind()`, 但由于兼容性问题（**iE9+**），不直接使用。
 
 #### utils.extend() - 实例的复制
 
@@ -242,7 +242,7 @@ if (typeof obj !== 'object') {
 
 - 对于可迭代的**数组**，我们执行 `fn`
 
-```
+```plain
 for (var i = 0, l = obj.length; i < l; i++) {
    fn.call(null, obj[i], i, obj);
 }
@@ -260,7 +260,7 @@ for (var key in obj) {
 
 综上所述，`foreach` 遍历一个（可迭代的）数组或一个对象，为每个项**执行传入的函数**。
 
-回到我们的 `extend()`，看看我们传入的函数 `assignValue`，这个函数的作用便是在**迭代b的过程**中**为a赋值**。
+回到我们的 `extend()`，看看我们传入的函数 `assignValue`，这个函数的作用便是在**迭代 b 的过程**中**为 a 赋值**。
 
 ```javascript
 function extend(a, b, thisArg) {
@@ -278,14 +278,14 @@ function extend(a, b, thisArg) {
 
 所以最终我们的 `instance` 被如何扩展？很明显：
 
-- 第一个 `extend` 扩展了 `Axios.prototype`, 即Axios对象的原型。
+- 第一个 `extend` 扩展了 `Axios.prototype`, 即 Axios 对象的原型。
 - 第二个 `extend` 扩展了 `context`, 即 **Axios 对象**，这个对象含有用户传入的一系列配置信息（这个对象的详细内容会在下面详细说明）。
 
-这里有一个小问题，为什么我们在生成实例的时候不直接生成 `Axios` 对象，而是先以`Axios.prototype.request `为基础，然后基于上面说到的两部分进行扩展呢？个人认为是**方便调用者调用，不用额外再手动新建对象**。
+这里有一个小问题，为什么我们在生成实例的时候不直接生成 `Axios` 对象，而是先以`Axios.prototype.request`为基础，然后基于上面说到的两部分进行扩展呢？个人认为是**方便调用者调用，不用额外再手动新建对象**。
 
 ### 其他扩展
 
-在axios实例被 `export` 前，它被添加了几个静态方法。
+在 axios 实例被 `export` 前，它被添加了几个静态方法。
 
 #### axios.create -- 创建新实例的工厂
 
@@ -395,9 +395,9 @@ cancel();
 
 下面我们看看它的内部实现。
 
-##### Cancel对象 -- 在取消操作时抛出
+##### Cancel 对象 -- 在取消操作时抛出
 
-Cancel对象的构造很简单，它要求用户传入一个可选message。
+Cancel 对象的构造很简单，它要求用户传入一个可选 message。
 
 ```javascript
 function Cancel(message) {
@@ -413,9 +413,9 @@ Cancel.prototype.__CANCEL__ = true;
 module.exports = Cancel;
 ```
 
-- 当Cancel**被执行**时，表明我们的Cancel被初始化，我们将 `Cancel.prototype.__CANCEL__ ` 置为true，表示**已经被Cancel**
+- 当 Cancel**被执行**时，表明我们的 Cancel 被初始化，我们将 `Cancel.prototype.__CANCEL__ ` 置为 true，表示**已经被 Cancel**
 
-- 在请求失败时（假设用户**主动Cancel**），那么我们最终通过获取的请求对象来判断是否为用户主动取消(也就是错误对象是不是Cancel对象)，axios为我们提供了下面这个方法：
+- 在请求失败时（假设用户**主动 Cancel**），那么我们最终通过获取的请求对象来判断是否为用户主动取消(也就是错误对象是不是 Cancel 对象)，axios 为我们提供了下面这个方法：
 
   ```javascript
   module.exports = function isCancel(value) {
@@ -493,7 +493,7 @@ CancelToken.source = function source() {
 module.exports = CancelToken;
 ```
 
-##### CancelToken的Promise
+##### CancelToken 的 Promise
 
 `CancelToken` 的 `Promise` 在适配器中被**添加处理程序**(即执行 `Promise.prototype.then()` )
 
@@ -508,15 +508,15 @@ if (config.cancelToken) {
 }
 ```
 
-通过执行 `XMLHttpRequest.abort()`，我们达到了终止请求的目的，在之后我们执行 `reject` 来改变**适配器**的Promise的状态。
+通过执行 `XMLHttpRequest.abort()`，我们达到了终止请求的目的，在之后我们执行 `reject` 来改变**适配器**的 Promise 的状态。
 
-> 关于XMLHttpRequest、适配器会在后文中详细讲到。
+> 关于 XMLHttpRequest、适配器会在后文中详细讲到。
 
-### Axios对象
+### Axios 对象
 
 #### 构造函数
 
-这是Axios对象的创建过程，代码如下，这里使用**构造函数模式**来创建。挂载了用户传入的配置，基于 `InterceptorManager()` 对象，初始化**请求拦截器**（requestInterceptor）和**
+这是 Axios 对象的创建过程，代码如下，这里使用**构造函数模式**来创建。挂载了用户传入的配置，基于 `InterceptorManager()` 对象，初始化**请求拦截器**（requestInterceptor）和**
 响应拦截器**(
 responseInterceptor)。
 
@@ -539,7 +539,7 @@ function Axios(instanceConfig) {
 
 #### 拦截器（interceptors）
 
-axios一个重大的特性就是可以拦截请求和响应，调用者可以非常简单地使用下面的方法来实现请求/响应拦截。
+axios 一个重大的特性就是可以拦截请求和响应，调用者可以非常简单地使用下面的方法来实现请求/响应拦截。
 
 ```javascript
 // 引入axios
@@ -562,9 +562,9 @@ axios.interceptors.response.use(function (response) {
 });
 ```
 
-#### InterceptorManager对象
+#### InterceptorManager 对象
 
-前面说到，在Axios对象创建时，初始化了两个**拦截器**（请求、响应）
+前面说到，在 Axios 对象创建时，初始化了两个**拦截器**（请求、响应）
 
 ```javascript
 // 初始化拦截器
@@ -700,7 +700,7 @@ Axios.prototype.request = function request(config) {
   }
   ```
 
-  这里的`promise`变量在前面通过`Promise.resolve()  `来初始化。这是一个`resolved`的`promise`。
+  这里的`promise`变量在前面通过`Promise.resolve()`来初始化。这是一个`resolved`的`promise`。
 
   ```javascript
   var promise = Promise.resolve(config);
@@ -708,7 +708,7 @@ Axios.prototype.request = function request(config) {
 
   :::tip promise.resolve()
 
-  Promise并非一开始就必须处于**pending**状态。通过调用`Promise.resolve()`静态方法，可以实例化一个**resolved**的Promise。下面两个Promise实例实际上是一样的。
+  Promise 并非一开始就必须处于**pending**状态。通过调用`Promise.resolve()`静态方法，可以实例化一个**resolved**的 Promise。下面两个 Promise 实例实际上是一样的。
 
   ```javascript
   let p1 = new Promise((resolve, reject) => resolve());
@@ -716,7 +716,7 @@ Axios.prototype.request = function request(config) {
   ```
   :::
 
-  初始化完成的`promise`进入`while`循环，自左向右遍历流程链列表。成对的移出流程链列表的头两个元素，分别称为promise的`resolve`和`reject`项。（同时我们也找出了流程链第二项是`undefined`的原因
+  初始化完成的`promise`进入`while`循环，自左向右遍历流程链列表。成对的移出流程链列表的头两个元素，分别称为 promise 的`resolve`和`reject`项。（同时我们也找出了流程链第二项是`undefined`的原因
   -- 作为`reject`，和作为`resolve`的`dispatchRequest`一起处理）
 
 #### Axios.prototype[method] -- 提供请求的语法糖
@@ -823,16 +823,16 @@ module.exports = function dispatchRequest(config) {
 - 利用 `utils.merge()` 处理 `config.headers.common`、`config.headers[config.method]`、`config.headers` 下的请求头，将他们**合并**、**去重**。
 - 删除多余的请求头（默认的方法请求头）。
 - **初始化请求适配器**，如果当前环境为浏览器，我们使用**XHR**适配器，否则（ node 环境）我们使用**HTTP**适配器。
-- 带入配置，执行adapter。
+- 带入配置，执行 adapter。
 - 利用 `transformData()` 转换响应数据。
 
-### XHR适配器
+### XHR 适配器
 
 #### 代码及解释
 
-XHR适配器封装了一个**Promise**，面向浏览器的**XHR**请求，本质上是封装了浏览器内置的 `XMLHttpRequest()`。
+XHR 适配器封装了一个**Promise**，面向浏览器的**XHR**请求，本质上是封装了浏览器内置的 `XMLHttpRequest()`。
 
-它的逻辑比上面的HTTP适配器简单，下面是XHR适配器的代码，位于 `xhr.js` 中。
+它的逻辑比上面的 HTTP 适配器简单，下面是 XHR 适配器的代码，位于 `xhr.js` 中。
 
 由于代码较长，我以注释的形式加以解析。
 
@@ -1050,11 +1050,11 @@ module.exports = function xhrAdapter(config) {
 - 在页面**已加载后**从服务器请求/接收数据
 - 在**后台**向服务器发送数据
 
-上面的代码中出现了许多XHR的内容，下面给出解释，对于更多的`XMLHttpRequest`相关内容，请自行参阅相关文档。
+上面的代码中出现了许多 XHR 的内容，下面给出解释，对于更多的`XMLHttpRequest`相关内容，请自行参阅相关文档。
 
 ##### open() - 请求的准备
 
-使用 XHR 对象首先要调用 open()方法，这个方法接收 3 个参数：**请求类型**（ GET、 POST等）、**请求 URL**，以及表示请求是否异步的布尔值。
+使用 XHR 对象首先要调用 open()方法，这个方法接收 3 个参数：**请求类型**（ GET、 POST 等）、**请求 URL**，以及表示请求是否异步的布尔值。
 
 例如上面的代码中有如下内容：
 
@@ -1071,7 +1071,7 @@ send()用来发送定义好的请求， send()方法接收一个参数，是**�
 
 ##### readyState - 请求的阶段
 
-在实际情况下，我们更期望使用**异步请求**，于是**监听请求状态**就成了一个必需，XHR有一个 `readyState` 属性可供使用，可能的值如下所示：
+在实际情况下，我们更期望使用**异步请求**，于是**监听请求状态**就成了一个必需，XHR 有一个 `readyState` 属性可供使用，可能的值如下所示：
 
 - 0：**未初始化** (Uninitialized)。尚未调用 `open()` 方法。
 - 1：**已打开** (Open)。已调用 `open()` 方法，尚未调用 `send()` 方法。
@@ -1081,7 +1081,7 @@ send()用来发送定义好的请求， send()方法接收一个参数，是**�
 
 ##### onreadystatechange - 阶段监听
 
-每次 `readyState` 从一个值变成另一个值，都会触发 `readystatechange `事件。
+每次 `readyState` 从一个值变成另一个值，都会触发 `readystatechange`事件。
 
 基于上面两个 API，我们来查看下面的代码，这些代码是 XHR 适配器的**监听部分**，其中，一些处理加工响应内容的代码已经被省略。
 
@@ -1108,7 +1108,7 @@ request.onreadystatechange = function handleLoad() {
 
 如果该请求已被发出，`XMLHttpRequest.abort()` 方法将终止该请求。当一个请求被终止，它的 `readyState` 将被置为 `XMLHttpRequest.UNSENT`，并且请求的`status`置为 0。
 
-##### settle() - 根据响应结果更新Promise
+##### settle() - 根据响应结果更新 Promise
 
 `settle` 函数用来处理**Promise**（改变状态），根据**响应信息**来进行 `resolve` 或者 `reject`，内容如下：
 
@@ -1130,11 +1130,11 @@ module.exports = function settle(resolve, reject, response) {
 };
 ```
 
-- `settle()` 接收三个参数，resolve promise的函数、reject promise的函数、响应状态。
+- `settle()` 接收三个参数，resolve promise 的函数、reject promise 的函数、响应状态。
 
 - `settle()` **根据用户的响应状态**来决定到底是 `resolve` 还是 `reject`
 
-- 在上面的代码中，如果`response.status`不为0，或者符合用户配置中传入的自定义验证函数，执行 `resolve`，反之执行 `reject`。
+- 在上面的代码中，如果`response.status`不为 0，或者符合用户配置中传入的自定义验证函数，执行 `resolve`，反之执行 `reject`。
 
 - 默认的自定义验证函数如下, 当状态码为**2XX**（代表请求已成功被服务器接收、理解、并接受）时，执行 `resolve`。
 
@@ -1144,11 +1144,11 @@ module.exports = function settle(resolve, reject, response) {
 
 ##### onerror
 
-`onerror` 是XMLHttpRequest由于错误而失败时调用的函数。用于处理一些底层的网络错误，这些错误的具体内容被浏览器所隐藏， axios会抛出一个笼统的`Network Error`。
+`onerror` 是 XMLHttpRequest 由于错误而失败时调用的函数。用于处理一些底层的网络错误，这些错误的具体内容被浏览器所隐藏， axios 会抛出一个笼统的`Network Error`。
 
 #### HTTP basic authentication
 
-在HTTP中，**Basic Authorization**基本认证是一种用来允许Web浏览器或其他客户端程序在请求时提供用户名和口令形式的身份凭证的一种登录验证方式。
+在 HTTP 中，**Basic Authorization**基本认证是一种用来允许 Web 浏览器或其他客户端程序在请求时提供用户名和口令形式的身份凭证的一种登录验证方式。
 
 ##### 实现方式
 
@@ -1163,7 +1163,7 @@ if (config.auth) {
 }
 ```
 
-代码首先查看`config.auth`（用户配置的auth）是否存在，然后从中获取用户名和密码，之后将我们的`Authorization`请求头赋值为以下内容：
+代码首先查看`config.auth`（用户配置的 auth）是否存在，然后从中获取用户名和密码，之后将我们的`Authorization`请求头赋值为以下内容：
 
 ```javascript
 requestHeaders.Authorization = 'Basic ' + btoa(username + ':' + password);
@@ -1171,7 +1171,7 @@ requestHeaders.Authorization = 'Basic ' + btoa(username + ':' + password);
 
 这就是`HTTP basic authentication`的主体，分为两部分：
 
-- ` 'Basic '` 字符串（注意有个空格）
+- `'Basic '` 字符串（注意有个空格）
 - 拼接过后的用户名和密码(以冒号分割)，并且，这部分内容会用`Base64`编码处理。
 
 ##### 缺陷
@@ -1188,7 +1188,7 @@ requestHeaders.Authorization = 'Basic ' + btoa(username + ':' + password);
 
 #### XSRF（**CSRF**）跨站请求伪造
 
-axios的Features之一（原文）: Client side support for protecting against（客户端支持防止XSRF）
+axios 的 Features 之一（原文）: Client side support for protecting against（客户端支持防止 XSRF）
 
 **跨站请求伪造**（英语：Cross-site request forgery），也被称为 **one-click attack** 或者 **session riding**，通常缩写为 **CSRF** 或者 **XSRF**。 **
 在未授权系统可以访问某个资源**时，可以将其视为跨站点请求伪造攻击。未授权系统会按照处理请求的服务器的要求**伪装自己**。
@@ -1196,20 +1196,20 @@ axios的Features之一（原文）: Client side support for protecting against�
 ##### 处理手段
 
 - 要求通过 SSL 访问能够被 Ajax 访问的资源
-- 要求每个请求都发送一个按约定算法计算好的令牌（token），可以使用**JWT方案**或者**页面内嵌Token**。
+- 要求每个请求都发送一个按约定算法计算好的令牌（token），可以使用**JWT 方案**或者**页面内嵌 Token**。
 
 :::tip
 
 注意：以下手段对防护 CSRF 攻击是不安全的
 
 - 要求 POST 而非 GET 请求（很容易修改请求方法）
-- 使用referrer URL 验证来源（很容易伪造）
+- 使用 referrer URL 验证来源（很容易伪造）
 - 基于 cookie 验证（很容易伪造）
   :::
 
-##### axios中的处理方式
+##### axios 中的处理方式
 
-回到源码，我们来看看axios是如何处理的。
+回到源码，我们来看看 axios 是如何处理的。
 
 ```javascript
 // 添加xsrf头
@@ -1231,9 +1231,9 @@ if (utils.isStandardBrowserEnv()) {
 
     - 用户配置中是否传入了`withCredentials` (跨域请求凭证)
 
-    - 通过 `isURLSameOrigin(fullPath)`确定URL是否与当前位置具有相同的来源（**如果域名或 IP 地址、端口与协议都相同，那么就会被判定为同源**）
+    - 通过 `isURLSameOrigin(fullPath)`确定 URL 是否与当前位置具有相同的来源（**如果域名或 IP 地址、端口与协议都相同，那么就会被判定为同源**）
 
-    - 上述两个条件有一个满足时，检查`xsrfCookieName`(用作 xsrf token 的值的cookie的名称)，如果存在，通过`cookies.read()`读取这个cookie，否则置为`undefined`
+    - 上述两个条件有一个满足时，检查`xsrfCookieName`(用作 xsrf token 的值的 cookie 的名称)，如果存在，通过`cookies.read()`读取这个 cookie，否则置为`undefined`
 
     - 经过上面的赋值，如果最终的值存在，则设置请求头，请求头的名称由配置`config.xsrfHeaderName`决定。
 
@@ -1241,11 +1241,11 @@ if (utils.isStandardBrowserEnv()) {
 
 通过用户配置的`config.xsrfHeaderName`和`config.xsrfCookieName`。在每次发送请求的时候，会自动从 `cookie` 中读取对应的 `token` 值，然后将其添加到请求 `headers`
 中。这个`token`由服务端颁发，服务端收到`token`会验证合法性选择接受或者拒绝服务，由于这个 `token`
-是很难伪造的，所以就能区分这个请求是否是用户正常发起的。（当然，还是需要前后端配合，axios在这方面只是为我们提供了一个便于配置的环境，让我们不需要额外处理）
+是很难伪造的，所以就能区分这个请求是否是用户正常发起的。（当然，还是需要前后端配合，axios 在这方面只是为我们提供了一个便于配置的环境，让我们不需要额外处理）
 
 :::tip
 
-XSS漏洞可能会泄露 token，例如，用户的 token 存入 localstorage 中，注入的 js 代码可以轻松地获取 token
+XSS 漏洞可能会泄露 token，例如，用户的 token 存入 localstorage 中，注入的 js 代码可以轻松地获取 token
 :::
 
 #### 多次出现的 request = null
@@ -1260,7 +1260,7 @@ request = null;
 
 这种操作被称为**解除引用**，优化内存占用的最佳手段就是保证在执行代码时只保存必要的数据。如果数据不再必要，那么把它设置为 **null**，从而释放其引用。
 
-我们来看下面代码（摘自《javascript高级程序设计》）
+我们来看下面代码（摘自《javascript 高级程序设计》）
 
 ```javascript
 function createPerson(name) {
@@ -1283,7 +1283,7 @@ globalPerson = null;
 - 但 `globalPerson` 是一个**全局变量**，应该在不再需要时手动解除其引用。
 - 最后一行就是解除引用的方式。
 
-用户在访问一个网页的过程中可能会发起大量请求，axios在发起一个请求时，都会创建一个 `XMLHTTPRequest()` 对象。
+用户在访问一个网页的过程中可能会发起大量请求，axios 在发起一个请求时，都会创建一个 `XMLHTTPRequest()` 对象。
 
 ```javascript
 // 通过 XMLHttpRequest 构造函数 生成 XHR 对象
@@ -1292,9 +1292,9 @@ var request = new XMLHttpRequest();
 
 在上面的代码中，变量 `request` 保存着 `XMLHttpRequest()` 构造函数的返回值。 **请求——响应**整个过程结束之后应该**及时手动地解除引用**。
 
-### HTTP适配器
+### HTTP 适配器
 
-**http适配器**封装了一个Promise，用于执行**http**请求，服务于**Node.js环境**，它的代码如下，由于代码较长，我以注释的形式加以解析。
+**http 适配器**封装了一个 Promise，用于执行**http**请求，服务于**Node.js 环境**，它的代码如下，由于代码较长，我以注释的形式加以解析。
 
 #### 代码及解释
 
@@ -1616,7 +1616,7 @@ module.exports = function httpAdapter(config) {
 
 #### Buffer (缓冲区)
 
-JavaScript语言自身只有字符串数据类型，没有二进制数据类型。
+JavaScript 语言自身只有字符串数据类型，没有二进制数据类型。
 
 但在处理像** TCP 流**或**文件流**时，必须使用到二进制数据。因此在 Node.js 中，定义了一个 Buffer 类，该类用来创建一个专门存放二进制数据的缓存区。
 
@@ -1647,7 +1647,7 @@ if (data && !utils.isStream(data)) {
 }
 ```
 
-- 首先读取 `config` 的 `data`(用户传入的配置)，然后判断data是否为二进制数据流，如果不是，开始执行下面的分支处理。
+- 首先读取 `config` 的 `data`(用户传入的配置)，然后判断 data 是否为二进制数据流，如果不是，开始执行下面的分支处理。
 
 - 如果是 `ArrayBuffer`, 我们调用 `Buffer.from(new Uint8Array(data))` 将其转为 `Buffer`。
 
@@ -1659,20 +1659,20 @@ if (data && !utils.isStream(data)) {
 
 #### Proxy - 代理
 
-从上面可以看出，axios为我们提供了代理请求的接口。
+从上面可以看出，axios 为我们提供了代理请求的接口。
 
-从概念上来说，代理服务器(Proxy Server)是一种代理网络用户去取得网络信息的存在，是一种网络信息中转站。比如说你要访问C网站，你可以告诉代理服务器B -- 我要访问C网站，代理服务器访问C网站然后将C网站的内容返回给你。
+从概念上来说，代理服务器(Proxy Server)是一种代理网络用户去取得网络信息的存在，是一种网络信息中转站。比如说你要访问 C 网站，你可以告诉代理服务器 B -- 我要访问 C 网站，代理服务器访问 C 网站然后将 C 网站的内容返回给你。
 
 代理服务的优点：
 
-- 一个lP地址或Internet帐户供多个用户同时使用
+- 一个 lP 地址或 Internet 帐户供多个用户同时使用
 - 缓存功能，可以降低费用，提高速度
 - 对内部网络用户进行权限和信息流量计费管理
-- 对进入内部网络的Internet信息实施监控和过滤
+- 对进入内部网络的 Internet 信息实施监控和过滤
 
 ## 异常处理
 
-使用适当的信息创建自定义错误可以有效提高代码的可维护性。 我们来看axios内部如何实现**异常处理**。
+使用适当的信息创建自定义错误可以有效提高代码的可维护性。 我们来看 axios 内部如何实现**异常处理**。
 
 #### createError.js
 
@@ -1685,7 +1685,7 @@ module.exports = function createError(message, config, code, request, response) 
 
 `createError()` 可以使用使用指定的消息，配置，错误代码，请求和响应来创建错误。
 
-例如，axios在收到非**2XX - 正常**的返回时，就会 `reject` Promise，并且抛出一个 `createError`
+例如，axios 在收到非**2XX - 正常**的返回时，就会 `reject` Promise，并且抛出一个 `createError`
 
 ```javascript
 reject(createError(
@@ -1746,11 +1746,11 @@ module.exports = function enhanceError(error, config, code, request, response) {
 
 | 标题                                      | 来源                                                   |
 | ----------------------------------------- | ------------------------------------------------------ |
-| axios GitHub仓库                          | https://github.com/axios/axios                         |
-| 前端安全系列之二：如何防止CSRF攻击        | https://zhuanlan.zhihu.com/p/46592479                  |
-| axios中文文档                             | http://www.axios-js.com/zh-cn/                         |
+| axios GitHub 仓库                          | https://github.com/axios/axios                         |
+| 前端安全系列之二：如何防止 CSRF 攻击        | https://zhuanlan.zhihu.com/p/46592479                  |
+| axios 中文文档                             | http://www.axios-js.com/zh-cn/                         |
 | XMLHttpRequest Living Standard            | https://xhr.spec.whatwg.org/#send-flag                 |
 | 《JavaScript高级程序设计》                | ---                                                    |
 | Node.js Buffer(缓冲区)                    | https://www.runoob.com/nodejs/nodejs-buffer.html       |
-| Axios源码解析 —— 一个小而美的HttpClient | https://zhuanlan.zhihu.com/p/104568514                 |
-| 使用Typescript重构axios                   | https://www.cnblogs.com/wangjiachen666/p/11234163.html |
+| Axios 源码解析 —— 一个小而美的 HttpClient | https://zhuanlan.zhihu.com/p/104568514                 |
+| 使用 Typescript 重构 axios                   | https://www.cnblogs.com/wangjiachen666/p/11234163.html |

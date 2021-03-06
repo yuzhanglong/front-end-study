@@ -95,7 +95,7 @@ export default function printMe() {
 
 当我们修改 `print.js` 的内容时，我们能够看到的是控制台打印的内容更改了，说明热替换一切正常，这很明显。但是我们还可以看看 调试工具 network 选项卡的一些信息，在这里我们可以推测出一个大致的流程。
 
-让我们启动项目，页面初次刷新，我们得到了 `app.bundle.js` 的入口js文件，值得注意的是，浏览器还和开发服务器保持了一个 **websocket** 连接，根据传输的信息我们可以肯定这和热更新密切相关。
+让我们启动项目，页面初次刷新，我们得到了 `app.bundle.js` 的入口 js 文件，值得注意的是，浏览器还和开发服务器保持了一个 **websocket** 连接，根据传输的信息我们可以肯定这和热更新密切相关。
 
 <a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201206212847.png">![](http://cdn.yuzzl.top/blog/20201206212847.png)</a>
 
@@ -103,15 +103,15 @@ export default function printMe() {
 
 再次抓包查看，发现更新了三部分内容：
 
-- 一个json文件
+- 一个 json 文件
 
 <a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201206213214.png">![](http://cdn.yuzzl.top/blog/20201206213214.png)</a>
 
-- 一个js文件
+- 一个 js 文件
 
 从这个 js 里面我们可以找到我们修改的内容，可以猜出这个文件里面的内容将把旧代码替换。
 
-同时，观察代码发现，返回的内容是一个函数，可知这个js文件可以在适当地位置被执行, 这种通过函数通信的方式也称为 **JSONP**。
+同时，观察代码发现，返回的内容是一个函数，可知这个 js 文件可以在适当地位置被执行, 这种通过函数通信的方式也称为 **JSONP**。
 
 <a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201206213232.png">![](http://cdn.yuzzl.top/blog/20201206213232.png)</a>
 
@@ -624,7 +624,7 @@ function internalApply(options) {
 
 这个方法分两次遍历 `result` 数组，分别执行每个元素的 `dispose` 方法和 `apply` 方法，前者用来移除旧模块，后者用来增添新的模块：
 
-apply方法主要做了这些事情，具体实现还是比较复杂的，可自行参阅源码，这部分涉及到了 webpack 打包原理。这里只列出主干部分：
+apply 方法主要做了这些事情，具体实现还是比较复杂的，可自行参阅源码，这部分涉及到了 webpack 打包原理。这里只列出主干部分：
 
 - 遍历新增的模块，并插入代码到一个 webpack 全局维护的对象中：
 
@@ -657,4 +657,4 @@ for (var i = 0; i < currentUpdateRuntime.length; i++) {
 
 ## 参考资料
 
-[掘金 -- 轻松理解webpack热更新原理](https://juejin.cn/post/6844904008432222215#heading-10)
+[掘金 -- 轻松理解 webpack 热更新原理](https://juejin.cn/post/6844904008432222215#heading-10)
