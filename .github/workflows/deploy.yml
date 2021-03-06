@@ -3,7 +3,7 @@ name: deploy blog
 on:
   push:
     branches:
-      - main
+      - docs
 jobs:
   deploy-docs:
     runs-on: ubuntu-latest
