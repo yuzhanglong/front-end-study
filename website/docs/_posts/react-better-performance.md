@@ -791,10 +791,13 @@ export type Thenable<T, R> = {
 
 ## 参考资料
 
-【推荐阅读】https://medium.com/technofunnel/https-medium-com-mayank-gupta-6-88-21-performance-optimizations-techniques-for-react-d15fa52c2349#67cc
+Mayank Gupta, [22 React Performance Optimization Techniques](https://medium.com/technofunnel/https-medium-com-mayank-gupta-6-88-21-performance-optimizations-techniques-for-react-d15fa52c2349#67cc)
 
-https://developer.mozilla.org/zh-CN/docs/Glossary/Polyfill
 
-https://zh-hans.reactjs.org/docs/reconciliation.html
+MDN, [Polyfill](https://developer.mozilla.org/zh-CN/docs/Glossary/Polyfill)
 
-https://github.com/facebook/react
+
+React docs, [reconciliation](https://zh-hans.reactjs.org/docs/reconciliation.html)
+
+
+React，[React 代码仓库](https://github.com/facebook/react)
