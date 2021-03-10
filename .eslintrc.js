@@ -1,13 +1,24 @@
 module.exports = {
   'extends': [
-    'plugin:lint-md/recommend'
+    'plugin:@lint-md/recommend',
+    'eslint:recommended'
   ],
+  env: {
+    "node": true,
+    "browser": true,
+    "commonjs": true,
+    "amd": true,
+    es6: true
+  },
+  parserOptions: {
+    ecmaVersion: 11
+  },
   overrides: [
     {
       files: ['*.md'],
-      parser: 'eslint-plugin-lint-md/src/parser',
+      parser: '@lint-md/eslint-plugin/src/parser',
       rules: {
-        'lint-md/no-long-code': [2, {
+        '@lint-md/no-long-code': [2, {
           'length': 1000,
           'exclude': []
         }]

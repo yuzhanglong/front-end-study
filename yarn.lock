@@ -522,6 +522,13 @@
     "@types/yargs" "^15.0.0"
     chalk "^4.0.0"
 
+"@lint-md/eslint-plugin@^0.0.2":
+  version "0.0.2"
+  resolved "https://registry.npmjs.org/@lint-md/eslint-plugin/-/eslint-plugin-0.0.2.tgz#a1049d79d6933cc863ab3af12f12f7fe2fea3a07"
+  integrity sha512-T/aIfX40eEW6tLj5PiM//+vwrJgk+jpuvIb5qwyoxT051uqTLX1wsbnhMYuXBntQdHGjqNN/U0nw05B4bLVT6g==
+  dependencies:
+    lint-md "^0.2.0"
+
 "@sinonjs/commons@^1.7.0":
   version "1.8.2"
   resolved "https://registry.npm.taobao.org/@sinonjs/commons/download/@sinonjs/commons-1.8.2.tgz?cache=0&sync_timestamp=1610537339534&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2F%40sinonjs%2Fcommons%2Fdownload%2F%40sinonjs%2Fcommons-1.8.2.tgz#858f5c4b48d80778fde4b9d541f27edc0d56488b"
@@ -1843,13 +1850,6 @@ escodegen@^1.14.1:
     optionator "^0.8.1"
   optionalDependencies:
     source-map "~0.6.1"
-
-eslint-plugin-lint-md@^0.0.3:
-  version "0.0.3"
-  resolved "https://registry.npm.taobao.org/eslint-plugin-lint-md/download/eslint-plugin-lint-md-0.0.3.tgz#6192882c8c2621a24abd84a22d310c8f00d656f9"
-  integrity sha1-YZKILIwmIaJKvYSiLTEMjwDWVvk=
-  dependencies:
-    lint-md "^0.2.0"
 
 eslint-scope@^5.1.1:
   version "5.1.1"
