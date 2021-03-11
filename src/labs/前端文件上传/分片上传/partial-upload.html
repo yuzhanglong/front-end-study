@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang='en'>
+  <head>
+    <meta charset='UTF-8'>
+    <title>分片上传</title>
+  </head>
+  <body>
+    <label>
+      <input type='file' id='file'>
+    </label>
+    <button type='button' id='btn-submit'>上 传</button>
+  </body>
+  <script>
+    const submitUpload = async () => {
+      const getChunks = () => {
+        const chunkSize = 2 * 1024 * 1024
+        const file = document.getElementById('file').files[0]
+        if (!file) {
+          console.log('请上传文件')
+          return []
+        }
+        const chunks = []
+        // 如果文件的大小大于单个 chunk 我们就要考虑分片了
+        if (file.size > chunkSize) {
+          let start = 0
+          let end = 0
+          while (true) {
+            end += chunkSize
+            const blob = file.slice(start, end)
+            start += chunkSize
+            if (!blob.size) {
+              break
+            }
+            chunks.push(blob)
+          }
+        } else {
+          chunks.push(file.slice(0))
+        }
+        return {
+          name: file.name,
+          chunks: chunks
+        }
+      }
+      const chunks = getChunks()
+      await upload(chunks.chunks, chunks.name)
+    }
+
+    const xhrSend = async (data, name, token) => new Promise(resolve => {
+      const fd = new FormData()
+      fd.append('f1', data)
+      fd.append('filename', name)
+      fd.append('token', token)
+      const xhr = new XMLHttpRequest()
+      xhr.open('POST', 'http://localhost:8080')
+      xhr.onreadystatechange = function() {
+        console.log('state change', xhr.readyState)
+        if (xhr.readyState === 4) {
+          resolve()
+        }
+      }
+      xhr.send(fd)
+    })
+
+    const upload = async (totalData, name) => {
+      let baseToken = new Date().getTime()
+      const start = baseToken
+      const xhrPromises = totalData.map(res => {
+        baseToken += 1
+        return xhrSend(res, name, baseToken)
+      })
+      await Promise.all(xhrPromises)
+
+      const xhr = new XMLHttpRequest()
+      xhr.open('POST', 'http://localhost:8080')
+      const fd = new FormData()
+      fd.append('filename', name)
+      fd.append('begin', (start + 1).toString())
+      fd.append('end', baseToken)
+      fd.append('type', 'MERGE')
+      xhr.send(fd)
+    }
+
+    //绑定提交事件
+    document.getElementById('btn-submit').addEventListener('click', submitUpload)
+  </script>
+</html>
