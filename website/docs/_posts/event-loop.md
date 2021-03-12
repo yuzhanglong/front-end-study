@@ -400,6 +400,78 @@ promise resolve
 
 这样的更新是为了和浏览器行为相匹配。
 
+### 最佳实践
+
+#### 避免在重复调用的代码块中进行同步 I/O
+
+尽量避免在重复调用的代码块中同步 I/O 函数(fs.readFileSync、 fs.renameSync 等) ，比如循环和经常调用的函数。
+
+这会在很大程度上降低应用程序的性能，因为每次执行同步 I/O 操作时，事件循环都会一直被阻塞，直到完成。
+
+#### 函数应该完全异步或者完全同步
+
+请看下面代码：
+
+```javascript
+const cache = {};
+
+function readFile(fileName, callback) {
+  if (cache[filename]) {
+    return callback(null, cache[filename])
+  }
+
+  fs.readFile(fileName, (err, fileContent) => {
+    if (err) return callback(err);
+
+    cache[fileName] = fileContent;
+    callback(null, fileContent);
+  });
+}
+
+function letsRead() {
+  readFile('myfile.txt', (err, result) => {
+    // error handler redacted
+    console.log('file read complete');
+  });
+
+  console.log('file read initiated')
+}
+```
+
+如果我们调用两次 `letsRead` 将输出：
+
+```plain
+file read initiated
+file read complete
+
+
+file read complete
+file read initiated 
+```
+
+前后顺序不一致！不难推测出后面的代码是完全同步的，而前面的代码执行掺杂了异步的操作。
+
+当我们的应用程序变得越来越复杂时，这种不一致的同步 - 异步混合函数可能会导致许多问题，这些问题极难调试和修复。
+
+因此，强烈建议始终遵循上面的同步或异步规则，例如上面的代码可以改为：
+
+```javascript
+const cache = {};
+
+function readFile(fileName, callback) {
+  if (cache[filename]) {
+    return process.nextTick(() => callback(null, cache[filename]));
+  }
+
+  fs.readFile(fileName, (err, fileContent) => {
+    if (err) return callback(err);
+
+    cache[fileName] = fileContent;
+    callback(null, fileContent);
+  });
+}
+```
+
 ## 参考资料
 
 nodejs
