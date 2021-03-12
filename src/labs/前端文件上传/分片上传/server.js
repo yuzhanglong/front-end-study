@@ -23,7 +23,7 @@ app.use((ctx) => {
   } else {
     let b = parseInt(begin)
     let e = parseInt(end)
-    console.log(b, "===", e)
+    console.log(b, '===', e)
     const extArr = filename.split('.')
     const writeStream = fs.createWriteStream(`${path.resolve(__dirname, '../static/uploads', filename)}`)
 
@@ -34,6 +34,8 @@ app.use((ctx) => {
       readStream.on('end', () => {
         fs.unlink(name, (err) => {
           if (err) {
+            // 如果可读流在处理期间发送错误，则可写流目标不会自动关闭。 如果发生错误，则需要手动关闭每个流以防止内存泄漏。
+            writeStream.end()
             throw err
           }
           if (b < e) {

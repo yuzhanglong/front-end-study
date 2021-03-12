@@ -522,10 +522,10 @@
     "@types/yargs" "^15.0.0"
     chalk "^4.0.0"
 
-"@lint-md/eslint-plugin@^0.0.2":
-  version "0.0.2"
-  resolved "https://registry.npmjs.org/@lint-md/eslint-plugin/-/eslint-plugin-0.0.2.tgz#a1049d79d6933cc863ab3af12f12f7fe2fea3a07"
-  integrity sha512-T/aIfX40eEW6tLj5PiM//+vwrJgk+jpuvIb5qwyoxT051uqTLX1wsbnhMYuXBntQdHGjqNN/U0nw05B4bLVT6g==
+"@lint-md/eslint-plugin@^0.0.3":
+  version "0.0.3"
+  resolved "https://registry.npmjs.org/@lint-md/eslint-plugin/-/eslint-plugin-0.0.3.tgz#8b5711df23e487fba807a60b6de7259cc085ae3f"
+  integrity sha512-WacaBrlOTDhTSpU7iOZ1GAr6lCK3uQ+htwtxEPjYBNKvy11MjM4XoCGo0oS8Hyb08xAKmDJ5hx4mMSdiDhsdxQ==
   dependencies:
     lint-md "^0.2.0"
 

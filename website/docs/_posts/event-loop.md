@@ -37,15 +37,16 @@ as described in this section. Each agent has an associated event loop, which is 
 The event loop is what allows NodeJS to perform non-blocking I/O operations — despite the fact that JavaScript is
 single-threaded。
 
-> 事件循环是 NodeJS 处理非阻塞 I/O 操作的机制——尽管 JavaScript 是单线程处理的。
+> 事件循环是 NodeJS 处理非阻塞 I/O 操作的机制 —— 尽管 JavaScript 是单线程处理的。
 
-
-这里顺便提一下 **IO**：维基百科这样描述：I/O 通常指数据在存储器（内部和外部）或其他周边设备之间的输入和输出，是信息处理系统（例如计算机）与外部世界（可能是人类或另一信息处理系统）之间的通信。 我们 node
-开发环境中最常见的有**文件读写**、**网络请求**操作。
 
 对于浏览器，用户交互（如浏览器鼠标事件）、网络（ajax 请求）是浏览器内部提供的 API （当然再往底层走也是面向操作系统）。
 
-综上所述，事件循环是 JavaScript 引擎和浏览器接口/操作系统沟通的一座桥梁，是浏览器、NodeJS 实现异步的方法。
+综上所述，事件循环是 JavaScript 引擎和浏览器接口/操作系统沟通的一座桥梁，是浏览器、NodeJS 实现异步逻辑的方法。
+
+:::tip IO I/O 通常指数据在存储器（内部和外部）或其他周边设备之间的输入和输出，是信息处理系统（例如计算机）与外部世界（可能是人类或另一信息处理系统）之间的通信。 我们 node 开发环境中最常见的有**文件读写**、**
+网络请求**操作。(维基百科)
+:::
 
 ## 浏览器的事件循环
 
@@ -144,15 +145,15 @@ console.log(foo("yzl"));
 ```javascript
 console.log('start')
 
-setTimeout(function () {
+setTimeout(function() {
   console.log('setTimeout!')
 }, 0)
 
 Promise.resolve()
-  .then(function () {
+  .then(function() {
     console.log('promise1')
   })
-  .then(function () {
+  .then(function() {
     console.log('promise2')
   })
 
@@ -181,25 +182,26 @@ NodeJS 的事件循环的核心是 **[libuv](https://zh.wikipedia.org/wiki/Libuv
 
 ### 流程
 
-下图是事件循环的流程，一次事件循环又被称为一次 **Tick**，**每个阶段都有一个队列来执行回调**。不同类型的事件在它们自己的队列中排队。
+下图是事件循环的流程，一次事件循环又被称为一次 **Tick**，**每个阶段都有一个队列来执行回调**。不同类型的事件在它们自己的队列中排队:
 
-- **定时器（timers）**：本阶段执行已经被 `setTimeout()` 和 `setInterval()` 的调度回调函数。
-- **待定回调（pending callbacks）**：执行延迟到下一个循环迭代的 I/O 回调。
-- **idle, prepare**：仅系统内部使用。
-- **轮询（poll）**：检索新的 I/O 事件、执行与 I/O 相关的回调（几乎所有情况下，除了关闭的回调函数，那些由计时器和 `setImmediate()` 调度的之外），其余情况 node 将在适当的时候在此阻塞。
-- **检测（check）**：`setImmediate()` 回调函数在这里执行。
-- **关闭的回调函数（close callbacks）**：一些关闭的回调函数，如：`socket.on('close', ...)`。
+- **Expired Timers And Intervals Queue**：本阶段执行已经被 `setTimeout()` 和 `setInterval()` 的调度回调函数。
+- **IO Events Queue**：已完成的 IO 事件
+- **Immediate Queue**：`setImmediate()` 回调函数在这里执行。
+- **Close Handlers Queue**：一些关闭的回调函数，如：`socket.on('close', ...)`。
+
+除了这 4 个主队列，还有另外 2 个队列，这两个队列不属于 libuv，属于 nodeJS 运行环境：
+
+- **Next Ticks Queue**：使用 `process.nextTick()` 函数添加的回调，它比 **Other Microtasks Queue** 优先级高。
+- **Other Microtasks Queue**：其他微任务队列，例如 promise 的 `then()` 回调、`queueMicroTask()`。
+
+:::tip
+
+使用队列的描述方式是不太准确的(说成队列是为了方便理解)，实际上数据结构类型各不相同，例如，计时器的处理使用了最小堆。
+:::
 
 下图展示了这个流程：
 
 <a data-fancybox title="" href="http://cdn.yuzzl.top/blog/1_2yXbhvpf1kj5YT-m_fXgEQ.png">![](http://cdn.yuzzl.top/blog/1_2yXbhvpf1kj5YT-m_fXgEQ.png)</a>
-
-可以看出，**Expired timers** 即上面的定时器阶段、**IO Events** 即上面的 `poll` 阶段、`close Handlers` 即上面的 `close callbacks` 阶段。
-
-我们还注意到两个中间队列，（这两个队列不属于 libuv，属于 nodeJS 运行环境）：
-
-- **Next Ticks Queue**：使用 `process.nextTick()` 函数添加的回调，它比 **Other Microtasks Queue** 优先级高。
-- **Other Microtasks Queue**：其他微任务队列，例如 promise 的 `then()` 回调、`queueMicroTask()`。
 
 事件循环的启动从定时器（timers）阶段开始，一旦一个阶段完成，事件循环就会检查上面说到的两个中间队列中是否有可用的回调。如果有，事件循环将立即开始处理它们，直到清空这两个队列为止。
 
@@ -209,9 +211,7 @@ NodeJS 的事件循环的核心是 **[libuv](https://zh.wikipedia.org/wiki/Libuv
 
 当调用 `setTimeout()` 时，它（称为定时器对象）会保存在**计时器堆**（timers heap），事件循环执行到**定时器阶段**时，会从中取出它们，然后进行时间的对比，如果超时，则执行相应的回调。
 
-实践出真知，让我们从源码中一探究竟：
-
-首先，我们很容易地找到事件循环的核心代码，它位于 `src/win/core.c` 目录下：
+事件循环的核心代码位于 `src/win/core.c` 目录下：
 
 ```c {4}
 int uv_run(uv_loop_t *loop, uv_run_mode mode) {
@@ -247,7 +247,7 @@ void uv__run_timers(uv_loop_t *loop) {
 }
 ```
 
-正好，几个月前学的数据结构 -- **堆**派上用场了，可以看出这里维护了一个**最小堆**：
+这里维护了一个**最小堆**：
 
 - 外面是一个死循环，每次循环开始会从计时器堆中拿到一个最小值。
 - 如果堆为空，则跳出循环、执行下一阶段。
@@ -259,10 +259,10 @@ void uv__run_timers(uv_loop_t *loop) {
 这里放出一个经典问题，来看下面代码：
 
 ```javascript
-setTimeout(function () {
+setTimeout(function() {
   console.log('setTimeout')
 }, 0);
-setImmediate(function () {
+setImmediate(function() {
   console.log('setImmediate')
 });
 ```
@@ -279,9 +279,33 @@ setImmediate(function () {
 
 但是，如果获取时间超过 1 毫秒，计时器将在时钟时间被检索时到期，这就导致 `setImmediate()` 先被打印。
 
+请看下面代码：
+
+```javascript
+const fs = require('fs');
+
+fs.readFile(__filename, () => {
+  setTimeout(() => {
+    console.log('timeout')
+  }, 0);
+  setImmediate(() => {
+    console.log('immediate')
+  })
+});
+```
+
+下面的代码的输出顺序是可以保证的！分析如下：
+
+- 程序执行，调用 `fs.readFile()`，它提供了一个回调函数，在读取文件后触发。
+- 事件循环开始。
+- 读取文件之后，事件循环的 IO 队列中将被添加一个事件（要执行的回调函数）。
+- node 在 I/O 队列中看到文件读取事件，并执行它。
+- 回调执行过程中，setTimeout 被添加到计时器队列，setImmediate 被添加到 Immediate 队列。
+- IO 阶段结束，接下来我们到达 Immediate 阶段，所以 Immediate 一定比 setTimeout 先执行。
+
 ### 原生 Promise
 
-上图已经指出，promise 的 `then()` 回调属于**其他微任务队列（Other Microtasks Queue）**，来看下面代码：
+来看下面代码：
 
 ```javascript
 Promise.resolve().then(() => console.log('promise1 resolved'));
@@ -340,9 +364,49 @@ set immediate4
 对于一些**不同于原生 Promise** 的 Promise 库（如 **Q**），可能不会得到上面的输出，它们的 `then` 回调是利用 `process.nextTick()` 或者 `setImmediate()` 间接实现的。
 :::
 
+### node 11+ 对事件循环机制的影响
+
+之前的流程图中的顶部有一句话：nextTick 和 promise 队列会在每一个 timer 和 immediate 回调之间执行。
+
+请看下面代码：
+
+```javascript
+setTimeout(() => console.log('timeout1'));
+setTimeout(() => {
+  console.log('timeout2')
+  Promise.resolve().then(() => console.log('promise resolve'))
+});
+setTimeout(() => console.log('timeout3'));
+setTimeout(() => console.log('timeout4'));
+```
+
+将得到输出：
+
+```shell
+# node 11+
+timeout1
+timeout2
+promise resolve
+timeout3
+timeout4
+
+# node 10
+timeout1
+timeout2
+timeout3
+timeout4
+promise resolve
+```
+
+这样的更新是为了和浏览器行为相匹配。
+
 ## 参考资料
 
-nodejs 官网，[The Node.js Event Loop, Timers, and process.nextTick()](https://nodejs.org/en/docs/guides/event-loop-timers-and-nexttick/)
+nodejs
+官网，[The Node.js Event Loop, Timers, and process.nextTick()](https://nodejs.org/en/docs/guides/event-loop-timers-and-nexttick/)
 
 Deepal
 Jayasekara，[NodeJS Event Loop 系列文章](https://blog.insiderattack.net/event-loop-and-the-big-picture-nodejs-event-loop-part-1-1cb67a182810)
+
+
+
