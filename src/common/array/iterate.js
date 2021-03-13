@@ -12,6 +12,3 @@ console.log(data.filter((item, index) => item % 2 === 0));
 // map()：对数组每一项都运行传入的函数，返回由每次函数调用的结果构成的数组。
 console.log(data2.map((item) => item * 2));
 // [ 4, 8, 12 ]
-
-// some()：对数组每一项都运行传入的函数，如果有一项函数返回 true，则这个方法返回 true。
-console.log(data.some((v) => v % 2 === 0));

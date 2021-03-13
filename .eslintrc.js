@@ -1,14 +1,15 @@
 module.exports = {
-  'extends': [
+  extends: [
     'plugin:@lint-md/recommend',
     'eslint:recommended'
   ],
   env: {
-    "node": true,
-    "browser": true,
-    "commonjs": true,
-    "amd": true,
-    es6: true
+    node: true,
+    browser: true,
+    commonjs: true,
+    amd: true,
+    es6: true,
+    jest: true
   },
   parserOptions: {
     ecmaVersion: 11
