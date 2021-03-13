@@ -1,3 +1,11 @@
+/*
+ * File: server.js
+ * Description: http2 server push 服务端
+ * Created: 2021-3-13 20:35:13
+ * Author: yuzhanglong
+ * Email: yuzl1123@163.com
+ */
+
 const http2 = require('http2')
 const fs = require('fs')
 const Koa = require('koa')
