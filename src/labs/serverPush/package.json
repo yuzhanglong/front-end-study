@@ -1,0 +1,11 @@
+{
+  "name": "server-push",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "http2": "^3.3.7",
+    "koa": "^2.13.1",
+    "koa-router": "^10.0.0"
+  }
+}
