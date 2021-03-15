@@ -9,10 +9,14 @@ tags:
 
 # 前端基础知识（杂记）
 
+[[toc]]
+
 :::tip
 
 下面的内容属于平时杂记性质，未来可能会被归档到其它的文章中、或者被删除
 :::
+
+
 
 ## 跨域方案
 
@@ -398,9 +402,9 @@ cookie 数据**不是安全的**，任何人都可以获得，常见的 XSRF 攻
 
 - **value**：存储在 cookie 的字符串
 
-- **domain**：域，上图中的 `.developer.mozilla.org` 和 `developer.mozilla.org` 是有区别的（注意前面的点），有点号标识这个值可以包含子域。
+- **domain**：指定了哪些主机可以接受 Cookie，上图中的 `.developer.mozilla.org` 和 `developer.mozilla.org` 是有区别的（注意前面的点），有点号标识这个值可以包含子域。
 
-- **path**：路径，请求 url **包含这个路径**才会发送这个 cookie。
+- **path**：标识指定了**主机下的哪些路径**可以接受 Cookie，请求 url **包含这个路径**才会发送这个 cookie。
 
 - **SameSite**：用来限制第三方 cookie 的，从而减少安全风险（例如**XSRF 攻击**），它可以设置三个值：
 
