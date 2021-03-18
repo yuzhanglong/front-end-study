@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang='en'>
+  <head>
+    <meta charset='UTF-8'>
+    <title>Title</title>
+  </head>
+  <body>
+    <div>Child!</div>
+    <script type='text/javascript'>
+      function say() {
+        console.log('child.html')
+        callParent()
+      }
+
+      function callParent() {
+        parent.say()
+        parent.window.document.getElementById('button').innerText = '调用结束'
+      }
+    </script>
+  </body>
+</html>

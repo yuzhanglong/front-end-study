@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang='en'>
+  <head>
+    <meta charset='UTF-8'>
+    <title>Session Storage</title>
+  </head>
+  <body>
+    <iframe src='child.html' name='myFrame'></iframe>
+
+    <script>
+      function showStorage() {
+        console.log(window.sessionStorage)
+        window.myFrame.window.sessionStorage.setItem('bar', 'bar')
+        console.log(window.sessionStorage)
+      }
+
+      window.myFrame.window.sessionStorage.setItem('name', 'yzl')
+      window.sessionStorage.setItem('age', '20')
+    </script>
+  </body>
+</html>
