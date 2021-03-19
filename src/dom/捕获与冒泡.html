@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang='en'>
+  <head>
+    <meta charset='UTF-8'>
+    <title>捕获 && 冒泡</title>
+  </head>
+  <body>
+    <div id='parent'>
+      <div id='children'>
+        I am child
+      </div>
+    </div>
+    <script>
+      const parent = document.getElementById('parent')
+      const child = document.getElementById('children')
+
+      parent.addEventListener('click', () => {
+        console.log('parent click! 事件捕获!')
+      }, true)
+      parent.addEventListener('click', () => {
+        console.log('parent click! 事件冒泡!')
+      }, false)
+
+      child.addEventListener('click', () => {
+        console.log('child click! 事件捕获!')
+      }, true)
+      child.addEventListener('click', () => {
+        console.log('child click! 事件冒泡!')
+      }, false)
+    </script>
+  </body>
+  <style>
+    #parent {
+      width: 200px;
+      height: 200px;
+      background-color: greenyellow;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #children {
+      width: 100px;
+      height: 100px;
+      background-color: #409EFF;
+    }
+  </style>
+</html>
