@@ -55,7 +55,7 @@ Access-Control-Allow-Origin: *
 
 #### 预检请求
 
-CORS 通过一种叫**预检请求**（ preflighted request）的服务器验证机制，允许使用自定义头部、除 GET 、 POST、HEAD（这三个也被称为**简单请求**）
+CORS 通过一种叫**预检请求**（preflighted request）的服务器验证机制，允许使用自定义头部、除 GET 、POST、HEAD（这三个也被称为**简单请求**）
 之外的方法，以及不同请求体内容类型。在要发送涉及上述某种高级选项的请求时，会先向服务器发送一个“预检”请求。这个请求使用 OPTIONS 方法发送并包含以下头部。
 
 - **Origin**：与简单请求相同
@@ -369,7 +369,7 @@ HTTP cookie 通常也叫作 cookie，最初用于在客户端存储会话信息�
 
 ```http request
 HTTP/1.1 200 OK
-Content-type: text/html
+Content-Type: text/html
 Set-Cookie: name=value
 Other-header: other-header-value
 ```
@@ -521,146 +521,6 @@ localStorage 数据不受页面刷新影响，也不会因关闭窗口、标签�
 - 绘制
 
 对于这些步骤的详细信息请参阅<a href="#浏览器渲染流程">浏览器渲染流程</a>
-
-## 前端路由
-
-### 概念
-
-什么是路由？早期，路由其实是个**后端概念**，在服务端渲染（**SSR**）的 app 中，后端处理 HTML，并返回它，像这样：
-
-```http
-http://www.my-school.edu.cn/art/2020/10/30/art_16_40029.html
-```
-
-我们可以通过不同的路径，请求不同的静态资源，这种方式就是路由。
-
-在后来我们有了**SPA**，被称为单页应用，单页应用不仅仅是在页面交互是无刷新的，连**页面跳转**都是**无刷新**的，为了实现单页应用，所以就有了前端路由。
-
-### 前端路由原理
-
-#### hashRouter
-
-##### hash 值的变化不会让浏览器发起请求
-
-假设我们有个 HTML：
-
-```html
-<!DOCTYPE html>
-<html lang='en'>
-  <head>
-    <meta charset='UTF-8'>
-    <title>Title</title>
-  </head>
-  <body>
-    hello world
-  </body>
-</html>
-```
-
-使用本地服务器托管，访问页面：
-
-![](http://cdn.yuzzl.top/blog/20201101151513.png)
-
-可以看到页面正常显示了。
-
-这时我们往地址栏的 url 后加入一些内容：
-
-![](http://cdn.yuzzl.top/blog/20201101151633.png)
-
-回车，我们发现浏览器并没有刷新。即就是说 hash 值的变化，并不会导致浏览器向服务器发出请求，浏览器不发出请求，也就不会刷新页面。
-
-基于浏览器的这个特性，我们可以用**hash 模式**实现一个路由，首先我们来了解一下有关 hash 路由的 API。
-
-##### hashChange 事件
-
-HTML5 增加了 hashchange 事件，用于在 URL 散列值（ URL 最后#后面的部分）发生变化时通知开发者。这是因为开发者经常在 Ajax 应用程序中使用 URL 散列值存储状态信息或路由导航信息。
-
-尝试在浏览器控制台运行以下代码：
-
-```javascript
-window.addEventListener("hashchange", (event) => {
-  console.log(`Old URL: ${event.oldURL}, New URL: ${event.newURL}`);
-});
-```
-
-![](http://cdn.yuzzl.top/blog/20201101152635.png)
-
-然后修改当前 url 的散列值，你会发现回调函数被触发了。
-
-![](http://cdn.yuzzl.top/blog/20201101152720.png)
-
-##### 预期的流程
-
-知道了上面的 API，我们可以构建出如下的流程：
-
-- 旧地址为`http://localhost:63342/frontendRouter/#/page1`
-- 修改 hash 值，准备跳转到新地址`http://localhost:63342/frontendRouter/#/page2`，但是要注意跳转的类型：
-    - **刷新页面**，是不会触发 `hashchange` 的，我们可以使用 `load` 事件。
-    - 输入链接回车跳转，会触发 `hashchange`。
-    - 浏览器的后退按钮，会触发 `hashchange`
-
-- 根据我们的 hash 来匹配相应的页面。（这里的”页面“我们可以简单地看成一个 HTML 片段），如果匹配不到，我们执行重定向。
-- 替换相应的 DOM。
-
-##### DEMO
-
-下面是一个简单的 **hashRouterDEMO**:
-
-```html
-<!DOCTYPE html>
-<html lang='en'>
-  <head>
-    <meta charset='UTF-8'>
-    <title>Title</title>
-    <script>
-      const myHashTable = {
-        page1: "<div>我是第一页</div>",
-        page2: "<div>我是第二页</div>",
-        default: "hello world"
-      }
-
-      window.addEventListener("load", () => {
-        const newHash = location.hash.split("#/")[1];
-        document.body.innerHTML = myHashTable.hasOwnProperty(newHash) ? myHashTable[newHash] : myHashTable["default"];
-      });
-
-      window.addEventListener("hashchange", (event) => {
-        console.log(`url Hash值被改变！Old URL: ${event.oldURL}, New URL: ${event.newURL}`);
-        const newHash = event.newURL.split("/#/")[1];
-        document.body.innerHTML = myHashTable.hasOwnProperty(newHash) ? myHashTable[newHash] : myHashTable["default"];
-      });
-    </script>
-  </head>
-  <body>
-    hello world
-  </body>
-</html>
-```
-
-##### 刷新白屏问题
-
-如果你使用一些前端框架和它的路由管理插件，那么有时会出现刷新白屏现象。
-
-这一现象的本质在于：我们使用 `pushState()` 创建的每一个**假的 URL(可以看成一个“状态”)**并没有在服务器上对应一个**真实物理 URL**。所谓的白屏其实就是 404 错误。
-
-![](http://cdn.yuzzl.top/blog/20201101185002.png)
-
-![](http://cdn.yuzzl.top/blog/20201101185026.png)
-
-如果服务端使用了**nginx**，那么我们可以这样配置来处理这个问题（方案就是将当前的 url 重定向到 index.html 下）：
-
-```nginx
-server {
-    listen       80;
-    server_name  xxxx.yuzzl.top;
-    root  xxxxxx;
-    
-    // 下面是重点！
-    location / {
-        try_files $uri $uri/  /index.html;
-    }
-}
-```
 
 ## 前端模块化
 
@@ -818,7 +678,3 @@ JS 引擎为模块创造一个**环境记录**（environment record）来管理�
 如果模块执行的过程中发送了网络请求（这是一个副作用）, 因为潜在的副作用，你只希望模块执行一次。但是和实例化连接过程多次进行结果严格一直不同，每次的执行都会有不同的结果。
 
 这也是我们为什么有模块映射表的原因。模块映射表通过唯一的 URL 只为模块添加一条模块记录。这就保证了每个模块只执行一次。
-
-## TODO
-
-浏览器底层（并发）

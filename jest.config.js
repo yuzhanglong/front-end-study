@@ -3,5 +3,8 @@ module.exports = {
   testPathIgnorePatterns: [
     'docs',
     'website'
+  ],
+  testMatch: [
+    "**/*.[jt]s?(x)"
   ]
 }
