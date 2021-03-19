@@ -143,32 +143,38 @@ console.log(foo("yzl"));
 来看下面的代码：
 
 ```javascript
-console.log('start')
-
-setTimeout(function() {
-  console.log('setTimeout!')
-}, 0)
-
-Promise.resolve()
-  .then(function() {
-    console.log('promise1')
-  })
-  .then(function() {
-    console.log('promise2')
-  })
-
-console.log('end')
+console.log(1);
+setTimeout(() => {
+  console.log(2);
+  Promise.resolve().then(() => {
+    console.log(3)
+  });
+});
+new Promise((resolve, reject) => {
+  console.log(4)
+  resolve()
+}).then(() => {
+  console.log(5);
+})
+setTimeout(() => {
+  console.log(6);
+})
+console.log(7);
 ```
 
 分析一下过程：
 
-- 打印 **start** 字符串。
-- `setTimeout()` 进入 **macrotask queue**。
-- `Promise.then()` 后的回调进入 **microtask queue**。
-- 执行最后一行，打印 end 字符串。
-- 全局代码执行完毕，接下来执行 **microtask** 的任务，打印 promise1、promise2。
-- 这时 microtask 队列已经为空，从上面的流程图可知，接下来主线程可能会去做一些 UI 渲染工作，然后开始下一轮 event loop， 执行 `setTimeout()` 的回调，打印出 **setTimeout!**
-  字符串。
+- 代码按顺序执行，先打印 `1`。
+- `setTimeout()` 进入宏任务队列。
+- `Promise.then()` 后的回调进入微任务队列，promise 中 的内容会被立即执行，打印 `4`。
+- 执行最后一行，打印 `7`。
+- 代码按序执行完毕。
+- 接下来执行微任务队列的任务，打印 `5`
+- 微任务队列已经没有任务，现在执行宏任务队列的任务，第一个 setTimeout 的回调被执行，打印 `2`, 其中的 `promise` 被加入微任务队列。
+- 执行微任务队列的任务，打印 `3`
+- 执行剩下宏任务队列中的 `6`
+
+最终结果为 `1 - 4 - 7 - 5 - 2 - 3 - 6`
 
 接下来，我们介绍 NodeJS 的事件循环，其机制比浏览器复杂得多。
 
