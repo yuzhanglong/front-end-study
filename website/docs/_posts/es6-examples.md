@@ -49,7 +49,7 @@ let expectedTextButGotJSON = {
   },
   // ...
 };
-let message = {text: expectedTextButGotJSON};
+let message = { text: expectedTextButGotJSON };
 ```
 
 然后在某段 JSX 中使用了它，攻击者就可以运行我们不期望的 html 代码：
@@ -104,7 +104,7 @@ vue-router 的其他模块就可以通过 `routerKey` 优雅地拿到全局 `rou
 ```typescript
 setup = () => {
   const link = reactive(useLink(props))
-  const {options} = inject(routerKey)!
+  const { options } = inject(routerKey)!
   // 省略其他内容
 }
 ```
@@ -162,9 +162,27 @@ wm.set(element, 'some information');
 wm.get(element);
 ```
 
+### 优雅地将 Object 转换成 Map 数据结构
+
+```javascript
+const foo = {
+  a: 1,
+  b: 2,
+  c: 3
+}
+
+new Map(Object.entries(foo))
+```
+
+原理：`Object.entries(foo)` 基于对象生成一个数组，数组中的每一项是一个元组：
+
+![](http://cdn.yuzzl.top/blog/20210321155747.png)
+
+Map 的构造函数要求传入一个可迭代的对象，其元素为键值对，例如: `[[ 1, 'one' ],[ 2, 'two' ]]` 符合上述要求。
+
 ## Proxy 和 Reflect
 
-### vue3.0 利用 Proxy+Reflect 实现数据劫持
+### vue3.0 利用 Proxy + Reflect 实现数据劫持
 
 我们都知道 vue2 的数据劫持是 `defineProperty`，`defineProperty` 有一些缺点，例如一次只能操作一个对象的一个属性，要监听整个对象需要多层的递归。
 
@@ -182,7 +200,7 @@ Proxy 非常优雅地解决了这些问题，我们以 vue3 的 `reactive()` API
 
 ```typescript
 test('original value change should reflect in observed value (Object)', () => {
-  const original: any = {foo: 1}
+  const original: any = { foo: 1 }
   const observed = reactive(original)
   // set
   original.bar = 1
@@ -301,19 +319,19 @@ function createSetter(shallow = false) {
 ```javascript
 // 读取文件 A
 readFile(fileA)
-  .then(function (data) {
+  .then(function(data) {
     // 获取 A 内容
     console.log(data.toString());
   })
-  .then(function () {
+  .then(function() {
     // 读取 B
     return readFile(fileB);
   })
-  .then(function (data) {
+  .then(function(data) {
     // 获取 B 内容
     console.log(data.toString());
   })
-  .catch(function (err) {
+  .catch(function(err) {
     console.log(err);
   });
 ```
@@ -429,7 +447,7 @@ function co(gen) {
   var ctx = this;
   var args = slice.call(arguments, 1);
   // 使用 promise 包裹，目的是防止 promise 的死循环，最终导致内存泄漏
-  return new Promise(function (resolve, reject) {
+  return new Promise(function(resolve, reject) {
 
     // 初始化生成器
     if (typeof gen === 'function') gen = gen.apply(ctx, args);
@@ -742,4 +760,5 @@ Dan
 Abramov，[Why Do React Elements Have a $$typeof Property?](https://overreacted.io/why-do-react-elements-have-typeof-property/)
 
 Vincent Driessen，[Iterables vs. Iterators vs. Generators](https://nvie.com/posts/iterators-vs-generators/)
+
 
