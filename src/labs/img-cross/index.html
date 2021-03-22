@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang='en'>
+  <head>
+    <meta charset='UTF-8'>
+    <title>cors</title>
+  </head>
+  <body>
+    <div>request json</div>
+    <img alt='foo' src='http://localhost:8000/'>
+  </body>
+  <script>
+    const url = 'http://localhost:8000/'
+    const xhr = new XMLHttpRequest()
+    xhr.open('GET', url, true)
+    xhr.send()
+  </script>
+</html>
