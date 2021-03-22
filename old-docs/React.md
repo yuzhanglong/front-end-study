@@ -15,7 +15,7 @@ JSX是`React.CreateElement()`的语法糖，来看看官网对这个API的解释
 
 ![](http://cdn.yuzzl.top/blog/20201107101507.png)
 
-来看看下面的代码，`data`/`data2`效果是一样的，可以解释上面的结论：
+来看看下面的代码，`data`/`data2` 效果是一样的，可以解释上面的结论：
 
 ```html
 <!DOCTYPE html>

@@ -25,5 +25,9 @@ module.exports = {
         }]
       }
     }
-  ]
+  ],
+  ignorePatterns: [
+    'old-docs'
+  ],
+  root: true
 }
