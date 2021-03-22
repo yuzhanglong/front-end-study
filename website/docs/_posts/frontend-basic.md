@@ -53,47 +53,6 @@ Access-Control-Allow-Origin: *
 
 如果没有这个头部，或者有但源不匹配，则表明不会响应浏览器请求。否则，服务器就会处理这个请求。
 
-#### 预检请求
-
-CORS 通过一种叫**预检请求**（preflighted request）的服务器验证机制，允许使用自定义头部、除 GET 、POST、HEAD（这三个也被称为**简单请求**）
-之外的方法，以及不同请求体内容类型。在要发送涉及上述某种高级选项的请求时，会先向服务器发送一个“预检”请求。这个请求使用 OPTIONS 方法发送并包含以下头部。
-
-- **Origin**：与简单请求相同
-
-- **Access-Control-Request-Method**：请求希望使用的方法
-
-- **Access-Control-Request-Headers**：（可选）要使用的逗号分隔的自定义头部列表。
-
-例如下面的请求报文(省略了一部分无关头部)：
-
-```http
-OPTIONS /user/user_info HTTP/1.1
-Host: 47.106.202.255:8081
-Connection: keep-alive
-Accept: */*
-Access-Control-Request-Method: GET
-Access-Control-Request-Headers: authorization,loading
-Origin: http://oj.yuzzl.top
-```
-
-在这个请求发送之后，服务器确认是否允许，然后在响应头部附带以下内容：
-
-- **Access-Control-Allow-Origin**：与简单请求相同。
-- **Access-Control-Allow-Methods**：允许的**方法**（逗号分隔的列表）。
-- **Access-Control-Allow-Headers**：服务器允许的**头部**（逗号分隔的列表）。
-- **Access-Control-Max-Age**：**缓存**预检请求的秒数。
-
-例如下面的响应报文(省略了一部分无关头部)：
-
-```http
-Access-Control-Allow-Credentials: true
-Access-Control-Allow-Headers: authorization, loading
-Access-Control-Allow-Methods: POST,GET,PUT,OPTIONS,DELETE
-Access-Control-Allow-Origin: http://docs.yuzzl.top
-Access-Control-Max-Age: 3600
-```
-
-我们可以发现，预检请求也是有缓存机制的。
 
 #### 凭据请求
 
