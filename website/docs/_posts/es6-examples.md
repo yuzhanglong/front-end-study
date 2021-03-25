@@ -49,7 +49,7 @@ let expectedTextButGotJSON = {
   },
   // ...
 };
-let message = {text: expectedTextButGotJSON};
+let message = { text: expectedTextButGotJSON };
 ```
 
 然后在某段 JSX 中使用了它，攻击者就可以运行我们不期望的 html 代码：
@@ -104,7 +104,7 @@ vue-router 的其他模块就可以通过 `routerKey` 优雅地拿到全局 `rou
 ```typescript
 setup = () => {
   const link = reactive(useLink(props))
-  const {options} = inject(routerKey)!
+  const { options } = inject(routerKey)!
   // 省略其他内容
 }
 ```
@@ -182,7 +182,7 @@ Proxy 非常优雅地解决了这些问题，我们以 vue3 的 `reactive()` API
 
 ```typescript
 test('original value change should reflect in observed value (Object)', () => {
-  const original: any = {foo: 1}
+  const original: any = { foo: 1 }
   const observed = reactive(original)
   // set
   original.bar = 1
@@ -288,6 +288,35 @@ function createSetter(shallow = false) {
 
 也就是当用户修改值，例如调用 `original.bar = 1` 时代码就会走到这个函数里，我们只需在这里实现我们的通知发布即可，具体的发布实现这里不展开，以后我会专门开一篇详细分析。
 
+### 使用 Proxy 实现数组的负索引
+
+```javascript
+/*
+ * File: proxy-negative-array.js
+ * Description: 利用 Proxy 实现负索引
+ * Created: 2021-3-25 16:34:05
+ * Author: yuzhanglong
+ * Email: yuzl1123@163.com
+ */
+
+const foo = new Proxy([1, 2, 3], {
+  get: function(obj, prop) {
+    if (prop in obj) {
+      return obj[prop]
+    }
+    if (typeof prop !== 'symbol' && parseInt(prop) < 0) {
+      return obj[obj.length + parseInt(prop)]
+    }
+    return undefined
+  }
+})
+
+console.log(foo[-1])  // 3
+console.log(foo[-2])  // 2
+console.log(foo[-3])  // 1
+console.log(foo[-4])  // undefineds
+```
+
 ## Iterator 和 Generator
 
 下图很好地说明了两者之间的关系。
@@ -301,19 +330,19 @@ function createSetter(shallow = false) {
 ```javascript
 // 读取文件 A
 readFile(fileA)
-  .then(function (data) {
+  .then(function(data) {
     // 获取 A 内容
     console.log(data.toString());
   })
-  .then(function () {
+  .then(function() {
     // 读取 B
     return readFile(fileB);
   })
-  .then(function (data) {
+  .then(function(data) {
     // 获取 B 内容
     console.log(data.toString());
   })
-  .catch(function (err) {
+  .catch(function(err) {
     console.log(err);
   });
 ```
@@ -429,7 +458,7 @@ function co(gen) {
   var ctx = this;
   var args = slice.call(arguments, 1);
   // 使用 promise 包裹，目的是防止 promise 的死循环，最终导致内存泄漏
-  return new Promise(function (resolve, reject) {
+  return new Promise(function(resolve, reject) {
 
     // 初始化生成器
     if (typeof gen === 'function') gen = gen.apply(ctx, args);
