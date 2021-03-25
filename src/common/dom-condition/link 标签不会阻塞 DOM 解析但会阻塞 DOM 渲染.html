@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang='en'>
+  <head>
+    <meta charset='UTF-8'>
+    <title>link 标签不会阻塞 DOM 解析但会阻塞 DOM 渲染</title>
+    <!-- DOM 的解析和CSSOM的解析是一个并行的过程。两者互不影响
+    。两者解析完成之后，会合并生成 render tree，
+    之后就是layout和paint阶段，渲染到页面中。-->
+    <script>
+      setTimeout(() => {
+        console.log(document.querySelectorAll('div'))
+      }, 0)
+
+      document.addEventListener('DOMContentLoaded', () => {
+        console.log('dom parse done')
+      })
+    </script>
+
+    <link rel='stylesheet' href='https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.css'>
+  </head>
+
+  <body>
+    <div>
+      i am content a.
+    </div>
+    <div>
+      i am content b.
+    </div>
+  </body>
+</html>

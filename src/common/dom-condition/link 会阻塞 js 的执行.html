@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang='en'>
+  <head>
+    <meta charset='UTF-8'>
+    <title>link 会阻塞 js 的执行</title>
+  </head>
+  <body>
+    <script>
+      console.log(Date.now());
+    </script>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.css">
+
+    <script>
+      console.log(Date.now());
+    </script>
+
+    <div>
+      i am content a.
+    </div>
+    <div>
+      i am content b.
+    </div>
+  </body>
+</html>

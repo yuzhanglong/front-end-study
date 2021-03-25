@@ -306,6 +306,35 @@ function createSetter(shallow = false) {
 
 也就是当用户修改值，例如调用 `original.bar = 1` 时代码就会走到这个函数里，我们只需在这里实现我们的通知发布即可，具体的发布实现这里不展开，以后我会专门开一篇详细分析。
 
+### 使用 Proxy 实现数组的负索引
+
+```javascript
+/*
+ * File: proxy-negative-array.js
+ * Description: 利用 Proxy 实现负索引
+ * Created: 2021-3-25 16:34:05
+ * Author: yuzhanglong
+ * Email: yuzl1123@163.com
+ */
+
+const foo = new Proxy([1, 2, 3], {
+  get: function(obj, prop) {
+    if (prop in obj) {
+      return obj[prop]
+    }
+    if (typeof prop !== 'symbol' && parseInt(prop) < 0) {
+      return obj[obj.length + parseInt(prop)]
+    }
+    return undefined
+  }
+})
+
+console.log(foo[-1])  // 3
+console.log(foo[-2])  // 2
+console.log(foo[-3])  // 1
+console.log(foo[-4])  // undefineds
+```
+
 ## Iterator 和 Generator
 
 下图很好地说明了两者之间的关系。

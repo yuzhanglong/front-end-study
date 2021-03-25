@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang='en'>
+  <head>
+    <meta charset='UTF-8'>
+    <title>inline-script 标签会触发页面的渲染</title>
+  </head>
+  <body>
+    <div>
+      i am content a.
+    </div>
+
+    <script>
+      console.log(Date.now())
+      for (let i = 0; i < 5000000000; i++) {
+        let a = i
+      }
+      console.log(Date.now())
+    </script>
+
+    <div>
+      i am content b.
+    </div>
+  </body>
+</html>
