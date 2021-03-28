@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang='en'>
+  <head>
+    <meta charset='UTF-8'>
+    <title>消除外边距折叠</title>
+  </head>
+  <body>
+    <div>
+      <p>折叠</p>
+    </div>
+    <div>
+      <p>折叠</p>
+    </div>
+
+    <div class='container'>
+      <p>不折叠</p>
+    </div>
+    <div class='container'>
+      <p>不折叠</p>
+    </div>
+  </body>
+  <style>
+    p {
+      width: 100px;
+      height: 100px;
+      background: lightblue;
+      margin: 100px;
+    }
+
+    .container {
+      overflow: hidden;
+    }
+  </style>
+</html>
