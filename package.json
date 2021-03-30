@@ -10,7 +10,7 @@
     "docs:dev": "cd website && yarn docs:dev"
   },
   "dependencies": {
-    "@lint-md/eslint-plugin": "^0.0.3",
+    "@lint-md/eslint-plugin": "^0.1.0",
     "@types/jest": "^26.0.20",
     "@types/node": "^14.14.22",
     "eslint": "^7.21.0",
