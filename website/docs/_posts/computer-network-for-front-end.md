@@ -275,7 +275,63 @@ HTTP 状态码由三个十进制数字组成，第一个十进制数字定义了
 
 ## HTTPS
 
-### HTTP2
+### 通信流程
+
+通信流程主要分为三个阶段：
+
+- TCP 三次握手
+- TLS 连接
+- HTTP 请求和响应
+
+其中，TLS 的基本步骤如下所示：
+
+![](http://cdn.yuzzl.top/blog/20210402114239.png)
+
+接下来，我们详细描述此过程。
+
+**Client Hello**
+
+- TLS 的版本号
+- 客户端支持的加密组件（算法、秘钥长度）
+- 一个随机数（Client Random）
+
+**Server Hello**
+
+- TLS 版本号
+- 选中的加密组件（从客户端的加密组件列表中选择出来）
+- 一个随机数（Server Random）
+
+**Certificate**
+
+- 传输被 CA 签名过的服务器的公钥证书
+
+**Server Key Exchange**
+
+- 传输 ECDHE 算法（一种密钥交换算法）的其中一个参数 `Server Params`，注意该值使用了服务端私钥进行签名。
+
+**Server Hello Done**
+
+- 告知客户端，协商过程结束，此时客户端拿到了证书，客户端会验证证书的合法性（具体方案上面已经介绍过）
+- 另外，客户端和服务器之间**通过明文**共享了 `Client Random` 、`Server Random`、`Server Params`。
+
+**Client Key Exchange**
+
+传输用来实现 ECDHE 的第二个参数 `Client Params`，在此之后，双方拥有了 ECDHE 的两个参数。
+
+**Change Cipher Spec**
+
+告知服务端，之后的通信使用 ECDHE 算法生成的密钥进行加密。
+
+**Finished**
+
+- 包含连接至今全部报文的整体校验值（摘要），加密之后发送给服务器
+- 这次握手协商是否成功，要以服务器是否能够正确解密该报文作为判定标准
+
+**Change Cipher Spec && Finished**
+
+- 服务器确认传输无误，握手结束。
+
+## HTTP2
 
 ### HTTP 1.x 的缺陷
 
