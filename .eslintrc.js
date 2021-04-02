@@ -17,7 +17,7 @@ module.exports = {
   overrides: [
     {
       files: ['*.md'],
-      parser: '@lint-md/eslint-plugin/src/parser',
+      parser: '@lint-md/eslint-plugin/lib/parser',
       rules: {
         '@lint-md/no-long-code': [2, {
           'length': 1000,
