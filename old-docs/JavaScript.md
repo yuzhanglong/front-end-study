@@ -329,29 +329,6 @@ _helper上下文中的活动对象AO: {
 ;
 ```
 
-### 使用场景
-
-#### 一些数组的操作集
-
-```javascript
-[1, 2, 3].sort(function (a, b) {
-... // 排序条件
-});
-
-[1, 2, 3].map(function (element) {
-  return element * 2;
-}); // [2, 4, 6]
-```
-
-#### 定时器
-
-```javascript
-let name = 'Jake';
-setInterval(() => {
-  console.log(name);
-}, 100);  
-```
-
 ## 浅拷贝和深拷贝
 
 ### 区别
