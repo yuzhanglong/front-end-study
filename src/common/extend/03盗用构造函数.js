@@ -4,6 +4,11 @@ function SuperType() {
   this.colors = ["red", "blue", "green"];
 }
 
+// 盗用构造函数的缺点，这种模式基本上不能单独使用，于是我们有了组合继承
+SuperType.prototype.sayHello = function () {
+  console.log("hello world");
+}
+
 
 function SubType() {
   // 继承 SuperType
@@ -17,9 +22,5 @@ let instance2 = new SubType();
 console.log(instance2.colors); // [ 'red', 'blue', 'green' ]
 
 
-// 盗用构造函数的缺点，这种模式基本上不能单独使用，于是我们有了组合继承
-SuperType.prototype.sayHello = function () {
-  console.log("hello world");
-}
-
+// error
 instance1.sayHello();
