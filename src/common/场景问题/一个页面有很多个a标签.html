@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang='en'>
+  <head>
+    <meta charset='UTF-8'>
+    <title>Title</title>
+  </head>
+  <body>
+    <script>
+      function foo(e) {
+        console.log(e)
+        window.open('http://baidu.com/')
+      }
+    </script>
+    一个页面有很多个a标签，它们都有url，但有些a标签点了不会跳转，
+    有些点了会打开一个新的tab标签窗口怎样做可以让所有的a标签都能打开新窗口
+    <a href='http://baidu.com/' target='_blank'>
+      baidu
+    </a>
+    <a href='http://baidu.com/' target='_blank' onclick='foo(event)'>
+      baidu
+    </a>
+    <a href='http://baidu.com/' id='aaa'>
+      baidu
+    </a>
+  </body>
+  <script>
+    window.addEventListener('click', (e) => {
+      console.log(e)
+      console.log(e.target)
+      e.preventDefault()
+      e.stopPropagation()
+    }, true)
+
+    document.getElementById('aaa').addEventListener('click', (e) => {
+      console.log('bbbb')
+    })
+
+
+    document.getElementById('aaa').addEventListener('click', (e) => {
+      e.stopPropagation()
+      e.preventDefault()
+      console.log('hahah')
+    })
+  </script>
+</html>
