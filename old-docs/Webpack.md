@@ -287,8 +287,6 @@ if (__IS_PRODUCTION__) {
 
 ![](http://cdn.yuzzl.top/blog/20201031153352.png)
 
-
-
 #### 配置
 
 ```javascript
@@ -410,7 +408,8 @@ module.exports = {
 使用`optimization.splitChunks`配置项，我们可以抽取公共代码：
 
 ```javascript
-optimization: {
+module.exports = {
+  optimization: {
     splitChunks: {
       chunks: "async",
       minSize: 30000,
@@ -428,6 +427,7 @@ optimization: {
       }
     }
   }
+}
 ```
 
 这表示创建一个`vendors`块，其中包括`node_modules`中的所有代码。
@@ -511,7 +511,7 @@ Webpack 的运行流程是一个**串行**的过程，从启动到结束会依�
 
 ### 代码级别的压缩
 
-这个前面的前端基础篇已经说过了，删除多余的代码、注释、简化代码的写法等等方式。可以利用webpack的`UglifyJsPlugin`和`ParallelUglifyPlugin`来压缩JS文件，  利用`cssnano`来压缩css。
+这个前面的前端基础篇已经说过了，删除多余的代码、注释、简化代码的写法等等方式。可以利用webpack的`UglifyJsPlugin`和`ParallelUglifyPlugin`来压缩JS文件， 利用`cssnano`来压缩css。
 
 ### CDN加速
 
@@ -535,7 +535,8 @@ TODO
 
 ## SourceMap
 
-如果我们将代码发布到生产环境，这些代码必然经历过混淆和压缩，但是如果在生产环境下出现报错，我们根据浏览器的提示消息是无法找到错误来源的，我们期望有这样一个关系 -- 被混淆的代码的某行可以对应到开发环境的代码上，于是我们就需要**SourceMap**。
+如果我们将代码发布到生产环境，这些代码必然经历过混淆和压缩，但是如果在生产环境下出现报错，我们根据浏览器的提示消息是无法找到错误来源的，我们期望有这样一个关系 -- 被混淆的代码的某行可以对应到开发环境的代码上，于是我们就需要**
+SourceMap**。
 
 ### 实践
 
@@ -566,7 +567,10 @@ console.log("hello");
 #### bundle.js
 
 ```javascript
-(()=>{let l="hello!!!!";console.log(l),console.log(l),console.log("hello")})();
+(() => {
+  let l = "hello!!!!";
+  console.log(l), console.log(l), console.log("hello")
+})();
 //# sourceMappingURL=bundle.js.map
 ```
 
@@ -577,24 +581,29 @@ console.log("hello");
 来看Map文件，下面以注释的形式给出解释。
 
 ```javascript
-{
-  "version": 3, // SourceMap的版本，目前为3
-  "sources": [ // 转换前的文件，该项是一个数组，表示可能存在多个文件合并
-    "webpack://source-map/./src/index.js" 
+const a = {
+  "version": 3,
+  // SourceMap的版本，目前为3
+  "sources": [
+    // 转换前的文件，该项是一个数组，表示可能存在多个文件合并
+    "webpack://source-map/./src/index.js"
   ],
-  "names": [  // 转换前的文件，该项是一个数组，表示可能存在多个文件合并
+  "names": [
+    // 转换前的文件，该项是一个数组，表示可能存在多个文件合并
     "helloworld",
     "console",
     "log"
   ],
   "mappings": "MAAA,IAAIA,EAAa,YACjBC,QAAQC,IAAIF,GACZC,QAAQC,IAAIF,GACZC,QAAQC,IAAI,U",
   //记录位置信息的字符串
-  "file": "bundle.js", //转换后的文件名
+  "file": "bundle.js",
+  //转换后的文件名
   "sourcesContent": [
     "let helloworld = \"hello!!!!\"\r\nconsole.log(helloworld);\r\nconsole.log(helloworld);\r\nconsole.log(\"hello\");\r\n"
-  //转换前的文件内容列表，与sources列表依次对应
+    //转换前的文件内容列表，与sources列表依次对应
   ],
-  "sourceRoot": "" //转换前的文件所在的目录。如果与转换前的文件在同一目录，该项为空
+  "sourceRoot": ""
+  //转换前的文件所在的目录。如果与转换前的文件在同一目录，该项为空
 }
 ```
 
@@ -605,11 +614,11 @@ Mapping属性有以下含义：
 - 以分号（;）标识编译后代码的每一行
 - 以逗号（,）标识编译后代码该行中的每一个映射位置
 - 以5组VLQ编码字段标识源码和编译后代码的具体映射信息，其中：
-  - 第一位，表示这个位置在（转换后的代码的）的第几列。
-  - 第二位，表示这个位置属于sources属性中的哪一个文件。
-  - 第三位，表示这个位置属于转换前代码的第几行。
-  - 第四位，表示这个位置属于转换前代码的第几列。
-  - 第五位，表示这个位置属于names属性中的哪一个变量。
+    - 第一位，表示这个位置在（转换后的代码的）的第几列。
+    - 第二位，表示这个位置属于sources属性中的哪一个文件。
+    - 第三位，表示这个位置属于转换前代码的第几行。
+    - 第四位，表示这个位置属于转换前代码的第几列。
+    - 第五位，表示这个位置属于names属性中的哪一个变量。
 
 例如，上面的MAAA表示**转换后代码的第6列**，**sources属性的第一个文件**，**转换前代码第一行**，**转换前代码的第一列**，代表`let`。
 
@@ -682,8 +691,7 @@ exports.encode = function base64VLQ_encode(aValue) {
 计算的过程如下，我们以16作为例子：
 
 - 调用`toVLQSigned`，向最右边补充符号位，16为正数，补充0
-- 从右边的最低位开始，将整个数每隔5位，进行分段。即向右移位，第一次为`100000 >>> 5 `，为**1**，第二次为`000001 >>> 5`，为**0** 
+- 从右边的最低位开始，将整个数每隔5位，进行分段。即向右移位，第一次为`100000 >>> 5 `，为**1**，第二次为`000001 >>> 5`，为**0**
 - 将两段的顺序倒过来，即**00000**和**00001**
 - 在每一段的最前面添加一个"连续位"，除了最后一段为0，其他都为1，即变成**100000**和**000001**。
 - 最终将每一段base64编码。
-
