@@ -309,7 +309,7 @@ function createSetter(shallow = false) {
 ### 使用 Proxy 实现数组的负索引
 
 ```javascript
-/*
+/**
  * File: proxy-negative-array.js
  * Description: 利用 Proxy 实现负索引
  * Created: 2021-3-25 16:34:05
@@ -338,6 +338,7 @@ console.log(foo[-4])  // undefineds
 ## Iterator 和 Generator
 
 下图很好地说明了两者之间的关系。
+
 
 <a data-fancybox title="" href="http://cdn.yuzzl.top/blog/relationships.png">![](http://cdn.yuzzl.top/blog/relationships.png)</a>
 
@@ -437,6 +438,8 @@ it1.value.then(res => {
 看看效果：
 
 <a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201211000706.png">![](http://cdn.yuzzl.top/blog/20201211000706.png)</a>
+
+
 
 `function* bar()` 中的内容算是比较优雅了（看着更像同步操作），但是依然有很大的问题：
 
