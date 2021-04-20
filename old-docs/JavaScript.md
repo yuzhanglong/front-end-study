@@ -505,7 +505,7 @@ function cloneSymbol(target) {
 // 正则
 function cloneReg(target) {
   const reFlags = /\w*$/;
-  const result = new targe.constructor(target.source, reFlags.exec(target));
+  const result = new target.constructor(target.source, reFlags.exec(target));
   result.lastIndex = target.lastIndex;
   return result;
 }
