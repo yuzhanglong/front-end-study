@@ -8,7 +8,7 @@ tags:
 
 ---
 
-# 前端计算机网络必知必会 -- 应用层
+# 前端计算机网络基础
 
 [[toc]]
 
@@ -16,7 +16,8 @@ tags:
 
 ### 概念
 
-DNS 解析其实就是用你的域名来定位真正的 IP 地址，就像拜访朋友要先知道别人家怎么走一样，Internet 上当一台主机要访问另外一台主机时，必须首先获知其地址，TCP/IP 中的 IP 地址是由四段以“.”分开的数字组成，记起来总是不如名字那么方便，所以，就采用了**DNS**来管理名字和 IP 的对应关系。
+DNS 解析其实就是用你的域名来定位真正的 IP 地址，就像拜访朋友要先知道别人家怎么走一样，Internet 上当一台主机要访问另外一台主机时，必须首先获知其地址，TCP/IP 中的 IP
+地址是由四段以“.”分开的数字组成，记起来总是不如名字那么方便，所以，就采用了**DNS**来管理名字和 IP 的对应关系。
 
 ### 流程
 
@@ -26,7 +27,8 @@ DNS 解析本质上是一个**迭代查询**和**递归查询**的过程，假�
 
 ### DNS 缓存
 
-当某 DNS 服务器接收到一个应答之后，它会将这个内容缓存到服务器上。还是上面的图，假如另一台电脑使用同样的本地 DNS 服务器访问`docs.yuzzl.top`，那么本地 DNS 服务器查询缓存，然后直接返回`docs.yuzzl.top`的 IP 地址（如果没有过期的话）。
+当某 DNS 服务器接收到一个应答之后，它会将这个内容缓存到服务器上。还是上面的图，假如另一台电脑使用同样的本地 DNS 服务器访问`docs.yuzzl.top`，那么本地 DNS
+服务器查询缓存，然后直接返回`docs.yuzzl.top`的 IP 地址（如果没有过期的话）。
 
 ## CDN
 
@@ -59,7 +61,8 @@ CDN 的全称是 Content Delivery Network，即**内容分发网络**。
 
 **实时测量**
 
-**地理上最为临近**的方案对于众多用户来说表现得很好，但是对于部分用户，不一定起到最好效果。因为**地理最邻近的集群可能并不是沿着网络路径最近的集群**。另外，还有可能用户的本地 DNS 的地理位置距离客户的位置比较大，导致我们地理位置的判断失去意义。
+**地理上最为临近**的方案对于众多用户来说表现得很好，但是对于部分用户，不一定起到最好效果。因为**地理最邻近的集群可能并不是沿着网络路径最近的集群**。另外，还有可能用户的本地 DNS
+的地理位置距离客户的位置比较大，导致我们地理位置的判断失去意义。
 
 CDN 可以通过对其集群和客户之间的时延和丢包性能执行周期性的实时测量。
 
@@ -119,7 +122,8 @@ foo.example.com.        A      192.0.2.23
 
 ### 介绍
 
-Web Socket 的目标是通过一个长时连接实现与服务器全双工、双向的通信，一般的 HTTP 协议只能通过客户端主动向服务端发起请求，而 webSocket 可以主动向客户端发送信息。只要**通过一次握手**，就可以实现双向推送。它和 HTTP Server 共享同一 port。
+Web Socket 的目标是通过一个长时连接实现与服务器全双工、双向的通信，一般的 HTTP 协议只能通过客户端主动向服务端发起请求，而 WebSocket 可以主动向客户端发送信息。只要**通过一次握手**，就可以实现双向推送。它和
+HTTP Server 共享同一 port。
 
 ### 和 HTTP 协议的区别
 
@@ -127,13 +131,14 @@ Web Socket 的目标是通过一个长时连接实现与服务器全双工、双
 
 - The WebSocket Protocol is an independent **TCP-based** protocol.
 - Its **only relationship** to HTTP is that its **handshake is interpreted by HTTP servers** as an Upgrade request.
-- By default, the WebSocket Protocol uses **port 80** for regular WebSocket connections and **port 443** for WebSocket connections tunneled over Transport Layer Security (TLS) *[RFC2818]*.
+- By default, the WebSocket Protocol uses **port 80** for regular WebSocket connections and **port 443** for WebSocket
+  connections tunneled over Transport Layer Security (TLS) *[RFC2818]*.
 
-> websocket 协议是独立于基于 TCP 的协议的。
+> WebSocket 协议是一个独立的基于 TCP 的协议。
 >
 > 它和 HTTP 协议的唯一关系是它的握手流程是通过 HTTP 协议来实现的。
 >
-> 在默认情况下，websocket 协议使用 80 端口（常规模式）或者 443 端口（安全传输模式下）
+> 在默认情况下，WebSocket 协议使用 80 端口（常规模式）或者 443 端口（安全传输模式下）
 
 ### 实现细节
 
@@ -143,15 +148,16 @@ Web Socket 的目标是通过一个长时连接实现与服务器全双工、双
 
 ```http
 GET wss://xxxxx.com/ HTTP/1.1
-Upgrade: websocket
+Upgrade: WebSocket
 Sec-WebSocket-Key: CENNKlxp+sYCvqt3pK2T1A==
 ```
 
-请求头中有一个 `Upgrade` 字段，内容为 `websocket`, 用于改变 HTTP 协议版本或换用其他协议，这里显然是换用了 Websocket 协议。
+请求头中有一个 `Upgrade` 字段，内容为 `WebSocket`, 用于改变 HTTP 协议版本或换用其他协议，这里显然是换用了 WebSocket 协议。
 
 还有一个最重要的字段 `Sec-WebSocket-Key`，这是一个随机的经过 `base64` 编码的字符串，像密钥一样用于服务器和客户端的握手过程。
 
-服务器接收到来自客户端的`upgrade`请求，便会将请求头中的`Sec-WebSocket-Key`字段提取出来，追加一个固定的“魔串”：`258EAFA5-E914-47DA-95CA-C5AB0DC85B11`，并进行`SHA-1`加密，然后再次经过`base64`编码生成一个新的 key，作为响应头中的`Sec-WebSocket-Accept`字段的内容返回给浏览器。
+服务器接收到来自客户端的`upgrade`请求，便会将请求头中的`Sec-WebSocket-Key`字段提取出来，追加一个固定的“魔串”：`258EAFA5-E914-47DA-95CA-C5AB0DC85B11`，并进行`SHA-1`
+加密，然后再次经过`base64`编码生成一个新的 key，作为响应头中的`Sec-WebSocket-Accept`字段的内容返回给浏览器。
 
 一旦浏览器接收到来自服务器的响应，便会解析响应中的`Sec-WebSocket-Accept`字段，与自己加密编码后的串进行匹配，一旦匹配成功，便有建立连接的可能了。
 
@@ -159,38 +165,38 @@ Sec-WebSocket-Key: CENNKlxp+sYCvqt3pK2T1A==
 
 ```http request
 HTTP/1.1 101 Switching Protocols
-Upgrade: websocket
+Upgrade: WebSocket
 Sec-WebSocket-Version: 13
 Connection: Upgrade
 Sec-WebSocket-Accept: 7d3Wyy9mojKdk/q0gH2A/xvwNV8=
 ```
 
-### 实践：webSocket API
+### 实践：WebSocket API
 
-主流浏览器支持 `websocket`：
+主流浏览器支持 `WebSocket`：
 
 ```html
 <!DOCTYPE html>
 <html lang='en'>
-  <head>
-    <meta charset='UTF-8'>
-    <title>Title</title>
-  </head>
-  <body>
-    <script>
-      const SOCKET_URL = "wss://socket.idcd.com:1443";
-      const webSocket = () => {
-        // 浏览器会在初始化 WebSocket 对象之后立即创建连接
-        let socket = new WebSocket(SOCKET_URL);
+<head>
+  <meta charset='UTF-8'>
+  <title>Title</title>
+</head>
+<body>
+<script>
+  const SOCKET_URL = "wss://socket.idcd.com:1443";
+  const WebSocket = () => {
+    // 浏览器会在初始化 WebSocket 对象之后立即创建连接
+    let socket = new WebSocket(SOCKET_URL);
 
-        // socket 连接成功 发送信息
-        socket.onopen = () => {
-          socket.send("hello world");
-        }
-      }
-      webSocket();
-    </script>
-  </body>
+    // socket 连接成功 发送信息
+    socket.onopen = () => {
+      socket.send("hello world");
+    }
+  }
+  WebSocket();
+</script>
+</body>
 </html>
 ```
 
@@ -201,9 +207,10 @@ Sec-WebSocket-Accept: 7d3Wyy9mojKdk/q0gH2A/xvwNV8=
 来看一下发起连接的报文：
 
 - 状态码为**101**。101 表示等待，服务器收到请求，需要**请求者继续执行操作**。经过这样的请求- 响应处理后，两端的 WebSocket 连接握手成功, 后续就可以进行 TCP 通讯了。
-- **Sec-WebSocket-Version** 表示 websocket 的版本。如果服务端不支持该版本，需要返回一个 Sec-WebSocket-Versionheader，里面包含服务端支持的版本号。
-- **Sec-WebSocket-Key** 对应服务端响应头的 Sec-WebSocket-Accept，由于没有同源限制，websocket 客户端可任意连接支持 websocket 的服务。这个就相当于一个钥匙一把锁，避免多余的，无意义的连接。
-- **Sec-WebSocket-Accept**: 用来告知服务器愿意发起一个 websocket 连接， 值根据客户端请求头的 Sec-WebSocket-Key 计算出来。
+- **Sec-WebSocket-Version** 表示 WebSocket 的版本。如果服务端不支持该版本，需要返回一个 Sec-WebSocket-Versionheader，里面包含服务端支持的版本号。
+- **Sec-WebSocket-Key** 对应服务端响应头的 Sec-WebSocket-Accept，由于没有同源限制，WebSocket 客户端可任意连接支持 WebSocket
+  的服务。这个就相当于一个钥匙一把锁，便于连接的区分。
+- **Sec-WebSocket-Accept**: 用来告知服务器愿意发起一个 WebSocket 连接， 值根据客户端请求头的 Sec-WebSocket-Key 计算出来。
 
 尝试发送一条消息：
 
@@ -213,7 +220,7 @@ socket.send("hello world");
 
 ![](http://cdn.yuzzl.top/blog/20201101224312.png)
 
-### 实践：基于 websocket 实现二维码登录
+### 实践：基于 WebSocket 实现二维码登录
 
 :::tip
 
@@ -234,7 +241,8 @@ HTTP 的 OPTIONS 方法用于获取目的资源所支持的通信选项，其用
 
 - CORS 中的预检请求
 
-CORS 通过一种叫**预检请求**（preflighted request）的服务器验证机制，允许使用自定义头部、除 GET 、POST、HEAD（这三个也被称为**简单请求**） 之外的方法，以及不同请求体内容类型。在要发送涉及上述某种高级选项的请求时，会先向服务器发送一个“预检”请求。这个请求使用 OPTIONS 方法发送并包含以下头部：
+CORS 通过一种叫**预检请求**（preflighted request）的服务器验证机制，允许使用自定义头部、除 GET 、POST、HEAD（这三个也被称为**简单请求**）
+之外的方法，以及不同请求体内容类型。在要发送涉及上述某种高级选项的请求时，会先向服务器发送一个“预检”请求。这个请求使用 OPTIONS 方法发送并包含以下头部：
 
 - **Origin**：与简单请求相同
 
@@ -290,16 +298,18 @@ HTTP 状态码由三个十进制数字组成，第一个十进制数字定义了
 | HTTP 状态码 | 英文名称      | 中文描述                                                     |
 | :--------- |------------------------ | :----------------------------------------------------------- |
 | 100 | Continue | 客户端征询服务器状况，如果服务器同意可以返回 100，同时客户端可以继续请求。常见的案例是在上传大文件的情况下，客户端先上传请求头部，交给服务端校验权限、文件名称合法性，如果符合，返回 100，客户端再传输剩下的数据。否则返回 400 之类的错误，直接终止服务 |
-| 200        | OK          | 请求成功                                                     |
-| 304        | Not Modified          | 所请求的资源未修改，和缓存机制有关 |
+| 101 | Switching Protocol | 服务器应客户端升级协议的请求对协议进行切换，例如上面提到的 WebSocket |
+| 200        | OK          | 请求成功                       |
+| 301 | Permanently Moved | 该资源已经永久性转移 |
+| 302 | Temporarily Moved | 该资源暂时性转移 |
+| 304 | Not Modified      | 所请求的资源未修改，和缓存机制有关 |
 | 400 | Bad Request | 客户端请求的语法错误，服务器无法理解 |
 | 401 | Unauthorized      | 请求要求用户的身份认证                   |
 | 403 | Forbidden | 服务器理解请求客户端的请求，但是拒绝执行此请求 |
 | 404 | Not Found | 服务器无法根据客户端的请求找到资源 |
 | 405 | Method Not Allowed | 客户端请求中的方法被禁止 |
-| 500 | Internal Server Error | 服务器内部错误，无法完成请求                                 |
+| 500 | Internal Server Error | 服务器内部错误，无法完成请求      |
 | 501 | Not Implemented | 此请求方法不被服务器支持且无法被处理。       |
-| 502 | Bad Gateway | 作为网关或者代理工作的服务器尝试执行请求时，从远程服务器接收到了一个无效的响应 |
 
 ### 缓存
 
@@ -309,6 +319,8 @@ HTTP 状态码由三个十进制数字组成，第一个十进制数字定义了
 :::
 
 ## HTTPS
+
+在讲 HTTPS 之前，首先提几个概念：
 
 ### 对称加密
 
@@ -356,6 +368,16 @@ HTTP 状态码由三个十进制数字组成，第一个十进制数字定义了
 
 不难看出，公钥的合法性是个问题，如何验证公钥的合法性？我们需要使用证书。
 
+### 签名
+
+签名就是在信息的后面再加上一段内容，可以证明信息没有被修改过，怎么样可以达到这个效果呢？
+
+一般是对信息做一个 hash 计算得到一个 hash 值，注意，这个过程是不可逆的，也就是说无法通过 hash 值得出原来的信息内容。
+
+在把信息发送出去时，把这个 hash 值加密后做为一个签名和信息一起发出去。 
+
+接收方在收到信息后，会重新计算信息的 hash 值，并和信息所附带的 hash 值(解密后)进行对比，如果一致，就说明信息的内容没有被修改过，因为这里 hash 计算可以保证不同的内容一定会得到不同的 hash 值，所以只要内容一被修改，根据信息内容计算的 hash 值就会变化。
+
 ### 证书
 
 - 对于请求方来说，它怎么能确定它所得到的公钥一定是从目标主机那里发布的，而且没有被篡改过呢？亦或者请求的目标主机本本身就从事窃取用户信息的不正当行为呢？
@@ -380,9 +402,8 @@ HTTP 状态码由三个十进制数字组成，第一个十进制数字定义了
 
 - 对于篡改的证书，使用 CA 的公钥对数字签名进行解密得到摘要 A,然后再根据签名的 Hash 算法计算出证书的摘要 B，对比 A 与 B，若相等则正常，若不相等则是被篡改过的。
 
-- 证书可在其过期前被吊销。较新的浏览器如 Chrome、Firefox、Opera 和 Internet Explorer 都实现了在线证书状态协议（OCSP）以排除这种情形：浏览器将网站提供的证书的序列号通过 OCSP 发送给证书颁发机构，后者会告诉浏览器证书是否还是有效的。
-
-## HTTPS
+- 证书可在其过期前被吊销。较新的浏览器如 Chrome、Firefox、Opera 和 Internet Explorer 都实现了在线证书状态协议（OCSP）以排除这种情形：浏览器将网站提供的证书的序列号通过 OCSP
+  发送给证书颁发机构，后者会告诉浏览器证书是否还是有效的。
 
 ### 通信流程
 
@@ -507,15 +528,18 @@ TCP 连接是通过主机 A 和主机 B 之间的三次握手建立的。下面�
 
 ![](http://cdn.yuzzl.top/blog/20201105184801.png)
 
-- 第一次握手：主机 A 向主机 B 发送一个报文，表示 A 处的 TCP 层希望和 B 的 TCP 层建立连接。这个报文也被称为**SYN 消息**（synchronize，同步的简写）。另外 A 会随机选择一个初始序号（`seq=client_isn`）一起交给 B。
+- 第一次握手：主机 A 向主机 B 发送一个报文，表示 A 处的 TCP 层希望和 B 的 TCP 层建立连接。这个报文也被称为**SYN 消息**（synchronize，同步的简写）。另外 A
+  会随机选择一个初始序号（`seq=client_isn`）一起交给 B。
 
 ![](http://cdn.yuzzl.top/blog/20201105191649.png)
 
-- 第二次握手：B 收到数据包后由标志位`SYN=1`知道 A 请求建立连接，B 将**标志位** `SYN` 和 `ACK` 都置为 1，`ack = client_isn + 1`, 随机产生一个值 `seq = server_isn`。
+- 第二次握手：B 收到数据包后由标志位`SYN=1`知道 A 请求建立连接，B 将**标志位** `SYN` 和 `ACK` 都置为 1，`ack = client_isn + 1`, 随机产生一个值 `seq = server_isn`
+  。
 
 ![](http://cdn.yuzzl.top/blog/20201105191818.png)
 
-- 第三次握手：A 收到确认后，检查 ack 是否为`client_isn + 1`，ACK 是否为 1，如果正确则将标志位 ACK 置为 1，`ack = server_isn + 1`，并将该数据包发送给 B，B 检查 ack 是否为`server_isn + 1`，ACK 是否为 1，如果正确则连接建立成功，完成三次握手，随后 Client 与 Server 之间可以开始传输数据了。
+- 第三次握手：A 收到确认后，检查 ack 是否为`client_isn + 1`，ACK 是否为 1，如果正确则将标志位 ACK 置为 1，`ack = server_isn + 1`，并将该数据包发送给 B，B 检查 ack
+  是否为`server_isn + 1`，ACK 是否为 1，如果正确则连接建立成功，完成三次握手，随后 Client 与 Server 之间可以开始传输数据了。
 
 ![](http://cdn.yuzzl.top/blog/20201105191908.png)
 
@@ -556,7 +580,8 @@ TCP 连接是通过主机 A 和主机 B 之间的三次握手建立的。下面�
 
 ![](http://cdn.yuzzl.top/blog/20201105193406.png)
 
-- 第四次挥手，客户端收到服务端发送的 FIN 报文段后，向服务端发送 ACK 报文段, 然后客户端进入 TIME_WAIT 状态。服务端收到客户端的 ACK 报文段以后，就关闭连接。此时，客户端等待 2MSL（指一个片段在网络中最大的存活时间）后依然没有收到回复，则说明服务端已经正常关闭，这样客户端就可以关闭连接了。
+- 第四次挥手，客户端收到服务端发送的 FIN 报文段后，向服务端发送 ACK 报文段, 然后客户端进入 TIME_WAIT 状态。服务端收到客户端的 ACK 报文段以后，就关闭连接。此时，客户端等待
+  2MSL（指一个片段在网络中最大的存活时间）后依然没有收到回复，则说明服务端已经正常关闭，这样客户端就可以关闭连接了。
 
 ![](http://cdn.yuzzl.top/blog/20201105193510.png)
 
@@ -564,9 +589,9 @@ TCP 连接是通过主机 A 和主机 B 之间的三次握手建立的。下面�
 
 第一次挥手，表示主动方不会再发送数据报文，但是主动方还是可以接收的。
 
-第二次挥手被动还有可能有数据报文需要发送，所以需要先发送 ACK 报文，告诉主动方“我知道你想断开连接的请求了”。这样主动方便不会因为没有收到应答而继续发送断开连接的请求（即 FIN 报文）。
+第二次挥手被动还有可能有数据报文需要发送，所以需要先发送 ACK 报文，告诉主动方“我知道你想断开连接的请求了”。这样主动便不会因为没有收到应答而继续发送断开连接的请求（即 FIN 报文）。
 
-所以关键问题在于有可能**被动方接收到断开连接的请求时，手里还有活儿没做完**。
+所以关键问题在于有可能**被动方接收到断开连接的请求时，手里还有活没做完**。
 
 ### TCP 报文首部格式
 
@@ -576,7 +601,8 @@ TCP 连接是通过主机 A 和主机 B 之间的三次握手建立的。下面�
 
 **序号** 占 4 个字节；用于对字节流进行编号，例如序号为 301，表示第一个字节的编号为 301，如果携带的数据长度为 100 字节，那么下一个报文段的序号应为 401。
 
-**确认号** 占 4 个字节；期望收到的下一个报文段的序号。例如 B 正确收到 A 发送来的一个报文段，序号为 501，携带的数据长度为 200 字节，因此 B 期望下一个报文段的序号为 701，B 发送给 A 的确认报文段中确认号就为 701。
+**确认号** 占 4 个字节；期望收到的下一个报文段的序号。例如 B 正确收到 A 发送来的一个报文段，序号为 501，携带的数据长度为 200 字节，因此 B 期望下一个报文段的序号为 701，B 发送给 A 的确认报文段中确认号就为
+701。
 
 **数据偏移**占 4 位；指的是数据部分距离报文段起始处的偏移量，实际上指的是**首部的长度**。
 
@@ -587,5 +613,3 @@ TCP 连接是通过主机 A 和主机 B 之间的三次握手建立的。下面�
 **终止 FIN** 用来释放一个连接，当 `FIN=1` 时，表示此报文段的发送方的数据已发送完毕，并要求释放连接。
 **窗口** 占 2 字节；窗口值作为接收方让发送方设置其发送窗口的依据。之所以要有这个限制，是因为接收方的数据缓存空间是有限的。
 **检验和** 占 2 个字节；检验和字段检验的范围包括首部和数据这两个部分。在计算检验和时，在 TCP 报文段的前面加上 12 字节的伪首部。
-
-

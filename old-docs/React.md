@@ -295,10 +295,6 @@ export default Home;
 我们可以使用`UseContext`钩子来处理：
 ![](http://cdn.yuzzl.top/blog/20201109211250.png)
 
-#### React-redux源码浅析
-
-TODO
-
 ### Redux中间件
 
 redux有一个中间件的概念，这个中间件的目的是在`dispatch`/`action`和最终到达的`reducer`之间扩展自己的代码，例如日志记录、网络请求。
@@ -438,8 +434,7 @@ return a(b.apply(void 0, arguments));
 我们令最里面那个红框为`f(action)`, 则最终返回的函数为：
 
 ```javascript
-F(action) = f(f(action))
-)
+F(action) = f(f(action)))
 ```
 
 这个函数会覆盖原来的`dispatch`暴露给用户，以后用户一旦调用`dispatch(action)`即`F(action)`, 就会链式地调用每一个`f(action)`，我们拿`redux-thunk`源码再次体会一下：
@@ -907,44 +902,3 @@ setTimeout(() => {
 ```
 
 - 将代码放入原生的事件监听中。
-
-### 源码浅析
-
-TODO
-
-## React性能优化
-
-### diff算法
-
-react通过render函数，产生新的DOM树，这个DOM树如果直接更新，会出现性能问题，所以我们要考虑减少大量的更新。
-
-#### 算法简述
-
-React的diff算法复杂度为**O(n)**，整体方案如下：
-
-- 同层节点比较，不会跨节点比较
-- 不同类型的节点产生不同的树结构
-- 使用key来指定节点保持稳定。
-
-#### 几个情形
-
-##### 不同类型的节点产生不同的树结构
-
-来看下面的代码：
-
-![](http://cdn.yuzzl.top//blog/20201118203816.png)
-
-这里如果t发生改变，MyCpn会被**销毁**，不会进行复用。
-
-##### 同类型元素对比
-
-##### 子节点递归
-
-React会同时遍历两个子节点的列表，有差异时会生成一个**mutation**，我们只要把这个**mutation**插入DOM即可。
-
-但是这种情况太理想了！如果是下面这种情况，那么就会带来不必要的渲染了（创建了3个mutation）！
-
-> 注意：
-> - key必须唯一
-> - key不要用随机数 -- 在下一次重新渲染的时候，会重新生成
-> - 使用index作为key毫无意义
