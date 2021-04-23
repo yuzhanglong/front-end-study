@@ -1,14 +1,14 @@
-# Webpack
+---
+date: 2021-4-23
 
-参考：
+tags:
 
-https://github.com/ruanyf/webpack-demos
+- 源码解读
+- Webpack
 
-https://www.webpackjs.com/contribute/writing-a-loader
+---
 
-https://zhuanlan.zhihu.com/p/44438844
-
-https://juejin.im/post/6844903544756109319
+# Webpack 基础
 
 ## 经典配置案例
 
@@ -281,7 +281,7 @@ if (__IS_PRODUCTION__) {
 }
 ```
 
-`__IS_PRODUCTION__`就是我们注入的环境变量，具体方式请看下面的webpack配置。
+`__IS_PRODUCTION__` 就是我们注入的环境变量，具体方式请看下面的webpack配置。
 
 #### 目录结构
 
@@ -317,7 +317,7 @@ module.exports = {
 }
 ```
 
-### 模块懒加载（Lazyload）
+### 模块懒加载（LazyLoad）
 
 #### 介绍
 
@@ -486,22 +486,6 @@ module.exports = {
   }
 }
 ```
-
-### 探索Create React App
-
-TODO
-
-## Webpack构建流程
-
-Webpack 的运行流程是一个**串行**的过程，从启动到结束会依次执行以下流程：
-
-1. **初始化参数**：从配置文件和 Shell 语句中读取与合并参数，得出最终的参数。
-2. **开始编译**：用上一步得到的参数初始化 Compiler 对象，加载所有配置的插件，执行对象的 run 方法开始执行编译。
-3. **确定入口**：根据配置中的 entry 找出所有的入口文件。
-4. **编译模块**：从入口文件出发，调用所有配置的 Loader 对模块进行翻译，再找出该模块依赖的模块，再递归本步骤直到所有入口依赖的文件都经过了本步骤的处理。
-5. **完成模块编译**：在经过第4步使用 Loader 翻译完所有模块后，得到了每个模块被翻译后的最终内容以及它们之间的依赖关系。
-6. **输出资源**：根据入口和模块之间的依赖关系，组装成一个个包含多个模块的 Chunk，再把每个 Chunk 转换成一个单独的文件加入到输出列表，这步是可以修改输出内容的最后机会。
-7. **输出完成**：在确定好输出内容后，根据配置确定输出的路径和文件名，把文件内容写入到文件系统。
 
 ## Webpack如何提高前端性能
 
@@ -695,3 +679,13 @@ exports.encode = function base64VLQ_encode(aValue) {
 - 将两段的顺序倒过来，即**00000**和**00001**
 - 在每一段的最前面添加一个"连续位"，除了最后一段为0，其他都为1，即变成**100000**和**000001**。
 - 最终将每一段base64编码。
+
+参考：
+
+https://github.com/ruanyf/webpack-demos
+
+https://www.webpackjs.com/contribute/writing-a-loader
+
+https://zhuanlan.zhihu.com/p/44438844
+
+https://juejin.im/post/6844903544756109319
