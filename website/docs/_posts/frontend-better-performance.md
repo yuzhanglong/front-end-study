@@ -71,6 +71,12 @@ Cache-Control 中的 `max-age=x` 和 `Expires` 的值有所区别 --- 一个是�
 
 和 `Last-Modified` 匹配的请求头，客户端会发送上一次的 `Last-Modified`，服务端通过判断时间来决定是否返回 304。
 
+:::tip Etag 的生成方式
+
+etag 由**响应头**的 `Last-Modified` 与 `Content-Length` 表示为十六进制组合而成
+:::
+
+
 ### 实践 -- 强制缓存和协商缓存
 
 **Last-Modified + If-Modified-Since**
@@ -82,10 +88,9 @@ Cache-Control 中的 `max-age=x` 和 `Expires` 的值有所区别 --- 一个是�
 
 **ETag + If-None-Match**
 
-下面的代码利用 **ETag + If-None-Match** 实现缓存，服务端将文件计算 hash 值放入 Etag 返回，下次用户再次访问时 If-None-Match 会携带这个 ETag，服务端将新的文件计算
-hash，然后对比来判断是否 304。
+下面的代码利用 **ETag + If-None-Match** 实现缓存，服务端计算 Etag 返回，下次用户再次访问时 If-None-Match 会携带这个 ETag，服务端计算新的 etag，然后对比来判断是否 304。
 
-<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201120200552.png">![](http://cdn.yuzzl.top/blog/20201120200552.png)</a>
+![tag](http://cdn.yuzzl.top/blog/20201120200552.png)
 
 ## 优化资源的编码/大小
 
