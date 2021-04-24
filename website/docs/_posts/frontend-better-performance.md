@@ -25,7 +25,7 @@ tags:
 
 一图以蔽之：
 
-<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201221142823.png">![](http://cdn.yuzzl.top/blog/20201221142823.png)</a>
+![](http://cdn.yuzzl.top/blog/20201221142823.png)
 
 ### 强制缓存
 
@@ -264,7 +264,7 @@ server{
 另外：
 
 - `defer` 是有序的，在拥有多个 defer 标签时，它会自上而下按顺序执行。 标记为 `async` 的脚本并不保证能按照它们出现的次序执行。
-- `defer` 的**加载**会在 `DOMContentLoaded` 事件之前执行。 `async` 会在页面的 `load` 事件前执行。
+- `defer` 的**加载**会在 `DOMContentLoaded` 事件之前执行(其实也可以说是 `load` 事件之前执行)。 `async` 会在页面的 `load` 事件前执行。
 
 ## 面向浏览器的优化
 
@@ -323,7 +323,7 @@ p::before {
 
 下面总结一下全过程：
 
-<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201031201457.png">![](http://cdn.yuzzl.top/blog/20201031201457.png)</a>
+![](http://cdn.yuzzl.top/blog/20201031201457.png)
 
 网页载入时，上述过程（至少）会执行一次，但是某些操作会导致网页重新渲染，即重新生成布局和重新绘制。前者叫做"重排"（`reflow`），后者叫做"重绘"（`repaint`）。
 
@@ -336,7 +336,7 @@ p::before {
 浏览器对一些 DOM 操作行为做了一些优化，可能导致多次重新渲染的操作会被**队列化**，结合到一起：
 
 ```javascript
-// 理论上一次重绘 + 一次重排 -- 重绘，但浏览器只会触发一次重排和重绘
+// 理论上一次[重绘] + 一次[重排 -- 重绘]，但浏览器只会触发一次重排和重绘
 div.style.color = 'blue';
 div.style.marginTop = '30px';
 ```
@@ -348,7 +348,7 @@ offsetTop、offsetLeft、offsetWidth、offsetHeight
 scrollTop、scrollLeft、scrollWidth、scrollHeight
 clientTop、clientLeft、clientWidth、clientHeight
 getComputedStyle()
-getBoundingClientRect
+getBoundingClientRect()
 ```
 
 这些操作会强制队列刷新，如果要利用他们，尽量将值缓存起来。
@@ -521,6 +521,11 @@ window.requestAnimationFrame(step);
 Web Worker 的 API 使用这里不再赘述，[MDN](https://developer.mozilla.org/zh-CN/docs/Web/API/Web_Workers_API/Using_web_workers)
 上讲的非常详细且通俗易懂。
 
+
+#### 使用事件委托
+
+TODO
+
 ## 参考资料
 
 - Paul Lewis，[Rendering Performance](https://developers.google.cn/web/fundamentals/performance/rendering)
@@ -529,5 +534,4 @@ Web Worker 的 API 使用这里不再赘述，[MDN](https://developer.mozilla.or
 
 - MDN，[requestIdleCallback](https://developer.mozilla.org/zh-CN/docs/Web/API/Window/requestIdleCallback)
 
-- Mariko
-  Kosaka，[Inside look at modern web browser](https://developers.google.com/web/updates/2018/09/inside-browser-part1)
+- Mariko Kosaka，[Inside look at modern web browser](https://developers.google.com/web/updates/2018/09/inside-browser-part1)
