@@ -9,7 +9,7 @@ tags:
 
 # 谈谈前端性能优化
 
-之前我写过一篇文章，主要是面向 React 框架的性能优化，实际上，面向浏览器、资源请求也可以作出很多的优化，本文对这些方案作了总结。
+面向浏览器、资源请求、JavaScript 的语句也可以作出很多的优化，本文对这些方案作了总结。
 
 [[toc]]
 
@@ -76,7 +76,6 @@ Cache-Control 中的 `max-age=x` 和 `Expires` 的值有所区别 --- 一个是�
 etag 由**响应头**的 `Last-Modified` 与 `Content-Length` 表示为十六进制组合而成
 :::
 
-
 ### 实践 -- 强制缓存和协商缓存
 
 **Last-Modified + If-Modified-Since**
@@ -105,11 +104,11 @@ etag 由**响应头**的 `Last-Modified` 与 `Content-Length` 表示为十六进
 例如：
 
 ```html
-<img srcset="img1.jpg 320w,
-             img2.jpg 800w"
-     sizes="(max-width: 480px) 440px,
-            800px"
-     src="img.jpg" alt="hello world">
+<img srcset='img1.jpg 320w,
+             img2.jpg 800w'
+     sizes='(max-width: 480px) 440px,
+            800px'
+     src='img.jpg' alt='hello world'>
 ```
 
 `srcset` 表示**图像集**，它的值影响**图片的 url**：以逗号分隔的一个或多个字符串列表表明一系列用户代理使用的可能的图像，每一个字符串如下组成：
@@ -146,28 +145,28 @@ etag 由**响应头**的 `Last-Modified` 与 `Content-Length` 表示为十六进
 
 ```html
 <!-- test-->
-<html lang="">
-  <head>
-    <style>
-      /* awesome-container is only used on the landing page */
-      .awesome-container {
-        font-size: 120%
-      }
+<html lang=''>
+<head>
+  <style>
+    /* awesome-container is only used on the landing page */
+    .awesome-container {
+      font-size: 120%
+    }
 
-      .awesome-container {
-        width: 50%
-      }
-    </style>
-  </head>
+    .awesome-container {
+      width: 50%
+    }
+  </style>
+</head>
 
-  <body>
-    <!-- awesome container content: START -->
-    <div>…</div>
-    <!-- awesome container content: END -->
-    <script>
-      awesomeAnalytics(); // beacon conversion metrics
-    </script>
-  </body>
+<body>
+<!-- awesome container content: START -->
+<div>…</div>
+<!-- awesome container content: END -->
+<script>
+  awesomeAnalytics(); // beacon conversion metrics
+</script>
+</body>
 </html>
 ```
 
@@ -194,8 +193,8 @@ gzip 压缩比率在 3 到 10 倍左右，可以大大节省服务器的网络�
 
 <a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201101225226.png">![](http://cdn.yuzzl.top/blog/20201101225226.png)</a>
 
-- 服务器收到浏览器发送的请求之后，判断浏览器是否支持 gzip，如果支持 gzip，则向浏览器传送压缩过的内容，不支持则向浏览器发送未经压缩的内容。如果支持，response
-  headers 返回 `content-encoding:gzip`
+- 服务器收到浏览器发送的请求之后，判断浏览器是否支持 gzip，如果支持 gzip，则向浏览器传送压缩过的内容，不支持则向浏览器发送未经压缩的内容。如果支持，response headers
+  返回 `content-encoding:gzip`
 
 <a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201101225238.png">![](http://cdn.yuzzl.top/blog/20201101225238.png)</a>
 
@@ -240,14 +239,14 @@ server{
 ```html
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Example HTML Page</title>
-    <script defer src="example1.js"></script>
-    <script async src="example2.js"></script>
-  </head>
-  <body>
-    <!-- 这里是页面内容 -->
-  </body>
+<head>
+  <title>Example HTML Page</title>
+  <script defer src='example1.js'></script>
+  <script async src='example2.js'></script>
+</head>
+<body>
+<!-- 这里是页面内容 -->
+</body>
 </html>
 ```
 
@@ -302,11 +301,11 @@ CSS 下载是异步的，不会阻塞浏览器构建 DOM 树，但它会阻塞�
 
 ```css
 #element {
-  display: none;
+    display: none;
 }
 
 p::before {
-  content: "Hi!"
+    content: "Hi!"
 }
 ```
 
@@ -436,36 +435,36 @@ window.requestAnimationFrame(step);
 
 ```html
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <title>防抖和节流</title>
-  </head>
-  <body>
-    <label>
-      <input placeholder="请输入内容...." id="test-input">
-    </label>
-    <script>
-      const debounce = (fn, delay) => {
-        let timeout = null;
-        return function () {
-          if (timeout) {
-            clearTimeout(timeout);
-          }
-          timeout = setTimeout(() => {
-            fn.apply(this, arguments);
-          }, delay);
-        }
+<html lang='en'>
+<head>
+  <meta charset='UTF-8'>
+  <title>防抖和节流</title>
+</head>
+<body>
+<label>
+  <input placeholder='请输入内容....' id='test-input'>
+</label>
+<script>
+  const debounce = (fn, delay) => {
+    let timeout = null;
+    return function() {
+      if (timeout) {
+        clearTimeout(timeout);
       }
+      timeout = setTimeout(() => {
+        fn.apply(this, arguments);
+      }, delay);
+    }
+  }
 
 
-      const input = document.getElementById("test-input");
-      input.addEventListener("input", debounce((e) => {
-        console.log(e);
-      }, 1000));
+  const input = document.getElementById("test-input");
+  input.addEventListener("input", debounce((e) => {
+    console.log(e);
+  }, 1000));
 
-    </script>
-  </body>
+</script>
+</body>
 </html>
 ```
 
@@ -473,44 +472,44 @@ window.requestAnimationFrame(step);
 
 ```html
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <title>防抖和节流</title>
-    <style>
-      #test-div {
-        width: 100px;
-        height: 100px;
-        background-color: #409EFF;
+<html lang='en'>
+<head>
+  <meta charset='UTF-8'>
+  <title>防抖和节流</title>
+  <style>
+    #test-div {
+      width: 100px;
+      height: 100px;
+      background-color: #409EFF;
+    }
+  </style>
+</head>
+<body>
+<div id='test-div'>
+  测试节流
+</div>
+<script>
+  // 节流函数
+  const throttle = (fn, delay) => {
+    let isRunning = true;
+    return function() {
+      if (!isRunning) {
+        return;
       }
-    </style>
-  </head>
-  <body>
-    <div id="test-div">
-      测试节流
-    </div>
-    <script>
-      // 节流函数
-      const throttle = (fn, delay) => {
-        let isRunning = true;
-        return function () {
-          if (!isRunning) {
-            return;
-          }
-          isRunning = false;
-          setTimeout(() => {
-            fn.apply(this, arguments);
-            isRunning = true;
-          }, delay);
-        }
-      }
+      isRunning = false;
+      setTimeout(() => {
+        fn.apply(this, arguments);
+        isRunning = true;
+      }, delay);
+    }
+  }
 
-      const div = document.getElementById("test-div");
-      div.addEventListener("mousemove", throttle((e) => {
-        console.log(e);
-      }, 1000));
-    </script>
-  </body>
+  const div = document.getElementById("test-div");
+  div.addEventListener("mousemove", throttle((e) => {
+    console.log(e);
+  }, 1000));
+</script>
+</body>
 </html>
 ```
 
@@ -521,10 +520,54 @@ window.requestAnimationFrame(step);
 Web Worker 的 API 使用这里不再赘述，[MDN](https://developer.mozilla.org/zh-CN/docs/Web/API/Web_Workers_API/Using_web_workers)
 上讲的非常详细且通俗易懂。
 
-
 #### 使用事件委托
 
-TODO
+TODO: React 事件委托原理
+
+## 优化 JavaScript 代码
+
+:::tip
+
+过早的优化是万恶之源，某些优化甚至以牺牲代码可读性为前提。
+
+如果是开发第三方类库，那么可能需要考虑性能优化，但是如果只是一般业务，尽量以代码可读性为第一要义。
+:::
+
+### 高性能遍历
+
+函数式遍历比单纯的 `for` 循环速度要快，如果需要提高效率，那么把 `Array.prototype.map()` / `Array.prototype.forEach()` 换成最基础的 `for` 循环是个不错的选择：
+
+实践证明，使用 `for` 代替函数式遍历速度要快 8 倍左右，但牺牲了代码的可读性。
+
+```javascript
+const getArr1 = (arr) => {
+  const a = []
+  const len = arr.length
+  for (let i = 0; i < len; i++) {
+    a.push(i);
+  }
+  return a;
+}
+
+// 慢 8 倍左右
+const getArr2 = (arr) => {
+  return a.map((item, index) => index);
+}
+```
+
+### new 的开销很大
+
+实践证明，new 对程序的开销很大。
+
+### 考虑使用定长数组
+
+执行 push 的时候会在数组的末尾添加新的元素，而一旦空间不足时，将进行扩容，容量将变为：`旧容量 * 1.5 + 16`，并且旧数据会被完全拷过去，对性能有影响。
+
+如果我们初始化一个空数组，那么 `v8` 底层会初始化容量为 4，当 push 第五个时，容量将变成 `4 * 1.5 + 16 = 22`。
+
+### 使用缓存
+
+### 函数式编程
 
 ## 参考资料
 
@@ -534,4 +577,6 @@ TODO
 
 - MDN，[requestIdleCallback](https://developer.mozilla.org/zh-CN/docs/Web/API/Window/requestIdleCallback)
 
-- Mariko Kosaka，[Inside look at modern web browser](https://developers.google.com/web/updates/2018/09/inside-browser-part1)
+- Mariko
+  Kosaka，[Inside look at modern web browser](https://developers.google.com/web/updates/2018/09/inside-browser-part1)
+
