@@ -15,3 +15,4 @@ const reducer = (promise, guard) => {
 
 promises.reduce(reducer, Promise.resolve());
 
+
