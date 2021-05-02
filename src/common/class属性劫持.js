@@ -1,7 +1,8 @@
 const classProxyFactory = (C) => {
   const baseInstance = new C()
-  return new Proxy(baseInstance, {
+  const proxy = new Proxy(baseInstance, {
     get(target, p, receiver) {
+      console.log(receiver === proxy)
       return Reflect.get(target, p, receiver)
     },
     set(target, p, value, receiver) {
@@ -13,6 +14,7 @@ const classProxyFactory = (C) => {
       return Reflect.set(target, p, value, receiver)
     }
   })
+  return proxy;
 }
 const setInstance = classProxyFactory(
   class Set {
@@ -25,8 +27,9 @@ const setInstance = classProxyFactory(
 // 约定：_开头的为私有属性，不得修改
 console.log(setInstance.value)
 setInstance.value = 666
-console.log(setInstance._foo)
-setInstance._foo = 666
+
+
+
 
 
 
