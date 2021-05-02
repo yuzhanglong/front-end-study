@@ -11,7 +11,7 @@ const throttle = (reqFn, timeout, limitation = 4) => {
   const myIpMap = new Map()
 
   return function(targetIp, ...args) {
-    if (!myIp4Map.has(targetIp)) {
+    if (!myIpMap.has(targetIp)) {
       myIpMap.set(targetIp, 0)
     }
     const shouldLimit = myIpMap.get(targetIp) >= limitation
@@ -20,7 +20,6 @@ const throttle = (reqFn, timeout, limitation = 4) => {
       setTimeout(() => {
         myIpMap.set(targetIp, 0)
       }, timeout)
-      return
     } else {
       reqFn.call(this, targetIp, ...args)
       myIpMap.set(targetIp, myIpMap.get(targetIp) + 1)
