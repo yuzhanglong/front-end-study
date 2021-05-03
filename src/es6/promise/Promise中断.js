@@ -34,7 +34,7 @@ const cancelablePromise = (promise) => {
 }
 
 
-const myPromise2 = new Promise((resolve, reject) => {
+const myPromise2 = new Promise((resolve) => {
   t = setTimeout(() => {
     resolve("promise resolved!");
   }, 3000);
