@@ -7,194 +7,70 @@ tags:
 
 ---
 
-# Redux 基础
+# Redux 基础与实践
 
 [[toc]]
 
-## 核心
+## 什么是 redux
 
-redux 的核心主要有以下三部分。
+Redux 官网如下描述：Redux 是 JavaScript 应用程序的可预测状态容器。
+
+它认为 Web 应用是一个状态机，视图和状态一一对应，所有的状态保存在一个对象（`store`）里面。
+
+下图是 redux 的工作流程：
+
+![](http://cdn.yuzzl.top/blog/20210503180514.png)
+
+## 基本概念
+
+结合上图，我们可以看出 redux 的核心主要有以下几部分。
 
 ### store
 
-store 可以理解为状态中心，用来保存状态，例如现在有一个计数器的初始状态：
+store 可以理解为状态中心，用来保存状态，一个 app 只有一个 store，它是只读的。
 
-```javascript
-const initialState = {
-  counter: 0
-}
-// 通过 redux.createStore() 初始化 store
-const store = redux.createStore(reducer);
-```
+### state
 
-- store 是只读的
-- store 单一数据流 -- 整个应用 state 都被储存在一个 store 里面 构成一个 Object tree。
+store 包含的对象在某个时间点的状态。
 
 ### action
 
-Actions 是一个 JavaScript 对象，用来描述应当更新的 state 的任何事件。
+前面已经说过，store 对用户是只读的，用户只能通过 view 层面来更新 store，action 就是 view 层的指令（通知），表示 state 应该要发生变化了。
 
-这些对象里应当包含一个 type 属性，为了区别每一种事件类型，来看下面代码：
+### action creator
 
-```javascript
-const action1 = {
-  type: "INCREMENT"
-}
-
-const action2 = {
-  type: "DECREMENT"
-}
-
-const action3 = {
-  type: "ADD_NUMBER",
-  num: 10
-}
-
-const action4 = {
-  type: "SUB_NUMBER",
-  num: 10
-}
-```
+生成 action 的一个函数
 
 ### reducer
 
-reducer 是 `state`和`action`中间的桥梁，根据`action`来处理`state`，它必须是纯函数:
+store 接受到 **action** 之后，给出一个新的 state 以让 view 发生变化，这种 state 的计算就是 reducer，它是一个函数，以 `previousState` 和 `action` 为参数，返回一个新的 `state`。
 
-```javascript
-function reducer(state = initialState, action) {
-  switch (action.type) {
-    case "INCREMENT":
-      return { ...state, counter: state.counter + 1 };
-    case "DECREMENT":
-      return { ...state, counter: state.counter - 1 };
-    case "ADD_NUMBER":
-      return { ...state, counter: state.counter + action.num };
-    case "SUB_NUMBER":
-      return { ...state, counter: state.counter - action.num };
-    default:
-      return state;
-  }
-}
-```
+### dispatch
 
-## 状态订阅与更新
+view 通过 **dispatch** 发送 **action**。
 
-### 订阅
+## redux 的意义
 
-通过`subscribe`传入回调函数来订阅`store`的变化，请看下面的代码：
+- 以 react 为例，一开始，数据很简单，父组件把自身的状态共享给子组件：
 
-```javascript
-// store
-const store = redux.createStore(reducer);
+- 随着功能的增加，非父子组件又要共享状态，于是我们可以利用事件机制来处理，也可以理解成**状态提升**
 
-// 订阅store修改
-store.subscribe(() => {
-  console.log("state changed!");
-  console.log(store.getState());
-})
+- 之后，组件树越来越复杂，通信的数据流向也越来越大，难以维护，尤其是那种非线性的、单向的数据流动
 
-```
+- 于是我们可以使用 redux，某一个 view 发生变化，直接通过 dispatch 交付给 store，然后 store 执行相应的 render
 
-### 更新
+![](http://cdn.yuzzl.top/blog/20210503183109.png)
 
-通过`store.dispatch`来对`store`进行更新，更新完成之后，订阅时传入的回调函数会被执行：
+- 另外，redux 的每一个 state 都可以进行追踪，方便调试与 bug 修复
 
-```javascript
-store.dispatch(action1);
-store.dispatch(action2);
-store.dispatch(action3);
-store.dispatch(action4);
-```
+## 和 redux 的结合
 
-## Redux + React
+下面是一个案例：
 
-上面已经理清了 Redux 数据处理的基本流程，那么 Redux 如何结合 React？结合上面的普通 redux 代码，我们试着写出一个 react 组件。
+![](http://cdn.yuzzl.top/blog/20201112185931.png)
 
-### store 初始化
-
-首先，组件创建时时初始化`store`并订阅`store`：
-
-```jsx
-useEffect(() => {
-  setCount(store.getState().counter);
-  return store.subscribe(() => {
-    setCount(store.getState().counter);
-  });
-}, []);
-```
-
-在上面的代码中，我们使用`useEffect`来初始化计数器的状态`counter = 5`，然后传入回调函数，订阅变动, 一旦发生变化，我们会执行`setCount`进行`render`。
-
-### 业务逻辑触发 store 修改
-
-触发某个业务逻辑时执行`dispatch(action)`：
-
-```jsx
-const addNumber = (number) => {
-  store.dispatch(addAction(number));
-}
-
-return (
-  <div>
-    <h1>home</h1>
-    <h2>当前计数：{count}</h2>
-    <button onClick={() => addNumber(1)}>add</button>
-  </div>
-)
-```
-
-在上面的代码中，按钮单击，执行了`store.dispatch(addAction(number))`，计数器加一。
-
-代码汇总如下：
-
-```jsx
-/*
- * File: Home.js
- * Description: redux 计数器demo
- * Created: 2020-11-9 14:08:48
- * Author: yuzhanglong
- * Email: yuzl1123@163.com
- */
-
-import React, { useEffect, useState } from "react";
-import store from "../store";
-import { addAction, subAction } from "../store/action";
-
-const Home = () => {
-  const [count, setCount] = useState(0);
-
-  useEffect(() => {
-    setCount(store.getState().counter);
-    return store.subscribe(() => {
-      setCount(store.getState().counter);
-    });
-  }, []);
-
-
-  const addNumber = (number) => {
-    store.dispatch(addAction(number));
-  }
-
-  const minusNumber = (number) => {
-    store.dispatch(subAction(number));
-  }
-
-  return (
-    <div>
-      <h1>home</h1>
-      <h2>当前计数：{count}</h2>
-      <button onClick={() => addNumber(1)}>add</button>
-      <button onClick={() => addNumber(10)}>add 10</button>
-      <button onClick={() => minusNumber(1)}>minus</button>
-    </div>
-  )
-}
-export default Home;
-```
-
-### 基于高阶组件的封装
-
-可以发现，如果有多个组件需要依赖这个`store`，我们会有大量的重复代码，非常难以管理，于是我们对其进行进一步封装：
+- 通过 `mapDispatchToProps` 拿到各类 dispatch 函数，然后通过调用他们来执行更新，我们可以利用高阶组件来完成此类功能。 
+- 通过 `mapStateToProps` 来实现状态到视图的映射。
 
 ```javascript
 // connect() is a function that injects Redux-related props into your component.
@@ -258,30 +134,16 @@ const ConnectedCounter = connect(
 )(Counter)
 ```
 
-#### 存在的问题
 
-这个`connent`高阶组件工作顺利，但是会发现这个封装还不够完美 -- 我们的`connent`还是依赖着`store`这一业务代码，假如它是一个库的话，那么是不尽人意的，来看看如何优化。
+## 最佳实践
 
-#### 进一步封装
+- 区分 **smart component**（和 state 密切相关，例如路由组件） 和 **dump component**（和全局 state 无关，内容由 props 决定，例如 UI 组件库中的组件）
 
-我们可以使用`UseContext`钩子来处理：
-![](http://cdn.yuzzl.top/blog/20201109211250.png)
+- 让预处理（例如网络请求）尽可能在 **smart component** 中完成
 
-## Redux 中间件
+- action 应该由 **smart components** 产生
 
-redux 有一个中间件的概念，这个中间件的目的是在`dispatch`/`action`和最终到达的`reducer`之间扩展自己的代码，例如日志记录、网络请求。
+- reducer 不要太复杂，使用对象展开符保证可读性，计算层面的内容请放到 action creator 中，return 新的 state 时注意返回一个新的对象，不要在旧对象上修改
 
-### redux-thunk
-
-#### 介绍及实践
-
-我们都知道 Redux 规定`action`是一个简单对象（`plain object`），如果我们需要`action`为函数，将它执行过程中的某个内容`dispatch`就好了，redux 满足了我们这个要求，请看下图：
-
-- main.js
-
-![](http://cdn.yuzzl.top/blog/20201112185228.png)
-
-- 主要逻辑
-
-![](http://cdn.yuzzl.top/blog/20201112185931.png)
+- 组件内不要去处理网络请求等异步操作，此类操作请交给 action creator。
 
