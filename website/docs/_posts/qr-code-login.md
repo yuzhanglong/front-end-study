@@ -11,8 +11,7 @@ tags:
 
 扫描二维码登录这个场景经常遇到，本文将介绍二维码登录的实现原理，并使用 Koa 框架实现一个简单的二维码登录 DEMO。
 
-你可以[点击这里](https://github.com/yuzhanglong/yzl-blog/tree/main/src/labs/%E4%BA%8C%E7%BB%B4%E7%A0%81%E7%99%BB%E5%BD%95%E5%AE%9E%E8%B7%B5)
-查看这个 DEMO 的源代码。
+你可以[点击这里](https://github.com/yuzhanglong/yzl-blog/tree/main/src/labs/%E4%BA%8C%E7%BB%B4%E7%A0%81%E7%99%BB%E5%BD%95%E5%AE%9E%E8%B7%B5)查看这个 DEMO 的源代码。
 
 本文大纲：
 [[toc]]

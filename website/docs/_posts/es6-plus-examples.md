@@ -762,7 +762,7 @@ promise1()
   })
 ```
 
-使用 async / await 之后，它看起来更加优雅，更加像同步代码：
+使用 **async / await** 之后，它看起来更加优雅，更加像同步代码：
 
 ```javascript
 const foo = async () => {
