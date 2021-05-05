@@ -7,11 +7,11 @@ tags:
 
 ---
 
-# 一些有趣的 ES6 案例分析
+# 一些有趣的 ES6+ 案例分析
 
 ## 总述
 
-本文收集了个人在平时学习中的一些有趣的 ES6 案例。
+本文收集了个人在平时学习中的一些有趣的 ES6+ 案例。
 
 本文不定期更新，随着我的学习，这篇文章会不断地补充完善。
 
@@ -76,8 +76,7 @@ let el = {
 }
 ```
 
-因为 JSON 不支持 `Symbol` 类型。所以即使服务器存在用 JSON 作为文本返回安全漏洞，JSON 里也不包含 `Symbol.for('react.element')`。React 会检测 `element.$$typeof`
-，如果元素丢失或者无效，会**拒绝处理**该元素。
+因为 JSON 不支持 `Symbol` 类型。所以即使服务器存在用 JSON 作为文本返回安全漏洞，JSON 里也不包含 `Symbol.for('react.element')`。React 会检测 `element.$$typeof`，如果元素丢失或者无效，会**拒绝处理**该元素。
 
 ### vue-router-next 利用 Symbol 防止属性污染
 
@@ -437,7 +436,7 @@ it1.value.then(res => {
 
 看看效果：
 
-<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201211000706.png">![](http://cdn.yuzzl.top/blog/20201211000706.png)</a>
+![](http://cdn.yuzzl.top/blog/20201211000706.png)
 
 
 
@@ -471,8 +470,7 @@ generatorRunner(bar);
 
 <a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201211000618.png">![](http://cdn.yuzzl.top/blog/20201211000618.png)</a>
 
-这种能够自动执行 `Generator` 的函数我们又称为**Thunk 函数**。当然，这是一个比较简单的版本，现在我们有类似的库，名为**Co**
-，[点击查看源码](https://github.com/tj/co/blob/master/index.js)。
+这种能够自动执行 `Generator` 的函数我们又称为**Thunk 函数**。当然，这是一个比较简单的版本，现在我们有类似的库，名为**Co**，[点击查看源码](https://github.com/tj/co/blob/master/index.js)。
 
 ```javascript
 function co(gen) {
@@ -531,12 +529,11 @@ function co(gen) {
 
 ### 利用基于 generator 的 redux-saga 执行具有副作用的函数
 
-我们都知道 Redux 规定 `action` 必须是一个简单对象（`plain object`）。 但是我们可能需要 `action` 是一个函数（这种需求是很强烈的，例如网络请求），将它执行过程中的某个内容 `dispatch`
-，然后实现更新。
+我们都知道 Redux 规定 `action` 必须是一个简单对象（`plain object`）。 但是我们可能需要 `action` 是一个函数（这种需求是很强烈的，例如网络请求），将它执行过程中的某个内容 `dispatch`，然后实现更新。
 
 redux 有一些中间件提供了一些解决方案，例如 `redux-thunk` 和 `redux-saga`，其中，`redux-saga` 是基于 generator 的一个不错的实践，结合下图，来看看它的用法。
 
-<a data-fancybox title="" href="http://cdn.yuzzl.top/blog/20201211132141.png">![](http://cdn.yuzzl.top/blog/20201211132141.png)</a>
+![](http://cdn.yuzzl.top/blog/20201211132141.png)
 
 ## 异步工具 -- Promise、async 和 await
 
@@ -782,15 +779,61 @@ foo().then(res => {
 })
 ```
 
+### 异步迭代器
+
+下面的代码展示了一个异步迭代器的使用，基于 `for-await-of` 语法，我们需要实现 `Symbol.asyncIterator` 方法：
+
+```javascript
+let myIterator = {
+  [Symbol.asyncIterator]: () => {
+    let items = [1, 2, 3, 4]
+    return {
+      next: () => Promise.resolve({
+        done: items.length === 0,
+        value: items.shift()
+      })
+    }
+  }
+}
+
+let arr = []
+for await (let itElement of myIterator) {
+  arr.push(itElement)
+}
+
+// arr = [1, 2, 3, 4]
+```
+
+### 数组 API
+
+#### flatMap()
+
+`flatMap()` 方法首先使用映射函数映射每个元素，然后将结果压缩成一个新数组。它与 [map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map) 连着深度值为1的 [flat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat) 几乎相同，但 `flatMap` 通常在合并成一种方法的效率稍微高一些。
+
+它的一个实用的方面在于可以在 `map()` 的过程中增加或者删除一些项，例如：
+
+```javascript
+// flatMap 的一个用法是在 map 的过程中删除某一项
+let arr = [1, -3, 3, 4, -2]
+let res = arr.flatMap((item) => {
+  if (item < 0) {
+    return []
+  }
+  return item
+})
+
+// res = [1, 3, 4]
+```
+
+
+
 ## 参考资料
 
 Matt Frisble，JavaScript 高级程序设计（第四版）
 
 MDN，[async 和 await:让异步编程更简单](https://developer.mozilla.org/zh-CN/docs/learn/JavaScript/%E5%BC%82%E6%AD%A5/Async_await)
 
-Dan
-Abramov，[Why Do React Elements Have a $$typeof Property?](https://overreacted.io/why-do-react-elements-have-typeof-property/)
+Dan Abramov，[Why Do React Elements Have a $$typeof Property?](https://overreacted.io/why-do-react-elements-have-typeof-property/)
 
 Vincent Driessen，[Iterables vs. Iterators vs. Generators](https://nvie.com/posts/iterators-vs-generators/)
-
 
