@@ -658,3 +658,4 @@ for (var i = 0; i < currentUpdateRuntime.length; i++) {
 ## 参考资料
 
 [掘金 -- 轻松理解 webpack 热更新原理](https://juejin.cn/post/6844904008432222215#heading-10)
+
