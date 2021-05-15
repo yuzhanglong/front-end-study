@@ -405,7 +405,7 @@ export const benchMarkBetween = async (opt: BenchMarkBetweenOptions) => {
 // 测试文件
 
 import * as d3 from 'd3-scale';
-import { Band } from '../../src';
+import { Band } from '../src';
 import { benchMarkBetween } from './benchmark';
 
 describe('band perf test', () => {
