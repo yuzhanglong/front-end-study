@@ -866,7 +866,7 @@ vue2的虚拟DOM是**全量的对比**。
 **usePagination.js**
 
 ```javascript
-import {reactive} from "vue";
+import { reactive } from "docs/old-docs/vue";
 
 export const usePagination = (requestMethod, params) => {
   let state = reactive({
