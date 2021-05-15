@@ -27,7 +27,7 @@ module.exports = {
     }
   ],
   ignorePatterns: [
-    'old-docs'
+    './docs/old-docs'
   ],
   root: true
 }

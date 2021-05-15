@@ -6,7 +6,7 @@
   "author": "coderyzl <yuzl1123@163.com>",
   "license": "MIT",
   "scripts": {
-    "lint": "eslint --ext .md ./website/docs/_posts"
+    "lint": "eslint --ext .md ./docs"
   },
   "dependencies": {
     "@lint-md/eslint-plugin": "^0.1.0",
