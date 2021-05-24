@@ -1,0 +1,13 @@
+{
+  "name": "design-patterns",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "decreator-pattern-test": "tsc ./装饰器模式.ts -w"
+  },
+  "dependencies": {
+    "koa": "^2.13.1",
+    "reflect-metadata": "^0.1.13"
+  }
+}
