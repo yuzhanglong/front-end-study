@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang='en'>
+  <head>
+    <meta charset='UTF-8'>
+    <title>MVC</title>
+  </head>
+  <body>
+    <div>
+      模型管理应用程序的数据。它们既不关心用户界面也不关心表示层，
+      而是表示应用程序可能需要的独特形式的数据。
+      当一个模型发生变化时(例如当它被更新时)，
+      它通常会通知它的观察者已经发生了变化，
+      这样他们就可以做出相应的反应。
+    </div>
+
+    <div>
+      一个 model 可能还具有多个观察它的视图
+    </div>
+
+    <div>
+      视图通常会观察模型，并在模型更改时得到通知，从而允许视图相应地进行更新。
+    </div>
+
+    <div>
+      更新模型的实际任务落在控制器上, 控制器是模型和视图之间的中介，当用户操作视图时，控制器通常负责更新模型。
+    </div>
+
+    <div>
+      <span id='container'>0</span>
+      <button id='btn' onclick='add()'>+</button>
+    </div>
+  </body>
+  <script>
+    // model
+    function add(node) {
+      // 业务逻辑处理
+      const currentValue = parseInt(node.innerText)
+      const newValue = currentValue + 1
+
+      // 更新视图
+      node.innerText = newValue
+    }
+
+    // controller
+    const button = document.getElementById('btn')
+    // 响应视图指令
+    button.addEventListener('click', () => {
+      const container = document.getElementById('container')
+
+      // 调用模型
+      add(container)
+    }, false)
+  </script>
+</html>

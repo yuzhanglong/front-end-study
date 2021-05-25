@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang='en'>
+  <head>
+    <meta charset='UTF-8'>
+    <title>MVP</title>
+  </head>
+  <body>
+    <div>
+      <span id='container'>0</span>
+      <button id='btn'>+</button>
+    </div>
+    <script>
+      // View Interface
+      const globalConfig = {
+        containerId: 'container',
+        buttonId: 'btn'
+      }
+
+      // model -- 只处理业务无关的数据处理
+      function add(num) {
+        return num + 1
+      }
+
+      // presenter
+      const button = document.getElementById(globalConfig.containerId);
+      const container = document.getElementById(globalConfig.buttonId);
+
+      // 响应视图指令
+      button.addEventListener('click', () => {
+        const currentValue = parseInt(container.innerText);
+        // 调用模型
+        const newValue = add(currentValue);
+        // 更新视图
+        container.innerText = newValue;
+      }, false);
+    </script>
+  </body>
+</html>
