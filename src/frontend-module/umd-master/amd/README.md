@@ -2,7 +2,7 @@
 
 ## 概述
 
-- AMD是Asynchronous Module Definition（异步模块定义）的缩写
+- AMD 是 Asynchronous Module Definition（异步模块定义）的缩写
 - 它采用的是**异步加载**模块
 - AMD 现在使用的比较少
 
@@ -26,3 +26,4 @@ require.js 源码中将加载完成的回调绑定在 `window.onload` 事件上�
 ```javascript
 node.addEventListener('load', context.onScriptLoad, false);
 ```
+
