@@ -1,0 +1,7 @@
+{
+  "name": "导入和导出的关联",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "type": "module"
+}
