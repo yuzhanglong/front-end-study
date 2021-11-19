@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta charset='UTF-8'>
+  <title>Title</title>
+</head>
+<body>
+<script>
+  const varBox = {}
+
+  const get = (target, key) => {
+    if (key === 'window') {
+      return fakeWindow
+    }
+    return varBox[key] || window[key]
+  }
+
+  const set = (target, key, value) => {
+    varBox[key] = value
+    return true
+  }
+
+  const has = () => {
+    return true
+  }
+
+  const context = new Proxy(window, {
+    get,
+    set,
+    has
+  })
+
+  const fakeWindow = new Proxy(window, {
+    get,
+    set
+  })
+
+  const fn = (code) => {
+    return () => {
+      new Function(
+        'window', 'context', `
+          with(context){
+              ${code}
+          }`
+      )(fakeWindow, context)
+    }
+  }
+
+  fn('console.log(111)')()
+</script>
+</body>
+</html>
