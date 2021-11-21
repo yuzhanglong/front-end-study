@@ -32,12 +32,7 @@
     set,
     has
   })
-
-  const context = new Proxy(window, {
-    get,
-    set
-  })
-
+  
   const fn = (code) => {
     return () => {
       new Function(

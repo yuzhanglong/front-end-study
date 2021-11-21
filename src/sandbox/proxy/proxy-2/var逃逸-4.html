@@ -9,8 +9,9 @@
   const varBox = {}
 
   const get = (target, key) => {
+    // 防止 window.window 逃逸，类似的还有 window.self 之类的 API，
+    // 需要特别注意一些边界 case
     if (key === 'window') {
-      // 略去其它情况下的边界 case。例如 self
       return fakeWindow
     }
     return varBox[key] || window[key]
@@ -21,11 +22,17 @@
     return true
   }
 
-  const has = (target, p) => {
+  // 使用 has 解决 var 逃逸问题
+  const has = (obj, property) => {
     return true
   }
 
   const fakeWindow = new Proxy(window, {
+    get,
+    set
+  })
+
+  const withContext = new Proxy(window, {
     get,
     set,
     has
@@ -35,20 +42,20 @@
     return () => {
       new Function(
         'window',
-        `with(window){
+        'withContext',
+        `with(withContext){
           ${code}
         }`
-      )(fakeWindow)
+      )(fakeWindow, withContext)
     }
   }
 
   fn('var x = 1;')()
-
-  // 正常执行
   fn('console.log(x)')()
 
-  // 但带来了新问题, in 语法永远返回 true，不符合预期
-  fn('console.log("fn" in window)')()
+  fn('console.log("foo" in window)')()
+
+  console.log(window.x)
 </script>
 </body>
 </html>

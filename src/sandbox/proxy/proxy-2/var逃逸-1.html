@@ -40,6 +40,8 @@
   }
 
   fn('var x = 1;')()
+
+  // 逃逸问题导致报错
   fn('console.log(x)')()
   fn('console.log("foo" in window)')()
 
