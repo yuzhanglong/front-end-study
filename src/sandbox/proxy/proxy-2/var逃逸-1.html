@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta charset='UTF-8'>
+  <title>Title</title>
+</head>
+<body>
+<script>
+  const varBox = {}
+
+  const get = (target, key) => {
+    // 防止 window.window 逃逸，类似的还有 window.self 之类的 API，
+    // 需要特别注意一些边界 case
+    if (key === 'window') {
+      return fakeWindow
+    }
+    return varBox[key] || window[key]
+  }
+
+  const set = (target, key, value) => {
+    console.log('set', key, value)
+    varBox[key] = value
+    return true
+  }
+
+  const fakeWindow = new Proxy(window, {
+    get,
+    set
+  })
+
+  const fn = (code) => {
+    return () => {
+      new Function(
+        'window',
+        `with(window){
+          ${code}
+        }`
+      )(fakeWindow)
+    }
+  }
+
+  fn('var x = 1;')()
+  fn('console.log(x)')()
+  fn('console.log("foo" in window)')()
+
+  console.log(window.x)
+</script>
+</body>
+</html>

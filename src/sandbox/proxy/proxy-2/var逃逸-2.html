@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta charset='UTF-8'>
+  <title>Title</title>
+</head>
+<body>
+<script>
+  const varBox = {}
+
+  const get = (target, key) => {
+    if (key === 'window') {
+      // 略去其它情况下的边界 case。例如 self
+      return fakeWindow
+    }
+    return varBox[key] || window[key]
+  }
+
+  const set = (target, key, value) => {
+    console.log('set', key, value)
+    varBox[key] = value
+    return true
+  }
+
+  const has = (target, p) => {
+    console.log('has!', p)
+    return true
+  }
+
+  const fakeWindow = new Proxy(window, {
+    get,
+    set,
+    has
+  })
+
+  const fn = (code) => {
+    return () => {
+      new Function(
+        'window',
+        `with(window){
+          ${code}
+        }`
+      )(fakeWindow)
+    }
+  }
+
+  // 在执行此代码时，js 底层会去判断当前作用域是否有 x，如果有会覆盖
+  fn('var x = 1;')()
+  // fn('console.log(x)')()
+</script>
+</body>
+</html>

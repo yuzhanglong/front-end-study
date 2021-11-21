@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta charset='UTF-8'>
+  <title>Title</title>
+</head>
+<body>
+<script>
+  const observable = new MutationObserver((mutations) => {
+    mutations.forEach(item => {
+      const s = item.addedNodes[0].sheet
+      if (s) {
+        console.log([].slice.call(s.cssRules))
+      }
+    })
+  })
+
+  observable.observe(document, {
+    childList: true,
+    subtree: true
+  })
+
+  const el = document.createElement('style')
+  el.innerHTML = `
+    #app{
+      align-items: center;
+      justify-content: center;
+      display: flex;
+    }
+  `
+  document.head.appendChild(el)
+</script>
+
+</body>
+</html>
