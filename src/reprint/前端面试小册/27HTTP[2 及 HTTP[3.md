@@ -16,21 +16,21 @@ HTTP/2 相比于 HTTP/1，可以说是大幅度提高了网页的性能。
 
 大家可以通过 [该链接](https://http2.akamai.com/demo) 感受下 HTTP/2 比 HTTP/1 到底快了多少。
 
-![](https://user-gold-cdn.xitu.io/2018/5/12/163542ca61eaff17?w=929&h=512&f=png&s=245670)
+![](https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2018/5/12/163542ca61eaff17~tplv-t2oaga2asx-watermark.awebp)
 
 在 HTTP/1 中，因为队头阻塞的原因，你会发现发送请求是长这样的
 
-![](https://user-gold-cdn.xitu.io/2018/5/12/163542c96df8563d?w=518&h=642&f=png&s=72417)
+![](https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2018/5/12/163542c96df8563d~tplv-t2oaga2asx-watermark.awebp)
 
 在 HTTP/2 中，因为可以复用同一个 TCP 连接，你会发现发送请求是长这样的
 
-![](https://user-gold-cdn.xitu.io/2018/5/12/163542c9d3128c7a?w=900&h=616&f=png&s=71014)
+![](https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2018/5/12/163542c9d3128c7a~tplv-t2oaga2asx-watermark.awebp)
 
 ## 二进制传输
 
 HTTP/2 中所有加强性能的核心点在于此。在之前的 HTTP 版本中，我们是通过文本的方式传输数据。在 HTTP/2 中引入了新的编码机制，所有传输的数据都会被分割，并采用二进制格式编码。
 
-![](https://user-gold-cdn.xitu.io/2018/5/12/163543c25e5e9f23?w=874&h=459&f=png&s=26320)
+![](https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2018/5/12/163543c25e5e9f23~tplv-t2oaga2asx-watermark.awebp)
 
 ## 多路复用
 
@@ -40,7 +40,7 @@ HTTP/2 中所有加强性能的核心点在于此。在之前的 HTTP 版本中�
 
 多路复用，就是在一个 TCP 连接中可以存在多条流。换句话说，也就是可以发送多个请求，对端可以通过帧中的标识知道属于哪个请求。通过这个技术，可以避免 HTTP 旧版本中的队头阻塞问题，极大的提高传输性能。
 
-![](https://user-gold-cdn.xitu.io/2018/5/12/1635442531d3e5ee?w=494&h=138&f=png&s=9636)
+![](https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2018/5/12/1635442531d3e5ee~tplv-t2oaga2asx-watermark.awebp)
 
 ## Header 压缩
 
