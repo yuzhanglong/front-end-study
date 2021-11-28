@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta charset='UTF-8'>
+  <title>Title</title>
+</head>
+<body>
+<script>
+  async function* ints() {
+    // 每1000毫秒生成一个递增的整数
+    for (let i = 0; i < 5; ++i) {
+      yield await new Promise((resolve) => setTimeout(resolve, 1000, i))
+    }
+  }
+
+  const { writable, readable } = new TransformStream({
+    transform(chunk, constructor) {
+      constructor.enqueue(chunk * 2)
+    }
+  })
+
+  const readableStreamDefaultReader = readable.getReader()
+  const writableStreamDefaultWriter = writable.getWriter()
+
+  const runConsumer = async () => {
+    while (true) {
+      const { done, value } = await readableStreamDefaultReader.read()
+      if (done) {
+        break
+      } else {
+        console.log(value)
+      }
+    }
+  }
+
+  const runProvider = async () => {
+    for await (let chunk of ints()) {
+      await writableStreamDefaultWriter.ready
+      writableStreamDefaultWriter.write(chunk)
+    }
+
+    writableStreamDefaultWriter.close()
+  }
+
+  runConsumer();
+  runProvider();
+
+
+</script>
+
+</body>
+</html>
