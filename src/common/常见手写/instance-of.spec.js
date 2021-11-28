@@ -14,5 +14,7 @@ describe('实现 instanceOf', function() {
     expect(instanceOf([], Number)).toBeFalsy()
     expect(instanceOf(Array, Function)).toBeTruthy()
     expect(instanceOf(Function, Object)).toBeTruthy()
+    // 很明显，基本类型是不适用的
+    // expect(instanceOf('233', String)).toStrictEqual('233' instanceof String)
   })
 })
