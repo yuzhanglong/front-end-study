@@ -1,62 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <title>防抖和节流</title>
     <style>
       #test-div {
         width: 100px;
         height: 100px;
-        background-color: #409EFF;
+        background-color: #409eff;
       }
     </style>
   </head>
   <body>
     <label>
-      <input placeholder="测试防抖...." id="test-input">
+      <input placeholder="测试防抖...." id="test-input" />
     </label>
-    <div id="test-div">
-      测试节流
-    </div>
+    <div id="test-div">测试节流</div>
     <script>
-
       // 防抖函数
       const debounce = (fn, delay) => {
-        let timeout;
+        let timeout
         return function () {
           if (timeout) {
-            clearTimeout(timeout);
+            clearTimeout(timeout)
           }
           timeout = setTimeout(() => {
-            fn.apply(this, arguments);
-          }, delay);
+            fn.apply(this, arguments)
+          }, delay)
         }
       }
 
       // 节流函数
       const throttle = (fn, delay) => {
-        let isRunning = true;
+        let isRunning = true
         return function () {
           if (!isRunning) {
-            return;
+            return
           }
-          isRunning = false;
+          isRunning = false
           setTimeout(() => {
-            fn.apply(this, arguments);
-            isRunning = true;
-          }, delay);
+            fn.apply(this, arguments)
+            isRunning = true
+          }, delay)
         }
       }
 
-      const input = document.getElementById("test-input");
-      input.addEventListener("input", debounce((e) => {
-        console.log(e);
-      }, 1000));
+      const input = document.getElementById('test-input')
+      input.addEventListener(
+        'input',
+        debounce((e) => {
+          console.log(e)
+        }, 1000)
+      )
 
-      const div = document.getElementById("test-div");
-      div.addEventListener("mousemove", throttle((e) => {
-        console.log(e);
-      }, 1000));
+      const div = document.getElementById('test-div')
+      div.addEventListener(
+        'mousemove',
+        throttle((e) => {
+          console.log(e)
+        }, 1000)
+      )
     </script>
   </body>
 </html>

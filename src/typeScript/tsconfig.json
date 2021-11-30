@@ -6,9 +6,6 @@
     "preserveConstEnums": true,
     "sourceMap": true
   },
-  "include": [
-    "./*"
-  ],
-  "exclude": [
-  ]
+  "include": ["./*"],
+  "exclude": []
 }

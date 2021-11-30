@@ -1,7 +1,7 @@
-describe('Object.freeze', function() {
+describe('Object.freeze', function () {
   test('冻结一个对象。一个被冻结的对象再也不能被修改', () => {
     const obj = {
-      prop: 42
+      prop: 42,
     }
 
     const obj2 = Object.create(obj)
@@ -21,7 +21,7 @@ describe('Object.freeze', function() {
 
   test('无法更改原型', () => {
     const obj = {
-      prop: 42
+      prop: 42,
     }
     Object.freeze(obj)
     // // 会报错！！
@@ -31,7 +31,7 @@ describe('Object.freeze', function() {
 
   test('冻结是一种浅冻结', () => {
     let obj1 = {
-      internal: {}
+      internal: {},
     }
 
     Object.freeze(obj1)

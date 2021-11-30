@@ -1,6 +1,6 @@
-# Event Loop 
+# Event Loop
 
-在前两章节中我们了解了 JS 异步相关的知识。在实践的过程中，你是否遇到过以下场景，为什么 `setTimeout` 会比 `Promise` 后执行，明明代码写在 `Promise` 之前。这其实涉及到了 Event Loop  相关的知识，这一章节我们会来详细地了解 Event Loop  相关知识，知道 JS 异步运行代码的原理，并且这一章节也是面试常考知识点。
+在前两章节中我们了解了 JS 异步相关的知识。在实践的过程中，你是否遇到过以下场景，为什么 `setTimeout` 会比 `Promise` 后执行，明明代码写在 `Promise` 之前。这其实涉及到了 Event Loop 相关的知识，这一章节我们会来详细地了解 Event Loop 相关知识，知道 JS 异步运行代码的原理，并且这一章节也是面试常考知识点。
 
 ## 进程与线程
 
@@ -54,9 +54,10 @@ function bar() {
 }
 bar()
 ```
+
 ![](https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2018/11/13/1670c128acce975f~tplv-t2oaga2asx-watermark.awebp)
 
-## 浏览器中的 Event Loop 
+## 浏览器中的 Event Loop
 
 ```!
 涉及面试题：异步代码执行顺序？解释一下什么是 Event Loop ？
@@ -80,18 +81,18 @@ async function async2() {
 }
 async1()
 
-setTimeout(function() {
+setTimeout(function () {
   console.log('setTimeout')
 }, 0)
 
-new Promise(resolve => {
+new Promise((resolve) => {
   console.log('Promise')
   resolve()
 })
-  .then(function() {
+  .then(function () {
     console.log('promise1')
   })
-  .then(function() {
+  .then(function () {
     console.log('promise2')
   })
 
@@ -138,7 +139,6 @@ new Promise((resolve, reject) => {
 
 这里很多人会有个误区，认为微任务快于宏任务，其实是错误的。因为宏任务中包括了 `script` ，浏览器会**先执行一个宏任务**，接下来有异步代码的话才会先执行微任务。
 
-
 ## Node 中的 Event Loop
 
 ```!
@@ -157,15 +157,15 @@ timers 阶段会执行 `setTimeout` 和 `setInterval` 回调，并且是由 poll
 
 同样，在 Node 中定时器指定的时间也不是准确时间，只能是**尽快**执行。
 
-### I/O 
+### I/O
 
 I/O 阶段会处理一些上一轮循环中的**少数未执行**的 I/O 回调
 
-### idle, prepare 
+### idle, prepare
 
 idle, prepare 阶段内部实现，这里就忽略不讲了。
 
-### poll 
+### poll
 
 poll 是一个至关重要的阶段，这一阶段中，系统会做两件事情
 
@@ -183,7 +183,7 @@ poll 是一个至关重要的阶段，这一阶段中，系统会做两件事情
 
 ### check
 
-check 阶段执行 `setImmediate` 
+check 阶段执行 `setImmediate`
 
 ### close callbacks
 
@@ -195,10 +195,10 @@ close callbacks 阶段执行 close 事件
 
 ```js
 setTimeout(() => {
-    console.log('setTimeout')
+  console.log('setTimeout')
 }, 0)
 setImmediate(() => {
-    console.log('setImmediate')
+  console.log('setImmediate')
 })
 ```
 
@@ -214,12 +214,12 @@ setImmediate(() => {
 const fs = require('fs')
 
 fs.readFile(__filename, () => {
-    setTimeout(() => {
-        console.log('timeout');
-    }, 0)
-    setImmediate(() => {
-        console.log('immediate')
-    })
+  setTimeout(() => {
+    console.log('timeout')
+  }, 0)
+  setImmediate(() => {
+    console.log('immediate')
+  })
 })
 ```
 
@@ -234,7 +234,7 @@ setTimeout(() => {
   console.log('timer21')
 }, 0)
 
-Promise.resolve().then(function() {
+Promise.resolve().then(function () {
   console.log('promise1')
 })
 ```
@@ -243,11 +243,11 @@ Promise.resolve().then(function() {
 
 最后我们来讲讲 Node 中的 `process.nextTick`，这个函数其实是独立于 Event Loop 之外的，它有一个自己的队列，当每个阶段完成后，如果存在 nextTick 队列，就会**清空队列中的所有回调函数**，并且优先于其他 microtask 执行。
 
- ```js
+```js
 setTimeout(() => {
   console.log('timer1')
 
-  Promise.resolve().then(function() {
+  Promise.resolve().then(function () {
     console.log('promise1')
   })
 }, 0)
@@ -264,7 +264,7 @@ process.nextTick(() => {
     })
   })
 })
- ```
+```
 
 对于以上代码，大家可以发现无论如何，永远都是先把 nextTick 全部打印出来。
 

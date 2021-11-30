@@ -5,13 +5,15 @@ const fs = require('fs')
 
 const app = new Koa()
 
-app.use(koaBody({
-  formidable: {
-    //设置文件的默认保存目录，不设置则保存在系统临时目录下  os
-    uploadDir: path.resolve(__dirname, '../static/uploads')
-  },
-  multipart: true // 开启文件上传，默认是关闭
-}))
+app.use(
+  koaBody({
+    formidable: {
+      //设置文件的默认保存目录，不设置则保存在系统临时目录下  os
+      uploadDir: path.resolve(__dirname, '../static/uploads'),
+    },
+    multipart: true, // 开启文件上传，默认是关闭
+  })
+)
 
 app.use((ctx) => {
   ctx.set('Access-Control-Allow-Origin', '*')
@@ -19,16 +21,28 @@ app.use((ctx) => {
   const { filename, token, type, begin, end } = ctx.request.body
   if (type !== 'MERGE') {
     const extArr = filename.split('.')
-    fs.renameSync(file.path, path.resolve(path.dirname(file.path), `${extArr[0]}-${token}.${extArr[extArr.length - 1]}`))
+    fs.renameSync(
+      file.path,
+      path.resolve(
+        path.dirname(file.path),
+        `${extArr[0]}-${token}.${extArr[extArr.length - 1]}`
+      )
+    )
   } else {
     let b = parseInt(begin)
     let e = parseInt(end)
     console.log(b, '===', e)
     const extArr = filename.split('.')
-    const writeStream = fs.createWriteStream(`${path.resolve(__dirname, '../static/uploads', filename)}`)
+    const writeStream = fs.createWriteStream(
+      `${path.resolve(__dirname, '../static/uploads', filename)}`
+    )
 
     const mergeFiles = () => {
-      const name = path.resolve(__dirname, '../static/uploads', `${extArr[0]}-${b}.${extArr[extArr.length - 1]}`)
+      const name = path.resolve(
+        __dirname,
+        '../static/uploads',
+        `${extArr[0]}-${b}.${extArr[extArr.length - 1]}`
+      )
       const readStream = fs.createReadStream(name)
       readStream.pipe(writeStream, { end: false })
       readStream.on('end', () => {
@@ -51,7 +65,7 @@ app.use((ctx) => {
   }
 
   ctx.body = {
-    'status': '00000'
+    status: '00000',
   }
 })
 

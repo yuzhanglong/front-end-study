@@ -1,4 +1,4 @@
-describe('new', function() {
+describe('new', function () {
   test('实现 new', () => {
     function myNew(fn, ...args) {
       if (typeof fn !== 'function') {
@@ -37,13 +37,12 @@ describe('new', function() {
     expect(myThing.one).toStrictEqual(1)
     expect(myThing.two).toStrictEqual(2)
 
-
     function Foo() {
       this.one = 1
       this.two = 2
       return {
         one: 111,
-        two: 222
+        two: 222,
       }
     }
 

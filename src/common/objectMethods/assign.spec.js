@@ -3,7 +3,7 @@ describe('Object.assign', () => {
     // 继承属性和不可枚举属性是不能拷贝的
     const obj1 = Object.create({
       foo: 1,
-      bar: 2
+      bar: 2,
     })
     obj1.baz = 1
     obj1[Symbol.for('hello')] = 333
@@ -11,16 +11,16 @@ describe('Object.assign', () => {
     const obj2 = {
       foo: null,
       bar: undefined,
-      fn: myFn
+      fn: myFn,
     }
     const res = Object.assign(obj1, obj2)
     expect(res).toStrictEqual({
-      'bar': undefined,
-      'baz': 1,
-      'foo': null,
+      bar: undefined,
+      baz: 1,
+      foo: null,
       // String 类型和 Symbol 类型的属性都会被拷贝。
       [Symbol.for('hello')]: 333,
-      fn: myFn
+      fn: myFn,
     })
   })
 
@@ -39,7 +39,7 @@ describe('Object.assign', () => {
       set prop(v) {
         obj1Setter()
         console.log('obj1 setter called!')
-      }
+      },
     }
     const obj2 = {
       get prop() {
@@ -50,7 +50,7 @@ describe('Object.assign', () => {
       set prop(v) {
         obj2Setter()
         console.log('obj2 setter called!')
-      }
+      },
     }
     const o3 = Object.assign(obj1, obj2)
     // target 的 setter 会被调用
@@ -60,7 +60,7 @@ describe('Object.assign', () => {
     expect(obj1Getter).toBeCalledTimes(0)
     expect(obj2Setter).toBeCalledTimes(0)
     expect(o3).toStrictEqual({
-      'prop': 'hello'
+      prop: 'hello',
     })
     // 目标保留了 setter 和 getter
     console.log(o3.prop)

@@ -5,5 +5,5 @@ setTimeout(() => {
 }, 0)
 
 module.exports = {
-  name
+  name,
 }

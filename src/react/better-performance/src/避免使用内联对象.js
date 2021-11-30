@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react'
 
 class User extends React.PureComponent {
   render() {
@@ -12,22 +12,22 @@ class User extends React.PureComponent {
 }
 
 const userInfo = {
-  name: "yzl",
-  age: 20
-};
+  name: 'yzl',
+  age: 20,
+}
 
 class DoNotUseInlineObject extends React.PureComponent {
   constructor(props) {
-    super(props);
+    super(props)
     this.state = {
-      cnt: 0
+      cnt: 0,
     }
   }
 
   add() {
-    console.log("add按钮被单击!");
+    console.log('add按钮被单击!')
     this.setState({
-      cnt: this.state.cnt + 1
+      cnt: this.state.cnt + 1,
     })
   }
 
@@ -36,10 +36,10 @@ class DoNotUseInlineObject extends React.PureComponent {
       <div>
         <div>{this.state.cnt}</div>
         <button onClick={() => this.add()}>add!</button>
-        <User user={userInfo}/>
+        <User user={userInfo} />
       </div>
     )
   }
 }
 
-export default DoNotUseInlineObject;
+export default DoNotUseInlineObject

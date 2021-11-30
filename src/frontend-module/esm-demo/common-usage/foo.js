@@ -4,13 +4,8 @@ function sayHello() {
   console.log('hello!')
 }
 
-class Foo{
-  constructor() {
-  }
+class Foo {
+  constructor() {}
 }
 
-export {
-  Foo,
-  sayHello
-}
-
+export { Foo, sayHello }

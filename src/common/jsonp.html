@@ -1,18 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <title>JSONP测试</title>
   </head>
   <body>
     <script>
       const handleResponse = (response) => {
-        console.log(response);
+        console.log(response)
       }
 
-      let script = document.createElement("script");
-      script.src = "https://query.asilu.com/weather/baidu?callback=handleResponse";
-      document.body.appendChild(script);
+      let script = document.createElement('script')
+      script.src =
+        'https://query.asilu.com/weather/baidu?callback=handleResponse'
+      document.body.appendChild(script)
     </script>
   </body>
 </html>

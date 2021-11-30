@@ -1,14 +1,11 @@
 class SuperType {
-  constructor() {
-  }
+  constructor() {}
 }
-
 
 class SubType extends SuperType {
   constructor() {
-    super();
+    super()
   }
 }
 
-
-const instance1 = new SubType();
+const instance1 = new SubType()

@@ -24,7 +24,7 @@
 
 ```js
 ajax(url, () => {
-    // 处理逻辑
+  // 处理逻辑
 })
 ```
 
@@ -32,13 +32,13 @@ ajax(url, () => {
 
 ```js
 ajax(url, () => {
+  // 处理逻辑
+  ajax(url1, () => {
     // 处理逻辑
-    ajax(url1, () => {
-        // 处理逻辑
-        ajax(url2, () => {
-            // 处理逻辑
-        })
+    ajax(url2, () => {
+      // 处理逻辑
     })
+  })
 })
 ```
 
@@ -80,38 +80,36 @@ ajax(url, () => {
 `Generator` 算是 ES6 中难理解的概念之一了，`Generator` 最大的特点就是可以控制函数的执行。在这一小节中我们不会去讲什么是 `Generator`，而是把重点放在 `Generator` 的一些容易困惑的地方。
 
 ```js
-function *foo(x) {
-  let y = 2 * (yield (x + 1))
-  let z = yield (y / 3)
-  return (x + y + z)
+function* foo(x) {
+  let y = 2 * (yield x + 1)
+  let z = yield y / 3
+  return x + y + z
 }
 let it = foo(5)
-console.log(it.next())   // => {value: 6, done: false}
+console.log(it.next()) // => {value: 6, done: false}
 console.log(it.next(12)) // => {value: 8, done: false}
 console.log(it.next(13)) // => {value: 42, done: true}
-
 ```
 
 你也许会疑惑为什么会产生与你预想不同的值，接下来就让我为你逐行代码分析原因
 
-* 首先 `Generator` 函数调用和普通函数不同，它会返回一个迭代器
-* 当执行第一次 `next` 时，传参会被忽略，并且函数暂停在 `yield (x + 1)` 处，所以返回 `5 + 1 = 6`
-* 当执行第二次 `next` 时，传入的参数等于上一个 `yield` 的返回值，如果你不传参，`yield` 永远返回 `undefined`。此时 `let y = 2 * 12`，所以第二个 `yield` 等于 `2 * 12 / 3 = 8`
-* 当执行第三次 `next` 时，传入的参数会传递给 `z`，所以 `z = 13, x = 5, y = 24`，相加等于 `42`
+- 首先 `Generator` 函数调用和普通函数不同，它会返回一个迭代器
+- 当执行第一次 `next` 时，传参会被忽略，并且函数暂停在 `yield (x + 1)` 处，所以返回 `5 + 1 = 6`
+- 当执行第二次 `next` 时，传入的参数等于上一个 `yield` 的返回值，如果你不传参，`yield` 永远返回 `undefined`。此时 `let y = 2 * 12`，所以第二个 `yield` 等于 `2 * 12 / 3 = 8`
+- 当执行第三次 `next` 时，传入的参数会传递给 `z`，所以 `z = 13, x = 5, y = 24`，相加等于 `42`
 
 `Generator` 函数一般见到的不多，其实也于他有点绕有关系，并且一般会配合 co 库去使用。当然，我们可以通过 `Generator` 函数解决回调地狱的问题，可以把之前的回调地狱例子改写为如下代码：
 
 ```js
-function *fetch() {
-    yield ajax(url, () => {})
-    yield ajax(url1, () => {})
-    yield ajax(url2, () => {})
+function* fetch() {
+  yield ajax(url, () => {})
+  yield ajax(url1, () => {})
+  yield ajax(url2, () => {})
 }
 let it = fetch()
 let result1 = it.next()
 let result2 = it.next()
 let result3 = it.next()
-
 ```
 
 ## Promise
@@ -152,11 +150,11 @@ console.log('finifsh')
 
 ```js
 Promise.resolve(1)
-  .then(res => {
+  .then((res) => {
     console.log(res) // => 1
     return 2 // 包装成 Promise.resolve(2)
   })
-  .then(res => {
+  .then((res) => {
     console.log(res) // => 2
   })
 ```
@@ -165,13 +163,15 @@ Promise.resolve(1)
 
 ```js
 ajax(url)
-  .then(res => {
-      console.log(res)
-      return ajax(url1)
-  }).then(res => {
-      console.log(res)
-      return ajax(url2)
-  }).then(res => console.log(res))
+  .then((res) => {
+    console.log(res)
+    return ajax(url1)
+  })
+  .then((res) => {
+    console.log(res)
+    return ajax(url2)
+  })
+  .then((res) => console.log(res))
 ```
 
 前面都是在讲述 `Promise` 的一些优点和特点，其实它也是存在一些缺点的，比如无法取消 `Promise`，错误需要通过回调函数捕获。
@@ -186,7 +186,7 @@ ajax(url)
 
 ```js
 async function test() {
-  return "1"
+  return '1'
 }
 console.log(test()) // -> Promise {<resolved>: "1"}
 ```
@@ -216,7 +216,7 @@ async function test() {
 ```js
 let a = 0
 let b = async () => {
-  a = a + await 10
+  a = a + (await 10)
   console.log('2', a) // -> '2' 10
 }
 b()
@@ -226,9 +226,9 @@ console.log('1', a) // -> '1' 1
 
 对于以上代码你可能会有疑惑，让我来解释下原因
 
-* 首先函数 `b` 先执行，在执行到 `await 10` 之前变量 `a` 还是 0，因为 `await` 内部实现了 `generator` ，`generator` 会保留堆栈中东西，所以这时候 `a = 0` 被保存了下来
-* 因为 `await` 是异步操作，后来的表达式不返回 `Promise` 的话，就会包装成 `Promise.reslove(返回值)`，然后会去执行函数外的同步代码
-* 同步代码执行完毕后开始执行异步代码，将保存下来的值拿出来使用，这时候 `a = 0 + 10`
+- 首先函数 `b` 先执行，在执行到 `await 10` 之前变量 `a` 还是 0，因为 `await` 内部实现了 `generator` ，`generator` 会保留堆栈中东西，所以这时候 `a = 0` 被保存了下来
+- 因为 `await` 是异步操作，后来的表达式不返回 `Promise` 的话，就会包装成 `Promise.reslove(返回值)`，然后会去执行函数外的同步代码
+- 同步代码执行完毕后开始执行异步代码，将保存下来的值拿出来使用，这时候 `a = 0 + 10`
 
 上述解释中提到了 `await` 内部实现了 `generator`，其实 `await` 就是 `generator` 加上 `Promise` 的语法糖，且内部实现了自动执行 `generator`。如果你熟悉 co 的话，其实自己就可以实现这样的语法糖。
 
@@ -253,18 +253,25 @@ let currentInterval = interval
 function loop() {
   count++
   // 代码执行所消耗的时间
-  let offset = new Date().getTime() - (startTime + count * interval);
+  let offset = new Date().getTime() - (startTime + count * interval)
   let diff = end - new Date().getTime()
   let h = Math.floor(diff / (60 * 1000 * 60))
   let hdiff = diff % (60 * 1000 * 60)
   let m = Math.floor(hdiff / (60 * 1000))
   let mdiff = hdiff % (60 * 1000)
-  let s = mdiff / (1000)
+  let s = mdiff / 1000
   let sCeil = Math.ceil(s)
   let sFloor = Math.floor(s)
   // 得到下一次循环所消耗的时间
-  currentInterval = interval - offset 
-  console.log('时：'+h, '分：'+m, '毫秒：'+s, '秒向上取整：'+sCeil, '代码执行时间：'+offset, '下次循环间隔'+currentInterval) 
+  currentInterval = interval - offset
+  console.log(
+    '时：' + h,
+    '分：' + m,
+    '毫秒：' + s,
+    '秒向上取整：' + sCeil,
+    '代码执行时间：' + offset,
+    '下次循环间隔' + currentInterval
+  )
 
   setTimeout(loop, currentInterval)
 }
@@ -278,9 +285,9 @@ setTimeout(loop, currentInterval)
 
 ```js
 function demo() {
-  setInterval(function(){
+  setInterval(function () {
     console.log(2)
-  },1000)
+  }, 1000)
   sleep(2000)
 }
 demo()
@@ -309,7 +316,7 @@ function setInterval(callback, interval) {
 }
 
 let a = 0
-setInterval(timer => {
+setInterval((timer) => {
   console.log(1)
   a++
   if (a === 3) cancelAnimationFrame(timer)

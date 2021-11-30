@@ -1,4 +1,4 @@
-describe('实现深拷贝', function() {
+describe('实现深拷贝', function () {
   test('deep clone', () => {
     function deepCopy(obj) {
       let tmp = {}

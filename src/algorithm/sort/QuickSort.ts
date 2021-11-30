@@ -6,11 +6,11 @@
  * Email: yuzl1123@163.com
  */
 
-import Sort from "./Sort";
+import Sort from './Sort'
 
 class QuickSort<T> extends Sort<T> {
   public runSort(): void {
-    this.quickSort(0, this.array.length);
+    this.quickSort(0, this.array.length)
   }
 
   /**
@@ -21,13 +21,13 @@ class QuickSort<T> extends Sort<T> {
    */
   private quickSort(begin: number, end: number) {
     if (end - begin < 2) {
-      return;
+      return
     }
 
-    let pivot = this.partition(begin, end);
+    let pivot = this.partition(begin, end)
 
-    this.quickSort(begin, pivot);
-    this.quickSort(pivot + 1, end);
+    this.quickSort(begin, pivot)
+    this.quickSort(pivot + 1, end)
   }
 
   /**
@@ -39,20 +39,20 @@ class QuickSort<T> extends Sort<T> {
    */
   protected partition(begin: number, end: number): number {
     // 以 begin 作为轴点元素
-    this.choosePivot(begin, end);
-    let pivotElement: T = this.array[begin];
-    end--;
+    this.choosePivot(begin, end)
+    let pivotElement: T = this.array[begin]
+    end--
 
     while (begin < end) {
       while (begin < end) {
         // 右边的元素大于轴点元素
         if (this.compareByElement(pivotElement, this.array[end]) < 0) {
           // 右指针左移
-          end--;
+          end--
         } else {
           // 右边的元素小于轴点元素，我们把它放到左边
-          this.array[begin++] = this.array[end];
-          break;
+          this.array[begin++] = this.array[end]
+          break
         }
       }
 
@@ -60,21 +60,21 @@ class QuickSort<T> extends Sort<T> {
         // 左边的元素小于轴点元素
         if (this.compareByElement(pivotElement, this.array[begin]) > 0) {
           // 右指针左移
-          begin++;
+          begin++
         } else {
           // 右边的元素小于轴点元素，我们把它放到左边
-          this.array[end--] = this.array[begin];
-          break;
+          this.array[end--] = this.array[begin]
+          break
         }
       }
     }
-    this.array[begin] = pivotElement;
-    return begin;
+    this.array[begin] = pivotElement
+    return begin
   }
 
   protected choosePivot(begin: number, end: number) {
-    return;
+    return
   }
 }
 
-export default QuickSort;
+export default QuickSort

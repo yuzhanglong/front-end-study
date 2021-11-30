@@ -8,29 +8,28 @@ export const combinationSum = (num: number[], target: number): number[][] => {
   const result = []
   const current = []
 
-  num = num.sort((a, b) => a - b);
+  num = num.sort((a, b) => a - b)
 
   const solve = (sum, index) => {
     // 超出范围，不会执行
     if (sum > target) {
-      return;
+      return
     }
     // 值相等，保存结果
     if (sum == target) {
-      let res = [...current];
-      result.push(res);
-      return;
+      let res = [...current]
+      result.push(res)
+      return
     }
 
     for (let i = index; i < num.length; i++) {
       if (i === index || num[i] !== num[i - 1]) {
         current.push(num[i])
-        solve(sum + num[i], i + 1);
+        solve(sum + num[i], i + 1)
         current.pop()
       }
     }
   }
   solve(0, 0)
-  return result;
+  return result
 }
-

@@ -24,10 +24,10 @@ module.exports = {
         // 只在 src 文件夹下查找
         include: [resolve('src')],
         // 不会去查找的路径
-        exclude: /node_modules/
-      }
-    ]
-  }
+        exclude: /node_modules/,
+      },
+    ],
+  },
 }
 ```
 
@@ -81,12 +81,12 @@ const webpack = require('webpack')
 module.exports = {
   entry: {
     // 想统一打包的类库
-    vendor: ['react']
+    vendor: ['react'],
   },
   output: {
     path: path.join(__dirname, 'dist'),
     filename: '[name].dll.js',
-    library: '[name]-[hash]'
+    library: '[name]-[hash]',
   },
   plugins: [
     new webpack.DllPlugin({
@@ -94,9 +94,9 @@ module.exports = {
       name: '[name]-[hash]',
       // 该属性需要与 DllReferencePlugin 中一致
       context: __dirname,
-      path: path.join(__dirname, 'dist', '[name]-manifest.json')
-    })
-  ]
+      path: path.join(__dirname, 'dist', '[name]-manifest.json'),
+    }),
+  ],
 }
 ```
 
@@ -111,8 +111,8 @@ module.exports = {
       context: __dirname,
       // manifest 就是之前打包出来的 json 文件
       manifest: require('./dist/vendor-manifest.json'),
-    })
-  ]
+    }),
+  ],
 }
 ```
 
@@ -129,7 +129,6 @@ module.exports = {
 - `resolve.extensions`：用来表明文件后缀列表，默认查找顺序是 `['.js', '.json']`，如果你的导入文件没有添加后缀就会按照这个顺序查找文件。我们应该尽可能减少后缀列表长度，然后将出现频率高的后缀排在前面
 - `resolve.alias`：可以通过别名的方式来映射一个路径，能让 Webpack 更快找到路径
 - `module.noParse`：如果你确定一个文件下没有其他依赖，就可以使用该属性让 Webpack 不扫描该文件，这种方式对于大型的类库很有帮助
-
 
 ## 减少 Webpack 打包后的文件体积
 
@@ -159,7 +158,7 @@ import { a } from './test.js'
 对于这种情况，我们打包出来的代码会类似这样
 
 ```js
-[
+;[
   /* 0 */
   function (module, exports, require) {
     //...
@@ -167,18 +166,18 @@ import { a } from './test.js'
   /* 1 */
   function (module, exports, require) {
     //...
-  }
+  },
 ]
 ```
 
-但是如果我们使用 Scope Hoisting 的话，代码就会尽可能的合并到一个函数中去，也就变成了这样的类似代码 
+但是如果我们使用 Scope Hoisting 的话，代码就会尽可能的合并到一个函数中去，也就变成了这样的类似代码
 
 ```js
-[
+;[
   /* 0 */
   function (module, exports, require) {
     //...
-  }
+  },
 ]
 ```
 
@@ -187,8 +186,8 @@ import { a } from './test.js'
 ```js
 module.exports = {
   optimization: {
-    concatenateModules: true
-  }
+    concatenateModules: true,
+  },
 }
 ```
 
@@ -213,4 +212,3 @@ import { a } from './test.js'
 在这一章节中，我们学习了如何使用 Webpack 去进行性能优化以及如何减少打包时间。
 
 Webpack 的版本更新很快，各个版本之间实现优化的方式可能都会有区别，所以我没有使用过多的代码去展示如何实现一个功能。**这一章节的重点是学习到我们可以通过什么方式去优化，具体的代码实现可以查找具体版本对应的代码即可。**
-

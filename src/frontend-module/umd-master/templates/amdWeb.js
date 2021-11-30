@@ -15,15 +15,15 @@
 // can remove the `root` use and the passing of `this` as the first arg to
 // the top function.
 
-(function (root, factory) {
+;(function (root, factory) {
   if (typeof define === 'function' && define.amd) {
     // AMD. Register as an anonymous module.
-    define(['b'], factory);
+    define(['b'], factory)
   } else {
     // Browser globals
-    root.amdWeb = factory(root.b);
+    root.amdWeb = factory(root.b)
   }
-}(typeof self !== 'undefined' ? self : this, function (b) {
+})(typeof self !== 'undefined' ? self : this, function (b) {
   // Use b in some fashion.
 
   // Just return a value to define the module export.
@@ -31,7 +31,7 @@
   // can return a function as the exported value.
   return {
     sayHello: () => {
-      console.log("hello");
-    }
-  };
-}));
+      console.log('hello')
+    },
+  }
+})

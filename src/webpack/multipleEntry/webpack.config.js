@@ -4,6 +4,6 @@ module.exports = {
     pageTwo: './entry2.js',
   },
   output: {
-    filename: './[name].js'
-  }
-};
+    filename: './[name].js',
+  },
+}

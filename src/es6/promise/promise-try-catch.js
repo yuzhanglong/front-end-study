@@ -7,17 +7,19 @@ try {
   console.log('抛出异常了吗？')
 }
 
-p.then(res => {
+p.then((res) => {
   console.log(res)
-}).catch(err => {
+}).catch((err) => {
   // Error
   console.log(err.__proto__.constructor.name)
 })
 
 new Promise(() => {
   throw new Error('Error')
-}).then(res => {
-  console.log(res)
-}).catch(() => {
-  console.log('此处显示异常')
 })
+  .then((res) => {
+    console.log(res)
+  })
+  .catch(() => {
+    console.log('此处显示异常')
+  })

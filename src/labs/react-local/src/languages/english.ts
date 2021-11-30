@@ -6,12 +6,11 @@
  * Email: yuzl1123@163.com
  */
 
-
 import { Local } from '../types'
 
 const English: Local = {
   cancelText: 'cancel',
-  confirmText: 'ok'
+  confirmText: 'ok',
 }
 
 export default English

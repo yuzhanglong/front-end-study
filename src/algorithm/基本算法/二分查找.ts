@@ -7,19 +7,19 @@
  */
 export const lowerBound = (num: number, arr: number[]): number => {
   if (num > arr[arr.length - 1]) {
-    return arr.length + 1;
+    return arr.length + 1
   }
-  let begin = 0;
-  let end = arr.length - 1;
+  let begin = 0
+  let end = arr.length - 1
   while (begin < end) {
-    let mid = (begin + end) >> 1;
+    let mid = (begin + end) >> 1
     if (num <= arr[mid]) {
-      end = mid;
+      end = mid
     } else {
-      begin = mid + 1;
+      begin = mid + 1
     }
   }
-  return end + 1;
+  return end + 1
 }
 
 /**
@@ -28,27 +28,30 @@ export const lowerBound = (num: number, arr: number[]): number => {
  * @param nums 旋转数组
  * @param target 搜索数字
  */
-export const searchInRotatedSortedArray = (nums: number[], target: number): number => {
+export const searchInRotatedSortedArray = (
+  nums: number[],
+  target: number
+): number => {
   // 获取轴点
-  let left = 0;
-  let right = nums.length - 1;
+  let left = 0
+  let right = nums.length - 1
   while (left < right) {
-    let mid = (left + right) >> 1;
+    let mid = (left + right) >> 1
     if (nums[mid] < nums[0]) {
-      right = mid;
+      right = mid
     } else {
-      left = mid + 1;
+      left = mid + 1
     }
   }
   // 拿到轴点
-  let pivot = right;
+  let pivot = right
 
   if (target >= nums[0]) {
     // 在左递增区间查找
-    return binarySearch(nums, 0, pivot + 1, target);
+    return binarySearch(nums, 0, pivot + 1, target)
   } else {
     // 在右递增区间查找
-    return binarySearch(nums, pivot, nums.length, target);
+    return binarySearch(nums, pivot, nums.length, target)
   }
 }
 
@@ -61,19 +64,24 @@ export const searchInRotatedSortedArray = (nums: number[], target: number): numb
  * @param target 搜索数字
  * @return 对应下标，如果不存在则返回 -1
  */
-export const binarySearch = (nums: number[], start: number, end: number, target: number) => {
-  let left = start;
-  let right = end - 1;
+export const binarySearch = (
+  nums: number[],
+  start: number,
+  end: number,
+  target: number
+) => {
+  let left = start
+  let right = end - 1
   while (left <= right) {
-    let mid = (left + right) >> 1;
+    let mid = (left + right) >> 1
     if (nums[mid] === target) {
-      return mid;
+      return mid
     }
     if (nums[mid] > target) {
-      right = mid - 1;
+      right = mid - 1
     } else {
-      left = mid + 1;
+      left = mid + 1
     }
   }
-  return -1;
+  return -1
 }

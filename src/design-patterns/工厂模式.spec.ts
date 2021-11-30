@@ -11,7 +11,6 @@ describe('工厂模式', () => {
     this.doors = options.doors || 4
     this.state = options.state || 'brand new'
     this.color = options.color || 'silver'
-
   }
 
   // A constructor for defining new trucks
@@ -25,7 +24,10 @@ describe('工厂模式', () => {
     class Vehicle {
       private static vehicleClass = Car
 
-      public static createVehicle(type: 'car' | 'truck', options: VehicleOptions) {
+      public static createVehicle(
+        type: 'car' | 'truck',
+        options: VehicleOptions
+      ) {
         let TargetClass = this.vehicleClass
         switch (type) {
           case 'car':
@@ -40,13 +42,13 @@ describe('工厂模式', () => {
     let res = Vehicle.createVehicle('car', {
       doors: 10,
       state: 'foo',
-      color: 'red'
+      color: 'red',
     })
 
     let res2 = Vehicle.createVehicle('truck', {
       doors: 20,
       state: 'bar',
-      color: 'green'
+      color: 'green',
     })
 
     expect(res).toBeInstanceOf(Car)
@@ -59,11 +61,11 @@ describe('工厂模式', () => {
 
       getVehicle(type, customizations) {
         const Vehicle = this.types[type]
-        return (Vehicle ? new Vehicle(customizations) : null)
+        return Vehicle ? new Vehicle(customizations) : null
       }
 
       registerVehicle(type, Vehicle) {
-        (this.types)[type] = Vehicle
+        this.types[type] = Vehicle
       }
     }
 
@@ -75,13 +77,13 @@ describe('工厂模式', () => {
     // Instantiate a new car based on the abstract vehicle type
     const car = abstractVehicleFactory.getVehicle('car', {
       color: 'lime green',
-      state: 'like new'
+      state: 'like new',
     })
 
     // Instantiate a new truck in a similar manner
     const truck = abstractVehicleFactory.getVehicle('truck', {
       wheelSize: 'medium',
-      color: 'neon yellow'
+      color: 'neon yellow',
     })
     expect(car).toBeInstanceOf(Car)
     expect(truck).toBeInstanceOf(Truck)

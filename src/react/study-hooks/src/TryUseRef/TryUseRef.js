@@ -1,10 +1,6 @@
-import React, {useReducer} from "react";
-
+import React, { useReducer } from 'react'
 
 const TryUseRef = () => {
-  return (
-    <div>
-    </div>
-  )
+  return <div></div>
 }
-export default TryUseRef;
+export default TryUseRef

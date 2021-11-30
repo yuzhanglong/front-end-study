@@ -2,27 +2,27 @@
 // 该实用程序可用于将一个类型的属性映射到另一个类型上。
 
 interface Word {
-  chinese: string;
-  startWith: string;
+  chinese: string
+  startWith: string
 }
 
-type TotalWords = "age" | "hobby";
+type TotalWords = 'age' | 'hobby'
 
 let user: Record<TotalWords, Word> = {
   age: {
-    chinese: "年龄",
-    startWith: "a"
+    chinese: '年龄',
+    startWith: 'a',
   },
   hobby: {
-    chinese: "爱好",
-    startWith: "h"
-  }
+    chinese: '爱好',
+    startWith: 'h',
+  },
 }
 
 // Record 的实现：
 type MyRecord<K extends keyof any, T> = {
-  [P in K]: T;
-};
+  [P in K]: T
+}
 
 // K 表示要映射到 K 上，T 表示被映射上的内容。
 // 那么新对象的 value 必须是 T（在上面为 Word）

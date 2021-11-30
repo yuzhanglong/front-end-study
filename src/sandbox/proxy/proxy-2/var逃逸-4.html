@@ -1,61 +1,61 @@
 <!DOCTYPE html>
-<html lang='en'>
-<head>
-  <meta charset='UTF-8'>
-  <title>Title</title>
-</head>
-<body>
-<script>
-  const varBox = {}
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Title</title>
+  </head>
+  <body>
+    <script>
+      const varBox = {}
 
-  const get = (target, key) => {
-    // 防止 window.window 逃逸，类似的还有 window.self 之类的 API，
-    // 需要特别注意一些边界 case
-    if (key === 'window') {
-      return fakeWindow
-    }
-    return varBox[key] || window[key]
-  }
+      const get = (target, key) => {
+        // 防止 window.window 逃逸，类似的还有 window.self 之类的 API，
+        // 需要特别注意一些边界 case
+        if (key === 'window') {
+          return fakeWindow
+        }
+        return varBox[key] || window[key]
+      }
 
-  const set = (target, key, value) => {
-    varBox[key] = value
-    return true
-  }
+      const set = (target, key, value) => {
+        varBox[key] = value
+        return true
+      }
 
-  // 使用 has 解决 var 逃逸问题
-  const has = (obj, property) => {
-    return true
-  }
+      // 使用 has 解决 var 逃逸问题
+      const has = (obj, property) => {
+        return true
+      }
 
-  const fakeWindow = new Proxy(window, {
-    get,
-    set
-  })
+      const fakeWindow = new Proxy(window, {
+        get,
+        set,
+      })
 
-  const withContext = new Proxy(window, {
-    get,
-    set,
-    has
-  })
+      const withContext = new Proxy(window, {
+        get,
+        set,
+        has,
+      })
 
-  const fn = (code) => {
-    return () => {
-      new Function(
-        'window',
-        'withContext',
-        `with(withContext){
+      const fn = (code) => {
+        return () => {
+          new Function(
+            'window',
+            'withContext',
+            `with(withContext){
           ${code}
         }`
-      )(fakeWindow, withContext)
-    }
-  }
+          )(fakeWindow, withContext)
+        }
+      }
 
-  fn('var x = 1;')()
-  fn('console.log(x)')()
+      fn('var x = 1;')()
+      fn('console.log(x)')()
 
-  fn('console.log("foo" in window)')()
+      fn('console.log("foo" in window)')()
 
-  console.log(window.x)
-</script>
-</body>
+      console.log(window.x)
+    </script>
+  </body>
 </html>

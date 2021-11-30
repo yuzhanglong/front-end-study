@@ -1,18 +1,14 @@
 <!DOCTYPE html>
-<html lang='en'>
+<html lang="en">
   <head>
-    <meta charset='UTF-8'>
+    <meta charset="UTF-8" />
     <title>外部 script 标签会触发页面的渲染</title>
   </head>
   <body>
-    <div>
-      i am content a.
-    </div>
+    <div>i am content a.</div>
 
     // test.js中使用大循环延长js执行时间
-    <script src='block-code.js'></script>
-    <div>
-      i am content b.
-    </div>
+    <script src="block-code.js"></script>
+    <div>i am content b.</div>
   </body>
 </html>

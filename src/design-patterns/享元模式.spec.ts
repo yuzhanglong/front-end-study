@@ -14,11 +14,18 @@ describe('享元模式', () => {
     }
 
     draw(): void {
-      console.log('Circle: Draw() [Color : ' + this.color
-        + ', x : ' + this.x + ', y :' + this.y + ', radius :' + this.radius)
+      console.log(
+        'Circle: Draw() [Color : ' +
+          this.color +
+          ', x : ' +
+          this.x +
+          ', y :' +
+          this.y +
+          ', radius :' +
+          this.radius
+      )
     }
   }
-
 
   class ShapeFactory {
     private circleMap = new Map()
@@ -34,7 +41,6 @@ describe('享元模式', () => {
       return circle
     }
   }
-
 
   test('享元模式', () => {
     // 享元模式的特点在于它运用共享技术避免了大量对象的创建

@@ -24,10 +24,9 @@ const createApp = () => {
     next(req, res)
   }
 
-
   return {
     use,
-    handleRequest
+    handleRequest,
   }
 }
 

@@ -10,7 +10,6 @@ interface Baz {
   type: 'baz'
 }
 
-
 type All = Foo | Bar | Baz
 
 function handleValue(val: All) {
@@ -27,4 +26,3 @@ function handleValue(val: All) {
       break
   }
 }
-

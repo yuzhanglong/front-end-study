@@ -6,24 +6,24 @@
  * Email: yuzl1123@163.com
  */
 
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const path = require("path");
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const path = require('path')
 
 module.exports = {
   entry: {
-    app: "./src/index.js",
+    app: './src/index.js',
   },
   output: {
     filename: '[name].bundle.js',
-    path: path.resolve(__dirname, 'dist')
+    path: path.resolve(__dirname, 'dist'),
   },
   plugins: [
     new HtmlWebpackPlugin({
-      title: 'Hot Module Replacement'
-    })
+      title: 'Hot Module Replacement',
+    }),
   ],
   devtool: 'source-map',
   devServer: {
-    hot: true
-  }
+    hot: true,
+  },
 }

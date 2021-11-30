@@ -2,9 +2,7 @@ function SuperType() {
   this.colors = ['red', 'blue', 'green']
 }
 
-function SubType() {
-
-}
+function SubType() {}
 
 SubType.prototype = new SuperType()
 

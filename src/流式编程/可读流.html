@@ -1,47 +1,44 @@
 <!DOCTYPE html>
-<html lang='en'>
-<head>
-  <meta charset='UTF-8'>
-  <title>Title</title>
-</head>
-<body>
-<script>
-  async function* ints() {
-    // 每1000毫秒生成一个递增的整数
-    for (let i = 0; i < 5; ++i) {
-      yield await new Promise((resolve) => setTimeout(resolve, 1000, i))
-    }
-  }
-
-
-  const readableStream = new ReadableStream({
-    async start(controller) {
-      for await (let chunk of ints()) {
-        controller.enqueue(chunk)
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Title</title>
+  </head>
+  <body>
+    <script>
+      async function* ints() {
+        // 每1000毫秒生成一个递增的整数
+        for (let i = 0; i < 5; ++i) {
+          yield await new Promise((resolve) => setTimeout(resolve, 1000, i))
+        }
       }
 
-      controller.close()
-    }
-  })
+      const readableStream = new ReadableStream({
+        async start(controller) {
+          for await (let chunk of ints()) {
+            controller.enqueue(chunk)
+          }
 
-  console.log(readableStream.locked)
+          controller.close()
+        },
+      })
 
-  const reader = readableStream.getReader()
+      console.log(readableStream.locked)
 
-  const run = async () => {
-    while (true) {
-      const { done, value } = await reader.read()
-      if (done) {
-        break
-      } else {
-        console.log(value)
+      const reader = readableStream.getReader()
+
+      const run = async () => {
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) {
+            break
+          } else {
+            console.log(value)
+          }
+        }
       }
-    }
-  }
 
-  run()
-
-</script>
-
-</body>
+      run()
+    </script>
+  </body>
 </html>

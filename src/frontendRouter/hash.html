@@ -1,25 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <title>Title</title>
     <script>
       const myHashTable = {
-        page1: "<div>我是第一页</div>",
-        page2: "<div>我是第二页</div>",
-        default: "hello world"
+        page1: '<div>我是第一页</div>',
+        page2: '<div>我是第二页</div>',
+        default: 'hello world',
       }
 
-      window.addEventListener("load", () => {
-        const newHash = location.hash.split("#/")[1];
-        document.body.innerHTML = myHashTable.hasOwnProperty(newHash) ? myHashTable[newHash] : myHashTable["default"];
-      });
+      window.addEventListener('load', () => {
+        const newHash = location.hash.split('#/')[1]
+        document.body.innerHTML = myHashTable.hasOwnProperty(newHash)
+          ? myHashTable[newHash]
+          : myHashTable['default']
+      })
 
-      window.addEventListener("hashchange", (event) => {
-        console.log(`url Hash值被改变！Old URL: ${event.oldURL}, New URL: ${event.newURL}`);
-        const newHash = event.newURL.split("/#/")[1];
-        document.body.innerHTML = myHashTable.hasOwnProperty(newHash) ? myHashTable[newHash] : myHashTable["default"];
-      });
+      window.addEventListener('hashchange', (event) => {
+        console.log(
+          `url Hash值被改变！Old URL: ${event.oldURL}, New URL: ${event.newURL}`
+        )
+        const newHash = event.newURL.split('/#/')[1]
+        document.body.innerHTML = myHashTable.hasOwnProperty(newHash)
+          ? myHashTable[newHash]
+          : myHashTable['default']
+      })
     </script>
   </head>
   <body>

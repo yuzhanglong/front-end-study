@@ -1,54 +1,54 @@
 <!DOCTYPE html>
-<html lang='en'>
-<head>
-  <meta charset='UTF-8'>
-  <title>Title</title>
-</head>
-<body>
-<script>
-  const varBox = {}
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Title</title>
+  </head>
+  <body>
+    <script>
+      const varBox = {}
 
-  const get = (target, key) => {
-    if (key === 'window') {
-      // 略去其它情况下的边界 case。例如 self
-      return fakeWindow
-    }
-    return varBox[key] || window[key]
-  }
+      const get = (target, key) => {
+        if (key === 'window') {
+          // 略去其它情况下的边界 case。例如 self
+          return fakeWindow
+        }
+        return varBox[key] || window[key]
+      }
 
-  const set = (target, key, value) => {
-    varBox[key] = value
-    return true
-  }
+      const set = (target, key, value) => {
+        varBox[key] = value
+        return true
+      }
 
-  const has = (target, p) => {
-    return true
-  }
+      const has = (target, p) => {
+        return true
+      }
 
-  const fakeWindow = new Proxy(window, {
-    get,
-    set,
-    has
-  })
+      const fakeWindow = new Proxy(window, {
+        get,
+        set,
+        has,
+      })
 
-  const fn = (code) => {
-    return () => {
-      new Function(
-        'window',
-        `with(window){
+      const fn = (code) => {
+        return () => {
+          new Function(
+            'window',
+            `with(window){
           ${code}
         }`
-      )(fakeWindow)
-    }
-  }
+          )(fakeWindow)
+        }
+      }
 
-  fn('var x = 1;')()
+      fn('var x = 1;')()
 
-  // 正常执行
-  fn('console.log(x)')()
+      // 正常执行
+      fn('console.log(x)')()
 
-  // 但带来了新问题, in 语法永远返回 true，不符合预期
-  fn('console.log("fn" in window)')()
-</script>
-</body>
+      // 但带来了新问题, in 语法永远返回 true，不符合预期
+      fn('console.log("fn" in window)')()
+    </script>
+  </body>
 </html>

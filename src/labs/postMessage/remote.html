@@ -1,20 +1,27 @@
-<!doctype html>
-<html lang='en'>
+<!DOCTYPE html>
+<html lang="en">
   <head>
-    <meta charset='utf-8' />
+    <meta charset="utf-8" />
     <title>hello world</title>
     <script>
       // 接收domain1的数据
-      window.addEventListener('message', (e) => {
-        console.log('服务端接收到数据:' + e.data)
-        const data = JSON.parse(e.data)
-        if (data) {
-          data.name = 'yuzhanglong'
-          data.age = 20
-          // 处理后再发回domain1
-          window.parent.postMessage(JSON.stringify(data), 'http://localhost:63342')
-        }
-      }, false)
+      window.addEventListener(
+        'message',
+        (e) => {
+          console.log('服务端接收到数据:' + e.data)
+          const data = JSON.parse(e.data)
+          if (data) {
+            data.name = 'yuzhanglong'
+            data.age = 20
+            // 处理后再发回domain1
+            window.parent.postMessage(
+              JSON.stringify(data),
+              'http://localhost:63342'
+            )
+          }
+        },
+        false
+      )
     </script>
   </head>
   <body>

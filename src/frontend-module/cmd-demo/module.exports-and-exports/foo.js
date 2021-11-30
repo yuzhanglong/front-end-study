@@ -10,5 +10,5 @@ exports.sayHello = sayHello
 
 module.exports = {
   name: 'yzl2',
-  age: 21
+  age: 21,
 }

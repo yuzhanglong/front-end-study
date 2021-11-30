@@ -6,9 +6,8 @@
  * Email: yuzl1123@163.com
  */
 
-
-import {createContext} from "react"
-import {Local} from "../types"
+import { createContext } from 'react'
+import { Local } from '../types'
 
 const LocalContext = createContext<Local | undefined>(undefined)
 

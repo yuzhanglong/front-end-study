@@ -16,25 +16,25 @@
 2. 类型不相同的话，那么就会进行类型转换
 3. 会先判断是否在对比 `null` 和 `undefined`，是的话就会返回 `true`
 4. 判断两者类型是否为 `string` 和 `number`，是的话就会将字符串转换为 `number`
-    ```js
-    1 == '1'
-          ↓
-    1 ==  1
-    ```
+   ```js
+   1 == '1'
+         ↓
+   1 ==  1
+   ```
 5. 判断其中一方是否为 `boolean`，是的话就会把 `boolean` 转为 `number` 再进行判断
-    ```js
-    '1' == true
-            ↓
-    '1' ==  1
-            ↓
-     1  ==  1
-    ```
+   ```js
+   '1' == true
+           ↓
+   '1' ==  1
+           ↓
+    1  ==  1
+   ```
 6. 判断其中一方是否为 `object` 且另一方为 `string`、`number` 或者 `symbol`，是的话就会把 `object` 转为原始类型再进行判断
-    ```js
-    '1' == { name: 'yck' }
-            ↓
-    '1' == '[object Object]'
-    ```
+   ```js
+   '1' == { name: 'yck' }
+           ↓
+   '1' == '[object Object]'
+   ```
 
 ```!
 思考题：看完了上面的步骤，对于 [] == ![] 你是否能正确写出答案呢？
@@ -60,7 +60,7 @@
 function A() {
   let a = 1
   window.B = function () {
-      console.log(a)
+    console.log(a)
   }
 }
 A()
@@ -89,7 +89,7 @@ for (var i = 1; i <= 5; i++) {
 
 ```js
 for (var i = 1; i <= 5; i++) {
-  ;(function(j) {
+  ;(function (j) {
     setTimeout(function timer() {
       console.log(j)
     }, j * 1000)
@@ -133,7 +133,7 @@ for (let i = 1; i <= 5; i++) {
 
 ```js
 let a = {
-  age: 1
+  age: 1,
 }
 let b = a
 a.age = 2
@@ -146,7 +146,7 @@ console.log(b.age) // 2
 
 ```js
 let a = {
-  age: 1
+  age: 1,
 }
 let b = Object.assign({}, a)
 a.age = 2
@@ -157,7 +157,7 @@ console.log(b.age) // 1
 
 ```js
 let a = {
-  age: 1
+  age: 1,
 }
 let b = { ...a }
 a.age = 2
@@ -170,8 +170,8 @@ console.log(b.age) // 1
 let a = {
   age: 1,
   jobs: {
-    first: 'FE'
-  }
+    first: 'FE',
+  },
 }
 let b = { ...a }
 a.jobs.first = 'native'
@@ -188,8 +188,8 @@ console.log(b.jobs.first) // native
 let a = {
   age: 1,
   jobs: {
-    first: 'FE'
-  }
+    first: 'FE',
+  },
 }
 let b = JSON.parse(JSON.stringify(a))
 a.jobs.first = 'native'
@@ -230,8 +230,8 @@ console.log(newObj)
 let a = {
   age: undefined,
   sex: Symbol('male'),
-  jobs: function() {},
-  name: 'yck'
+  jobs: function () {},
+  name: 'yck',
 }
 let b = JSON.parse(JSON.stringify(a))
 console.log(b) // {name: "yck"}
@@ -245,9 +245,9 @@ console.log(b) // {name: "yck"}
 
 ```js
 function structuralClone(obj) {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     const { port1, port2 } = new MessageChannel()
-    port2.onmessage = ev => resolve(ev.data)
+    port2.onmessage = (ev) => resolve(ev.data)
     port1.postMessage(obj)
   })
 }
@@ -255,8 +255,8 @@ function structuralClone(obj) {
 var obj = {
   a: 1,
   b: {
-    c: 2
-  }
+    c: 2,
+  },
 }
 
 obj.b.d = obj.b
@@ -284,7 +284,7 @@ function deepClone(obj) {
 
   let isArray = Array.isArray(obj)
   let newObj = isArray ? [...obj] : { ...obj }
-  Reflect.ownKeys(newObj).forEach(key => {
+  Reflect.ownKeys(newObj).forEach((key) => {
     newObj[key] = isObject(obj[key]) ? deepClone(obj[key]) : obj[key]
   })
 
@@ -295,8 +295,8 @@ let obj = {
   a: [1, 2, 3],
   b: {
     c: 2,
-    d: 3
-  }
+    d: 3,
+  },
 }
 let newObj = deepClone(obj)
 newObj.b.c = 1
@@ -336,6 +336,7 @@ console.log(obj.b.c) // 2
 看完这张图，我再来解释下什么是原型链吧。其实原型链就是多个对象通过 `__proto__` 的方式连接了起来。为什么 `obj` 可以访问到 `valueOf` 函数，就是因为 `obj` 通过原型链找到了 `valueOf` 函数。
 
 对于这一小节的知识点，总结起来就是以下几点：
+
 - `Object` 是所有对象的爸爸，所有对象都可以通过 `__proto__` 找到它
 - `Function` 是所有函数的爸爸，所有函数都可以通过 `__proto__` 找到它
 - 函数的 `prototype` 是一个对象

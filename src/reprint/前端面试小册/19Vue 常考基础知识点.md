@@ -92,16 +92,16 @@ export default {
 ```js
 // 创建组件构造器
 let Component = Vue.extend({
-  template: '<div>test</div>'
+  template: '<div>test</div>',
 })
 // 挂载到 #app 上
 new Component().$mount('#app')
 // 除了上面的方式，还可以用来扩展已有的组件
 let SuperComponent = Vue.extend(Component)
 new SuperComponent({
-    created() {
-        console.log(1)
-    }
+  created() {
+    console.log(1)
+  },
 })
 new SuperComponent().$mount('#app')
 ```
@@ -112,10 +112,10 @@ new SuperComponent().$mount('#app')
 
 ```js
 Vue.mixin({
-    beforeCreate() {
-        // ...逻辑
-        // 这种方式会影响到每个组件的 beforeCreate 钩子函数
-    }
+  beforeCreate() {
+    // ...逻辑
+    // 这种方式会影响到每个组件的 beforeCreate 钩子函数
+  },
 })
 ```
 
@@ -132,17 +132,17 @@ Vue.mixin({
 `watch` 监听到值的变化就会执行回调，在回调中可以进行一些逻辑操作。
 
 所以一般来说需要依赖别的属性来动态获得值的时候可以使用 `computed`，对于监听到值的变化需要做一些复杂业务逻辑的情况可以使用 `watch`。
- 
+
 另外 `computed` 和 `watch` 还都支持对象的写法，这种方式知道的人并不多。
 
 ```js
 vm.$watch('obj', {
-    // 深度遍历
-    deep: true,
-    // 立即触发
-    immediate: true,
-    // 执行的函数
-    handler: function(val, oldVal) {}
+  // 深度遍历
+  deep: true,
+  // 立即触发
+  immediate: true,
+  // 执行的函数
+  handler: function (val, oldVal) {},
 })
 var vm = new Vue({
   data: { a: 1 },
@@ -155,9 +155,9 @@ var vm = new Vue({
       // this.aPlus = 1 时触发
       set: function (v) {
         this.a = v - 1
-      }
-    }
-  }
+      },
+    },
+  },
 })
 ```
 

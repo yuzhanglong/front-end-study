@@ -4,7 +4,4 @@ setTimeout(() => {
   name = 'yzl'
 }, 0)
 
-export {
-  name
-}
-
+export { name }

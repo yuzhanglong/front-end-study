@@ -1,6 +1,6 @@
 # React 和 Vue 两大框架之间的相爱相杀
 
-React 和 Vue 应该是国内当下最火热的前端框架，当然 Angular 也是一个不错的框架，但是这个产品国内使用的人很少再加上我对 Angular 也不怎么熟悉，所以框架的章节中**不会涉及到 Angular 的内容**。 
+React 和 Vue 应该是国内当下最火热的前端框架，当然 Angular 也是一个不错的框架，但是这个产品国内使用的人很少再加上我对 Angular 也不怎么熟悉，所以框架的章节中**不会涉及到 Angular 的内容**。
 
 这一章节，我们将会来学习以下几个内容
 
@@ -52,25 +52,25 @@ React 和 Vue 应该是国内当下最火热的前端框架，当然 Angular 也
 
 大家都知道操作 DOM 是很慢的，为什么慢的原因已经在「**浏览器渲染原理**」章节中说过，这里就不再赘述了。
 
-那么相较于 DOM 来说，操作 JS 对象会快很多，并且我们也可以通过 JS 来模拟 DOM 
+那么相较于 DOM 来说，操作 JS 对象会快很多，并且我们也可以通过 JS 来模拟 DOM
 
 ```js
 const ul = {
   tag: 'ul',
   props: {
-    class: 'list'
+    class: 'list',
   },
   children: {
     tag: 'li',
-    children: '1'
-  }
+    children: '1',
+  },
 }
 ```
 
 上述代码对应的 DOM 就是
 
 ```html
-<ul class='list'>
+<ul class="list">
   <li>1</li>
 </ul>
 ```
@@ -92,9 +92,10 @@ const ul = {
 
 ```js
 // 假设这里模拟一个 ul，其中包含了 5 个 li
-[1, 2, 3, 4, 5]
-// 这里替换上面的 li
-[1, 2, 5, 4]
+;[1, 2, 3, 4, 5][
+  // 这里替换上面的 li
+  (1, 2, 5, 4)
+]
 ```
 
 从上述例子中，我们一眼就可以看出先前的 `ul` 中的第三个 `li` 被移除了，四五替换了位置。
@@ -150,7 +151,7 @@ history.replaceState(stateObject, title, URL)
 当用户做出浏览器动作时，比如点击后退按钮时会触发 `popState` 事件
 
 ```js
-window.addEventListener('popstate', e => {
+window.addEventListener('popstate', (e) => {
   // e.state 就是 pushState(stateObject) 中的 stateObject
   console.log(e.state)
 })
@@ -168,7 +169,7 @@ Vue 的表单可以使用 `v-model` 支持双向绑定，相比于 React 来说�
 
 改变数据方式不同，Vue 修改状态相比来说要简单许多，React 需要使用 `setState` 来改变状态，并且使用这个 API 也有一些坑点。并且 Vue 的底层使用了依赖追踪，页面更新渲染已经是最优的了，但是 React 还是需要用户手动去优化这方面的问题。
 
-React 16以后，有些钩子函数会执行多次，这是因为引入 Fiber 的原因，这在后续的章节中会讲到。
+React 16 以后，有些钩子函数会执行多次，这是因为引入 Fiber 的原因，这在后续的章节中会讲到。
 
 React 需要使用 JSX，有一定的上手成本，并且需要一整套的工具链支持，但是完全可以通过 JS 来控制页面，更加的灵活。Vue 使用了模板语法，相比于 JSX 来说没有那么灵活，但是完全可以脱离工具链，通过直接编写 `render` 函数就能在浏览器中运行。
 

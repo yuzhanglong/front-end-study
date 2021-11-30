@@ -1,7 +1,7 @@
 // 生成器函数根据yield语句将代码分割为switch-case块，后续通过切换_context.prev和_context.next来分别执行各个case
 function gen$(_context) {
   while (1) {
-    switch (_context.prev = _context.next) {
+    switch ((_context.prev = _context.next)) {
       case 0:
         _context.next = 2
         return 'result1'
@@ -28,26 +28,26 @@ let context = {
   done: false,
   stop: function stop() {
     this.done = true
-  }
+  },
 }
 
 // 低配版invoke
-let gen = function() {
+let gen = function () {
   return {
-    next: function() {
+    next: function () {
       let value = context.done ? undefined : gen$(context)
       let done = context.done
       return {
         value,
-        done
+        done,
       }
-    }
+    },
   }
 }
 
 // 测试使用
 var g = gen()
-console.log(g.next())  // {value: "result1", done: false}
-console.log(g.next())  // {value: "result2", done: false}
-console.log(g.next())  // {value: "result3", done: false}
-console.log(g.next())  // {value: undefined, done: true}
+console.log(g.next()) // {value: "result1", done: false}
+console.log(g.next()) // {value: "result2", done: false}
+console.log(g.next()) // {value: "result3", done: false}
+console.log(g.next()) // {value: undefined, done: true}

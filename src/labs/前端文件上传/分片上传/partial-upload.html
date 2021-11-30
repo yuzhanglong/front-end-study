@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html lang='en'>
+<html lang="en">
   <head>
-    <meta charset='UTF-8'>
+    <meta charset="UTF-8" />
     <title>分片上传</title>
   </head>
   <body>
     <label>
-      <input type='file' id='file'>
+      <input type="file" id="file" />
     </label>
-    <button type='button' id='btn-submit'>上 传</button>
+    <button type="button" id="btn-submit">上 传</button>
   </body>
   <script>
     const submitUpload = async () => {
@@ -38,33 +38,34 @@
         }
         return {
           name: file.name,
-          chunks: chunks
+          chunks: chunks,
         }
       }
       const chunks = getChunks()
       await upload(chunks.chunks, chunks.name)
     }
 
-    const xhrSend = async (data, name, token) => new Promise(resolve => {
-      const fd = new FormData()
-      fd.append('f1', data)
-      fd.append('filename', name)
-      fd.append('token', token)
-      const xhr = new XMLHttpRequest()
-      xhr.open('POST', 'http://localhost:8080')
-      xhr.onreadystatechange = function() {
-        console.log('state change', xhr.readyState)
-        if (xhr.readyState === 4) {
-          resolve()
+    const xhrSend = async (data, name, token) =>
+      new Promise((resolve) => {
+        const fd = new FormData()
+        fd.append('f1', data)
+        fd.append('filename', name)
+        fd.append('token', token)
+        const xhr = new XMLHttpRequest()
+        xhr.open('POST', 'http://localhost:8080')
+        xhr.onreadystatechange = function () {
+          console.log('state change', xhr.readyState)
+          if (xhr.readyState === 4) {
+            resolve()
+          }
         }
-      }
-      xhr.send(fd)
-    })
+        xhr.send(fd)
+      })
 
     const upload = async (totalData, name) => {
       let baseToken = new Date().getTime()
       const start = baseToken
-      const xhrPromises = totalData.map(res => {
+      const xhrPromises = totalData.map((res) => {
         baseToken += 1
         return xhrSend(res, name, baseToken)
       })
@@ -81,6 +82,8 @@
     }
 
     //绑定提交事件
-    document.getElementById('btn-submit').addEventListener('click', submitUpload)
+    document
+      .getElementById('btn-submit')
+      .addEventListener('click', submitUpload)
   </script>
 </html>

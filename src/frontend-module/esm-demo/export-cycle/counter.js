@@ -6,6 +6,4 @@ setTimeout(() => {
   console.log(message)
 }, 0)
 
-export {
-  count
-}
+export { count }

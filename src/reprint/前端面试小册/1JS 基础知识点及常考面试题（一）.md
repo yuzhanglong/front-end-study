@@ -58,14 +58,14 @@ function test(person) {
   person.age = 26
   person = {
     name: 'yyy',
-    age: 30
+    age: 30,
   }
 
   return person
 }
 const p1 = {
   name: 'yck',
-  age: 25
+  age: 25,
 }
 const p2 = test(p1)
 console.log(p1) // -> ?
@@ -73,6 +73,7 @@ console.log(p2) // -> ?
 ```
 
 对于以上代码，你是否能正确的写出结果呢？接下来让我为你解析一番：
+
 - 首先，函数传参是传递对象指针的副本
 - 到函数内部修改参数的属性这步，我相信大家都知道，当前 `p1` 的值也被修改了
 - 但是当我们重新为 `person` 分配了一个对象时就出现了分歧，请看下图
@@ -108,7 +109,7 @@ typeof console.log // 'function'
 如果我们想判断一个对象的正确类型，这时候可以考虑使用 `instanceof`，因为内部机制是通过原型链来判断的，在后面的章节中我们也会自己去实现一个 `instanceof`。
 
 ```js
-const Person = function() {}
+const Person = function () {}
 const p1 = new Person()
 p1 instanceof Person // true
 
@@ -139,6 +140,7 @@ console.log('hello world' instanceof PrimitiveString) // true
 ```
 
 首先我们要知道，在 JS 中类型转换只有三种情况，分别是：
+
 - 转换为布尔值
 - 转换为数字
 - 转换为字符串
@@ -147,7 +149,7 @@ console.log('hello world' instanceof PrimitiveString) // true
 
 ![](https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2018/11/15/16716dec14421e47~tplv-t2oaga2asx-watermark.awebp)
 
-### 转Boolean
+### 转 Boolean
 
 在条件判断时，除了 `undefined`， `null`， `false`， `NaN`， `''`， `0`， `-0`，其他所有值都转为 `true`，包括所有对象。
 
@@ -172,7 +174,7 @@ let a = {
   },
   [Symbol.toPrimitive]() {
     return 2
-  }
+  },
 }
 1 + a // => 3
 ```
@@ -180,16 +182,18 @@ let a = {
 ### 四则运算符
 
 加法运算符不同于其他几个运算符，它有以下几个特点：
+
 - 运算中其中一方为字符串，那么就会把另一方也转换为字符串
 - 如果一方不是字符串或者数字，那么会将它转换为数字或者字符串
 
 ```js
 1 + '1' // '11'
 true + true // 2
-4 + [1,2,3] // "41,2,3"
+4 + [1, 2, 3] // "41,2,3"
 ```
 
 如果你对于答案有疑问的话，请看解析：
+
 - 对于第一行代码来说，触发特点一，所以将数字 `1` 转换为字符串，得到结果 `'11'`
 - 对于第二行代码来说，触发特点二，所以将 `true` 转为数字 `1`
 - 对于第三行代码来说，触发特点二，所以将数组通过 `toString` 转为字符串 `1,2,3`，得到结果 `41,2,3`
@@ -197,7 +201,7 @@ true + true // 2
 另外对于加法还需要注意这个表达式 `'a' + + 'b'`
 
 ```js
-'a' + + 'b' // -> "aNaN"
+'a' + +'b' // -> "aNaN"
 ```
 
 因为 `+ 'b'` 等于 `NaN`，所以结果为 `"aNaN"`，你可能也会在一些代码中看到过 `+ '1'` 的形式来快速获取 `number` 类型。
@@ -222,7 +226,7 @@ let a = {
   },
   toString() {
     return '1'
-  }
+  },
 }
 a > -1 // true
 ```
@@ -238,6 +242,7 @@ a > -1 // true
 `this` 是很多人会混淆的概念，但是其实它一点都不难，只是网上很多文章把简单的东西说复杂了。在这一小节中，你一定会彻底明白 `this` 这个概念的。
 
 我们先来看几个函数调用的场景
+
 ```js
 function foo() {
   console.log(this.a)
@@ -247,7 +252,7 @@ foo()
 
 const obj = {
   a: 2,
-  foo: foo
+  foo: foo,
 }
 obj.foo()
 
@@ -255,6 +260,7 @@ const c = new foo()
 ```
 
 接下来我们一个个分析上面几个场景
+
 - 对于直接调用 `foo` 来说，不管 `foo` 函数被放在了什么地方，`this` 一定是 `window`
 - 对于 `obj.foo()` 来说，我们只需要记住，谁调用了函数，谁就是 `this`，所以在这个场景下 `foo` 函数中的 `this` 就是 `obj` 对象
 - 对于 `new` 的方式来说，`this` 被永远绑定在了 `c` 上面，不会被任何方式改变 `this`
@@ -280,7 +286,9 @@ console.log(a()()())
 
 ```js
 let a = {}
-let fn = function () { console.log(this) }
+let fn = function () {
+  console.log(this)
+}
 fn.bind().bind(a)() // => ?
 ```
 
@@ -289,7 +297,7 @@ fn.bind().bind(a)() // => ?
 ```js
 // fn.bind().bind(a) 等于
 let fn2 = function fn1() {
-  return function() {
+  return function () {
     return fn.apply()
   }.apply(a)
 }

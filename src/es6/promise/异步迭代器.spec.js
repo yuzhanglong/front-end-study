@@ -1,4 +1,4 @@
-describe('异步迭代器 demo', function() {
+describe('异步迭代器 demo', function () {
   test('可迭代对象', () => {
     function myIterator(array) {
       let nextIndex = 0
@@ -6,19 +6,19 @@ describe('异步迭代器 demo', function() {
       return {
         [Symbol.iterator]: () => {
           return {
-            next: function() {
+            next: function () {
               if (nextIndex < array.length) {
                 return {
                   value: array[nextIndex++],
-                  done: false
+                  done: false,
                 }
               }
               return {
-                done: true
+                done: true,
               }
-            }
+            },
           }
-        }
+        },
       }
     }
 
@@ -35,12 +35,13 @@ describe('异步迭代器 demo', function() {
       [Symbol.asyncIterator]: () => {
         let items = [1, 2, 3, 4]
         return {
-          next: () => Promise.resolve({
-            done: items.length === 0,
-            value: items.shift()
-          })
+          next: () =>
+            Promise.resolve({
+              done: items.length === 0,
+              value: items.shift(),
+            }),
         }
-      }
+      },
     }
 
     let arr = []
@@ -49,5 +50,4 @@ describe('异步迭代器 demo', function() {
     }
     expect(arr).toStrictEqual([1, 2, 3, 4])
   })
-
 })

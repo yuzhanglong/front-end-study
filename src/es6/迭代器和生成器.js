@@ -2,27 +2,26 @@
 class Counter {
   // Counter 的实例应该迭代 limit 次
   constructor(limit) {
-    this.count = 1;
-    this.limit = limit;
+    this.count = 1
+    this.limit = limit
   }
 
-
   [Symbol.iterator]() {
-    let count = 1;
-    let limit = this.limit;
+    let count = 1
+    let limit = this.limit
     return {
       next() {
         if (count <= limit) {
-          return {done: false, value: count++};
+          return { done: false, value: count++ }
         } else {
-          return {done: true, value: undefined};
+          return { done: true, value: undefined }
         }
       },
       return() {
-        console.log('Exiting early');
-        return {done: true};
-      }
-    };
+        console.log('Exiting early')
+        return { done: true }
+      },
+    }
   }
 }
 
@@ -41,33 +40,32 @@ class Counter {
 
 // ================================================================= //
 
-
 function* bar() {
-  console.log('hi~');
+  console.log('hi~')
   // 利用 setTimeout 模拟网络请求
   const res1 = yield new Promise((resolve, reject) => {
     setTimeout(() => {
-      resolve("hello world!");
-    }, 1000);
-  });
+      resolve('hello world!')
+    }, 1000)
+  })
   const res2 = yield new Promise((resolve, reject) => {
     setTimeout(() => {
-      resolve("yzl!");
-    }, 1000);
-  });
-  console.log(res1);
-  console.log(res2);
+      resolve('yzl!')
+    }, 1000)
+  })
+  console.log(res1)
+  console.log(res2)
 }
 
-const iterator = bar();
-let it1 = iterator.next();
+const iterator = bar()
+let it1 = iterator.next()
 
-it1.value.then(res => {
-  let it2 = iterator.next(res);
-  it2.value.then(res => {
-    iterator.next(res);
+it1.value.then((res) => {
+  let it2 = iterator.next(res)
+  it2.value.then((res) => {
+    iterator.next(res)
   })
-});
+})
 
 // const generatorRunner = (fn) => {
 //   let iterator = fn();

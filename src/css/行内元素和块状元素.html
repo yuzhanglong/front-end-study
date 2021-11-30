@@ -1,28 +1,28 @@
 <!DOCTYPE html>
-<html lang='en'>
+<html lang="en">
   <head>
-    <meta charset='UTF-8'>
+    <meta charset="UTF-8" />
     <title>行内元素和块状元素</title>
   </head>
   <body>
-    <div class='block'>
+    <div class="block">
       <div>1</div>
       <div>2</div>
       <div>3</div>
     </div>
 
-    <div class='inline'>
+    <div class="inline">
       <div>
         hahahhahaha
-        <div>
-          d123123123
-        </div>
+        <div>d123123123</div>
         hahahhahaha
       </div>
-      <span class='inline-div'>行内元素设置width无效，height无效(可以设置line-height)，margin上下无效，padding上下无效</span>
+      <span class="inline-div"
+        >行内元素设置width无效，height无效(可以设置line-height)，margin上下无效，padding上下无效</span
+      >
     </div>
 
-    <div class='inline-block'>
+    <div class="inline-block">
       <div>如果有换行符</div>
       <div>元素之间</div>
       <div>就会有</div>
@@ -31,19 +31,19 @@
   </body>
 
   <style>
-
     .block {
-
     }
 
-    .inline > div, .block > div {
+    .inline > div,
+    .block > div {
       margin-top: 10px;
       height: 200px;
       width: 200px;
       background-color: #409eff;
     }
 
-    .inline > span, .inline > div {
+    .inline > span,
+    .inline > div {
       width: 1000px;
       display: inline;
     }

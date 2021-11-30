@@ -1,10 +1,9 @@
 #app {
-    color: #409EFF;
+  color: #409eff;
 }
 
-
 #my-image {
-    width: 400px;
-    height: 400px;
-    background-image: url("../../assets/coding.gif");
+  width: 400px;
+  height: 400px;
+  background-image: url('../../assets/coding.gif');
 }

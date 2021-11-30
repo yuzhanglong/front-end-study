@@ -1,11 +1,7 @@
-import React from "react";
+import React from 'react'
 
 const OtherComponent = () => {
-  return (
-    <div>
-      OtherComponent!
-    </div>
-  )
+  return <div>OtherComponent!</div>
 }
 
-export default OtherComponent;
+export default OtherComponent

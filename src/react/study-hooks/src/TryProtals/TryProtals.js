@@ -1,11 +1,8 @@
-import React from "react";
-import ReactDOM from "react-dom";
+import React from 'react'
+import ReactDOM from 'react-dom'
 
 const Modal = (props) => {
-  return ReactDOM.createPortal(
-    props.children,
-    document.getElementById("modal")
-  )
+  return ReactDOM.createPortal(props.children, document.getElementById('modal'))
 }
 
 const TryProtals = () => {
@@ -17,4 +14,4 @@ const TryProtals = () => {
     </div>
   )
 }
-export default TryProtals;
+export default TryProtals

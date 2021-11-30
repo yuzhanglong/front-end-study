@@ -7,6 +7,6 @@ const p = new Promise((res) => {
 
 const t = Promise.resolve(p)
 console.log(t === p)
-t.then(r => {
+t.then((r) => {
   console.log(r)
 })

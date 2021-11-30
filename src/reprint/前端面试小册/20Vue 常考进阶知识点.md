@@ -17,7 +17,7 @@ function observe(obj) {
   if (!obj || typeof obj !== 'object') {
     return
   }
-  Object.keys(obj).forEach(key => {
+  Object.keys(obj).forEach((key) => {
     defineReactive(obj, key, obj[key])
   })
 }
@@ -38,7 +38,7 @@ function defineReactive(obj, key, val) {
     set: function reactiveSetter(newVal) {
       console.log('change value')
       val = newVal
-    }
+    },
   })
 }
 ```
@@ -46,9 +46,7 @@ function defineReactive(obj, key, val) {
 以上代码简单的实现了如何监听数据的 `set` 和 `get` 的事件，但是仅仅如此是不够的，因为自定义的函数一开始是不会执行的。只有先执行了依赖收集，才能在属性更新的时候派发更新，所以接下来我们需要先触发依赖收集。
 
 ```html
-<div>
-    {{name}}
-</div>
+<div>{{name}}</div>
 ```
 
 在解析如上模板代码时，遇到 `{{name}}` 就会进行依赖收集。
@@ -67,7 +65,7 @@ class Dep {
   }
   // 更新
   notify() {
-    this.subs.forEach(sub => {
+    this.subs.forEach((sub) => {
       sub.update()
     })
   }
@@ -129,7 +127,7 @@ function defineReactive(obj, key, val) {
       val = newVal
       // 执行 watcher 的 update 方法
       dp.notify()
-    }
+    },
   })
 }
 ```
@@ -147,7 +145,7 @@ function update(value) {
 // 模拟解析到 `{{name}}` 触发的操作
 new Watcher(data, 'name', update)
 // update Dom innerText
-data.name = 'yyy' 
+data.name = 'yyy'
 ```
 
 ### Object.defineProperty 的缺陷
@@ -157,8 +155,9 @@ data.name = 'yyy'
 如果通过下标方式修改数组数据或者给对象新增属性并不会触发组件的重新渲染，因为 `Object.defineProperty` 不能拦截到这些操作，更精确的来说，对于数组而言，大部分操作都是拦截不到的，只是 Vue 内部通过重写函数的方式解决了这个问题。
 
 对于第一个问题，Vue 提供了一个 API 解决
+
 ```js
-export function set (target: Array<any> | Object, key: any, val: any): any {
+export function set(target: Array<any> | Object, key: any, val: any): any {
   // 判断是否为数组且下标是否有效
   if (Array.isArray(target) && isValidArrayIndex(key)) {
     // 调用 splice 函数触发派发更新
@@ -185,7 +184,9 @@ export function set (target: Array<any> | Object, key: any, val: any): any {
   return val
 }
 ```
+
 对于数组而言，Vue 内部重写了以下函数实现派发更新
+
 ```js
 // 获得数组原型
 const arrayProto = Array.prototype
@@ -198,14 +199,14 @@ const methodsToPatch = [
   'unshift',
   'splice',
   'sort',
-  'reverse'
+  'reverse',
 ]
 methodsToPatch.forEach(function (method) {
   // 缓存原生函数
   const original = arrayProto[method]
   // 重写函数
-  def(arrayMethods, method, function mutator (...args) {
-  // 先调用原生函数获得结果
+  def(arrayMethods, method, function mutator(...args) {
+    // 先调用原生函数获得结果
     const result = original.apply(this, args)
     const ob = this.__ob__
     let inserted
@@ -272,7 +273,7 @@ methodsToPatch.forEach(function (method) {
 
 在 Vue 2.4 之前都是使用的 microtasks，但是 microtasks 的优先级过高，在某些情况下可能会出现比事件冒泡更快的情况，但如果都使用 macrotasks 又可能会出现渲染的性能问题。所以在新版本中，会默认使用 microtasks，但在特殊情况下会使用 macrotasks，比如 v-on。
 
-对于实现 macrotasks ，会先判断是否能使用 `setImmediate` ，不能的话降级为 `MessageChannel` ，以上都不行的话就使用 `setTimeout` 
+对于实现 macrotasks ，会先判断是否能使用 `setImmediate` ，不能的话降级为 `MessageChannel` ，以上都不行的话就使用 `setTimeout`
 
 ```js
 if (typeof setImmediate !== 'undefined' && isNative(setImmediate)) {

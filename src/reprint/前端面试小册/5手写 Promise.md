@@ -1,7 +1,9 @@
 # 手写 Promise
+
 在上一章节中我们了解了 `Promise` 的一些易错点，在这一章节中，我们会通过手写一个符合 Promise/A+ 规范的 `Promise` 来深入理解它，并且手写 `Promise` 也是一道大厂常考题，在进入正题之前，推荐各位阅读一下 [Promise/A+ 规范](http://www.ituring.com.cn/article/66566)，这样才能更好地理解这个章节的代码。
 
 ## 实现一个简易版 Promise
+
 在完成符合 Promise/A+ 规范的代码之前，我们可以先来实现一个简易版 `Promise`，因为在面试中，如果你能实现出一个简易版的 `Promise` 基本可以过关了。
 
 那么我们先来搭建构建函数的大体框架
@@ -35,7 +37,7 @@ function resolve(value) {
   if (that.state === PENDING) {
     that.state = RESOLVED
     that.value = value
-    that.resolvedCallbacks.map(cb => cb(that.value))
+    that.resolvedCallbacks.map((cb) => cb(that.value))
   }
 }
 
@@ -43,12 +45,13 @@ function reject(value) {
   if (that.state === PENDING) {
     that.state = REJECTED
     that.value = value
-    that.rejectedCallbacks.map(cb => cb(that.value))
+    that.rejectedCallbacks.map((cb) => cb(that.value))
   }
 }
 ```
 
 这两个函数代码类似，就一起解析了
+
 - 首先两个函数都得判断当前状态是否为等待中，因为规范规定只有等待态才可以改变状态
 - 将当前状态更改为对应状态，并且将传入的值赋值给 `value`
 - 遍历回调数组并执行
@@ -69,13 +72,13 @@ try {
 最后我们来实现较为复杂的 `then` 函数
 
 ```js
-MyPromise.prototype.then = function(onFulfilled, onRejected) {
+MyPromise.prototype.then = function (onFulfilled, onRejected) {
   const that = this
-  onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : v => v
+  onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : (v) => v
   onRejected =
     typeof onRejected === 'function'
       ? onRejected
-      : r => {
+      : (r) => {
           throw r
         }
   if (that.state === PENDING) {
@@ -94,24 +97,26 @@ MyPromise.prototype.then = function(onFulfilled, onRejected) {
 - 首先判断两个参数是否为函数类型，因为这两个参数是可选参数
 - 当参数不是函数类型时，需要创建一个函数赋值给对应的参数，同时也实现了透传，比如如下代码
 
-    ```js
-    // 该代码目前在简单版中会报错
-    // 只是作为一个透传的例子
-    Promise.resolve(4).then().then((value) => console.log(value))
-    ```
-    
-- 接下来就是一系列判断状态的逻辑，当状态不是等待态时，就去执行相对应的函数。如果状态是等待态的话，就往回调函数中 `push` 函数，比如如下代码就会进入等待态的逻辑
-    ```js
-    new MyPromise((resolve, reject) => {
-      setTimeout(() => {
-        resolve(1)
-      }, 0)
-    }).then(value => {
-      console.log(value)
-    })
-    ```
+  ```js
+  // 该代码目前在简单版中会报错
+  // 只是作为一个透传的例子
+  Promise.resolve(4)
+    .then()
+    .then((value) => console.log(value))
+  ```
 
-以上就是简单版 `Promise` 实现，接下来一小节是实现完整版 `Promise` 的解析，相信看完完整版的你，一定会对于 `Promise` 的理解更上一层楼。    
+- 接下来就是一系列判断状态的逻辑，当状态不是等待态时，就去执行相对应的函数。如果状态是等待态的话，就往回调函数中 `push` 函数，比如如下代码就会进入等待态的逻辑
+  ```js
+  new MyPromise((resolve, reject) => {
+    setTimeout(() => {
+      resolve(1)
+    }, 0)
+  }).then((value) => {
+    console.log(value)
+  })
+  ```
+
+以上就是简单版 `Promise` 实现，接下来一小节是实现完整版 `Promise` 的解析，相信看完完整版的你，一定会对于 `Promise` 的理解更上一层楼。
 
 ## 实现一个符合 Promise/A+ 规范的 Promise
 
@@ -128,7 +133,7 @@ function resolve(value) {
     if (that.state === PENDING) {
       that.state = RESOLVED
       that.value = value
-      that.resolvedCallbacks.map(cb => cb(that.value))
+      that.resolvedCallbacks.map((cb) => cb(that.value))
     }
   }, 0)
 }
@@ -137,7 +142,7 @@ function reject(value) {
     if (that.state === PENDING) {
       that.state = REJECTED
       that.value = value
-      that.rejectedCallbacks.map(cb => cb(that.value))
+      that.rejectedCallbacks.map((cb) => cb(that.value))
     }
   }, 0)
 }
@@ -213,7 +218,7 @@ function resolutionProcedure(promise2, x, resolve, reject) {
 let p = new MyPromise((resolve, reject) => {
   resolve(1)
 })
-let p1 = p.then(value => {
+let p1 = p.then((value) => {
   return p1
 })
 ```
@@ -222,9 +227,9 @@ let p1 = p.then(value => {
 
 ```js
 if (x instanceof MyPromise) {
-    x.then(function(value) {
-        resolutionProcedure(promise2, value, resolve, reject)
-    }, reject)
+  x.then(function (value) {
+    resolutionProcedure(promise2, value, resolve, reject)
+  }, reject)
 }
 ```
 
@@ -245,12 +250,12 @@ if (x !== null && (typeof x === 'object' || typeof x === 'function')) {
     if (typeof then === 'function') {
       then.call(
         x,
-        y => {
+        (y) => {
           if (called) return
           called = true
           resolutionProcedure(promise2, y, resolve, reject)
         },
-        e => {
+        (e) => {
           if (called) return
           called = true
           reject(e)
@@ -268,6 +273,7 @@ if (x !== null && (typeof x === 'object' || typeof x === 'function')) {
   resolve(x)
 }
 ```
+
 - 首先创建一个变量 `called` 用于判断是否已经调用过函数
 - 然后判断 `x` 是否为对象或者函数，如果都不是的话，将 `x` 传入 `resolve` 中
 - 如果 `x` 是对象或者函数的话，先把 `x.then` 赋值给 `then`，然后判断 `then` 的类型，如果不是函数类型的话，就将 `x` 传入 `resolve` 中

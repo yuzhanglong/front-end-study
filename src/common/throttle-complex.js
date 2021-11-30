@@ -10,7 +10,7 @@
 const throttle = (reqFn, timeout, limitation = 4) => {
   const myIpMap = new Map()
 
-  return function(targetIp, ...args) {
+  return function (targetIp, ...args) {
     if (!myIpMap.has(targetIp)) {
       myIpMap.set(targetIp, 0)
     }
@@ -27,12 +27,11 @@ const throttle = (reqFn, timeout, limitation = 4) => {
   }
 }
 
-const reqFn = function(ip) {
+const reqFn = function (ip) {
   console.log(`请求 IP：${ip}`)
 }
 
 const req = throttle(reqFn, 3000)
-
 
 console.log('立刻尝试请求 10 次')
 for (let i = 0; i < 10; i++) {

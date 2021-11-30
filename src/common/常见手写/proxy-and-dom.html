@@ -1,41 +1,41 @@
 <!DOCTYPE html>
-<html lang='en'>
+<html lang="en">
   <head>
-    <meta charset='UTF-8'>
+    <meta charset="UTF-8" />
     <title>proxy-dom</title>
   </head>
   <body>
     <script>
-      const dom = new Proxy({}, {
-        get(target, property) {
-          return function(props, ...elements) {
-            const el = document.createElement(property)
-            for (let [key, value] of Object.entries(props)) {
-              el.setAttribute(key, value)
-            }
-
-            for (let element of elements) {
-              // 字符串节点
-              if (typeof element === 'string') {
-                el.appendChild(document.createTextNode(element))
-              } else {
-                el.appendChild(element)
+      const dom = new Proxy(
+        {},
+        {
+          get(target, property) {
+            return function (props, ...elements) {
+              const el = document.createElement(property)
+              for (let [key, value] of Object.entries(props)) {
+                el.setAttribute(key, value)
               }
-            }
-            return el
-          }
-        }
-      })
 
-      const el = dom.div({},
+              for (let element of elements) {
+                // 字符串节点
+                if (typeof element === 'string') {
+                  el.appendChild(document.createTextNode(element))
+                } else {
+                  el.appendChild(element)
+                }
+              }
+              return el
+            }
+          },
+        }
+      )
+
+      const el = dom.div(
+        {},
         'Hello, my name is',
         dom.a({ href: 'https://github.com/yuzhanglong' }, 'YZL'),
         '. I like:',
-        dom.ul({},
-          dom.li({}, 'One'),
-          dom.li({}, 'Two'),
-          dom.li({}, 'Three')
-        )
+        dom.ul({}, dom.li({}, 'One'), dom.li({}, 'Two'), dom.li({}, 'Three'))
       )
 
       document.body.appendChild(el)

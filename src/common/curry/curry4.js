@@ -22,7 +22,6 @@ function compose(...fns) {
   })
 }
 
-
 // 二次方
 const fn1 = powByExponent(2)
 // 线性变换到 [0 - 1] 区间

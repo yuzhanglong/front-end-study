@@ -1,14 +1,15 @@
 // 执行上下文对象
 const ctx = {
-  func: variable => {
+  func: (variable) => {
     console.log(variable)
   },
-  foo: 'foo'
+  foo: 'foo',
 }
 
 // 非常简陋的沙箱
 function veryPoorSandbox(code, ctx) {
-  with (ctx) { // Add with
+  with (ctx) {
+    // Add with
     eval(code)
   }
 }

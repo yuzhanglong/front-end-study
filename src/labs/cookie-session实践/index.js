@@ -1,39 +1,39 @@
-const koa = require("koa");
-const Router = require("koa-router");
-const Session = require("koa-session");
+const koa = require('koa')
+const Router = require('koa-router')
+const Session = require('koa-session')
 
+const app = new koa()
 
-const app = new koa();
+const testRouter = new Router()
 
+const session = Session(
+  {
+    key: 'sessionId',
+    maxAge: 100 * 1000,
+    signed: true,
+  },
+  app
+)
 
-const testRouter = new Router();
+app.keys = ['yzlyzl']
 
+app.use(session)
 
-const session = Session({
-  key: "sessionId",
-  maxAge: 100 * 1000,
-  signed: true
-}, app);
+testRouter.get('/login', (ctx, next) => {
+  const id = 100
+  const name = 'yzl'
 
-app.keys = ["yzlyzl"];
+  ctx.session.user = { id, name }
 
-app.use(session);
+  ctx.body = 'test'
+})
 
-testRouter.get("/login", (ctx, next) => {
-  const id = 100;
-  const name = "yzl";
-
-  ctx.session.user = {id, name};
-
-  ctx.body = "test";
-});
-
-testRouter.get("/get_session", (ctx, next) => {
+testRouter.get('/get_session', (ctx, next) => {
   // 这里可以拿到 session
-  console.log(ctx.session.user);
+  console.log(ctx.session.user)
 
-  ctx.body = ctx.session.user;
-});
+  ctx.body = ctx.session.user
+})
 // testRouter.get("/test", (ctx, next) => {
 //   ctx.body = "test~";
 //
@@ -48,9 +48,8 @@ testRouter.get("/get_session", (ctx, next) => {
 //   ctx.body = `The cookie: ${ctx.cookies.get("name")}`;
 // });
 
-app.use(testRouter.routes());
-
+app.use(testRouter.routes())
 
 app.listen(8000, () => {
-  console.log("server running successfully!");
-});
+  console.log('server running successfully!')
+})

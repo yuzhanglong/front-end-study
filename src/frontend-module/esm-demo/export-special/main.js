@@ -1,4 +1,4 @@
-import {name} from './foo.js'
+import { name } from './foo.js'
 
 console.log(name)
 

@@ -1,36 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <title>Title</title>
-    <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <script
+      crossorigin
+      src="https://unpkg.com/react@16/umd/react.development.js"
+    ></script>
+    <script
+      crossorigin
+      src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"
+    ></script>
     <script src="https://cdn.jsdelivr.net/npm/babel-standalone@6.26.0/babel.min.js"></script>
   </head>
   <body>
     <div id="app"></div>
     <script type="text/babel">
-      const data =
+      const data = (
         <div>
           grandfather
           <div>
             father
-            <div>
-              son
-            </div>
+            <div>son</div>
             <h3>hello world</h3>
           </div>
-        </div>;
+        </div>
+      )
 
       const data2 = React.createElement(
-        "div", null, "grandfather",
+        'div',
+        null,
+        'grandfather',
         React.createElement(
-          "div", null, "father",
-          React.createElement("div", null, "son"),
-          React.createElement("h3", null, "hello world")
+          'div',
+          null,
+          'father',
+          React.createElement('div', null, 'son'),
+          React.createElement('h3', null, 'hello world')
         )
-      );
-      ReactDOM.render(data2, document.getElementById("app"));
+      )
+      ReactDOM.render(data2, document.getElementById('app'))
     </script>
   </body>
 </html>

@@ -1,5 +1,5 @@
-describe('实现 call', function() {
-  Function.prototype.myCall = function(targetThis, ...args) {
+describe('实现 call', function () {
+  Function.prototype.myCall = function (targetThis, ...args) {
     let fn = this
 
     if (!targetThis) {
@@ -28,9 +28,15 @@ describe('实现 call', function() {
       expect(args).toStrictEqual([1, 2, 3])
     }
 
-    hello.myCall({
-      a: 1, b: 2
-    }, 1, 2, 3)
+    hello.myCall(
+      {
+        a: 1,
+        b: 2,
+      },
+      1,
+      2,
+      3
+    )
   })
 
   test('primitive values 1, `1` should be transformed   ', () => {

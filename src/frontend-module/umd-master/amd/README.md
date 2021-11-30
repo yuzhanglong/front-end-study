@@ -24,6 +24,5 @@ AMD 是用来解决 common.js 同步阻塞的问题。AMD 的基本原理依赖�
 require.js 源码中将加载完成的回调绑定在 `window.onload` 事件上：
 
 ```javascript
-node.addEventListener('load', context.onScriptLoad, false);
+node.addEventListener('load', context.onScriptLoad, false)
 ```
-

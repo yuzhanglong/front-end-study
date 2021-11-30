@@ -1,68 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <title>用户手机端 -- 模拟扫码</title>
     <script src="https://cdn.jsdelivr.net/npm/axios@0.21.1/dist/axios.min.js"></script>
   </head>
   <body>
     <h3>Step 1 手机登录</h3>
-    <h4>手机必须处于登录状态，这里我们会向服务端请求一个 TOKEN，拿到 TOKEN 则代表登录成功</h4>
-    <button id="get-token-button">
-      获取 TOKEN（模拟手机登录）
-    </button>
-    <div id="token-container">
-
-    </div>
-
+    <h4>
+      手机必须处于登录状态，这里我们会向服务端请求一个 TOKEN，拿到 TOKEN
+      则代表登录成功
+    </h4>
+    <button id="get-token-button">获取 TOKEN（模拟手机登录）</button>
+    <div id="token-container"></div>
 
     <h3>Step 2 模拟扫码操作</h3>
-    <h4>手机测试不方便，这里请输入二维码界面显示的 UUID，省去了将二维码转换成 uuid 的步骤</h4>
+    <h4>
+      手机测试不方便，这里请输入二维码界面显示的 UUID，省去了将二维码转换成 uuid
+      的步骤
+    </h4>
     <label>
-      <input placeholder="请输入控制台打印的 uuid" id="uuid-input">
+      <input placeholder="请输入控制台打印的 uuid" id="uuid-input" />
     </label>
-    <button id="scan-code-button">
-      模拟扫码操作
-    </button>
+    <button id="scan-code-button">模拟扫码操作</button>
 
     <h3>Step 3 执行确认操作</h3>
     <h4>在扫码成功时下面的按钮会被激活，点击则登录成功</h4>
-    <button id="confirm-button">
-      确认登录
-    </button>
+    <button id="confirm-button">确认登录</button>
 
     <script>
-      const scanCodeButton = document.getElementById("scan-code-button");
-      const input = document.getElementById("uuid-input");
-      const getTokenButton = document.getElementById("get-token-button");
-      const tokenContainer = document.getElementById("token-container");
-      const confirmButton = document.getElementById("confirm-button");
+      const scanCodeButton = document.getElementById('scan-code-button')
+      const input = document.getElementById('uuid-input')
+      const getTokenButton = document.getElementById('get-token-button')
+      const tokenContainer = document.getElementById('token-container')
+      const confirmButton = document.getElementById('confirm-button')
 
-      scanCodeButton.addEventListener("click", () => {
-        axios.post("http://localhost:8000/login_by_code", {
-          "token": tokenContainer.innerText,
-          "uuid": input.value
-        }).then(res => {
-          console.log(res);
-        })
-      });
-
-      getTokenButton.addEventListener("click", () => {
-        axios.get("http://localhost:8000/get_token")
-          .then(res => {
-            tokenContainer.innerHTML = res.data.data.token;
-            console.log(res.data.data.token);
+      scanCodeButton.addEventListener('click', () => {
+        axios
+          .post('http://localhost:8000/login_by_code', {
+            token: tokenContainer.innerText,
+            uuid: input.value,
           })
-      });
+          .then((res) => {
+            console.log(res)
+          })
+      })
 
-      confirmButton.addEventListener("click", () => {
-        axios.post("http://localhost:8000/login_by_code", {
-          "token": tokenContainer.innerText,
-          "uuid": input.value
-        }).then(res => {
-          console.log(res);
+      getTokenButton.addEventListener('click', () => {
+        axios.get('http://localhost:8000/get_token').then((res) => {
+          tokenContainer.innerHTML = res.data.data.token
+          console.log(res.data.data.token)
         })
-      });
+      })
+
+      confirmButton.addEventListener('click', () => {
+        axios
+          .post('http://localhost:8000/login_by_code', {
+            token: tokenContainer.innerText,
+            uuid: input.value,
+          })
+          .then((res) => {
+            console.log(res)
+          })
+      })
     </script>
   </body>
 </html>

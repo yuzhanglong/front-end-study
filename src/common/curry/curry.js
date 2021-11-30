@@ -17,7 +17,6 @@ f(1)(2)(3)() // 6
 
 f(1)(2)(3)(4)() // 10
 
-
 const f2 = (num, sum = 0) => {
   if (!num) {
     console.log(sum)

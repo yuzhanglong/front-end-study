@@ -4,6 +4,4 @@ const message = '666'
 
 console.log(count)
 
-export {
-  message
-}
+export { message }

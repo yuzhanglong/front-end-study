@@ -6,37 +6,35 @@
  * Email: yuzl1123@163.com
  */
 
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const BundleAnalyzerPlugin =
+  require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 
 module.exports = {
   entry: {
     index: './src/index.js',
-    another: './src/another-module.js'
+    another: './src/another-module.js',
   },
   output: {
-    filename: "[name].bundle.js",
+    filename: '[name].bundle.js',
   },
-  plugins: [
-    new HtmlWebpackPlugin(),
-    new BundleAnalyzerPlugin()
-  ],
+  plugins: [new HtmlWebpackPlugin(), new BundleAnalyzerPlugin()],
   optimization: {
     splitChunks: {
-      chunks: "async",
+      chunks: 'async',
       minSize: 30000,
       minChunks: 1,
       maxAsyncRequests: 5,
       maxInitialRequests: 3,
       automaticNameDelimiter: '~',
-      name: "common",
+      name: 'common',
       cacheGroups: {
         vendors: {
           test: /[\\/]node_modules[\\/]/,
-          name: "vendors",
-          chunks: "all"
-        }
-      }
-    }
-  }
+          name: 'vendors',
+          chunks: 'all',
+        },
+      },
+    },
+  },
 }

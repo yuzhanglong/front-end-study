@@ -6,12 +6,11 @@
  * Email: yuzl1123@163.com
  */
 
-
 import { Local } from '../types'
 
 const Chinese: Local = {
   cancelText: '取消',
-  confirmText: '确定'
+  confirmText: '确定',
 }
 
 export default Chinese

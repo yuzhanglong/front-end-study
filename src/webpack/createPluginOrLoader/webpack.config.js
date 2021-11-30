@@ -6,16 +6,14 @@
  * Email: yuzl1123@163.com
  */
 
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const path = require("path");
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const path = require('path')
 module.exports = {
-  entry: "./src/entry.js",
+  entry: './src/entry.js',
   output: {
     filename: './bundle.js',
   },
-  plugins: [
-    new HtmlWebpackPlugin(),
-  ],
+  plugins: [new HtmlWebpackPlugin()],
   module: {
     rules: [
       {
@@ -25,13 +23,13 @@ module.exports = {
             loader: path.resolve(__dirname, './src/loader.js'),
             options: {
               limit: 1000,
-              encoding: "base64",
+              encoding: 'base64',
               generator: undefined,
-              fallback: undefined
-            }
+              fallback: undefined,
+            },
           },
         ],
       },
-    ]
-  }
+    ],
+  },
 }

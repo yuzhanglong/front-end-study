@@ -1,21 +1,21 @@
 <!DOCTYPE html>
-<html lang='en'>
+<html lang="en">
   <head>
-    <meta charset='UTF-8'>
+    <meta charset="UTF-8" />
     <title>清除浮动</title>
   </head>
   <body>
-    <div>
-      浮动的元素会脱离普通文档流
+    <div>浮动的元素会脱离普通文档流</div>
+    <div style="border: 1px solid #000">
+      <div
+        style="width: 100px; height: 100px; background: #eee; float: left"
+      ></div>
     </div>
-    <div style='border: 1px solid #000;'>
-      <div style='width: 100px;height: 100px;background: #eee;float: left;'></div>
-    </div>
-    <div>
-      BFC 可以包含浮动的元素
-    </div>
-    <div style='border: 1px solid #000;overflow: hidden'>
-      <div style='width: 100px;height: 100px;background: #eee;float: left;'></div>
+    <div>BFC 可以包含浮动的元素</div>
+    <div style="border: 1px solid #000; overflow: hidden">
+      <div
+        style="width: 100px; height: 100px; background: #eee; float: left"
+      ></div>
     </div>
   </body>
 </html>

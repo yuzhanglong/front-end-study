@@ -11,9 +11,7 @@ import LocalProvider from './local/LocalProvider'
 import Button from './components/Button'
 import Chinese from './languages/chinese'
 
-interface AppProps {
-
-}
+interface AppProps {}
 
 const App: React.FunctionComponent<AppProps> = () => {
   return (
@@ -22,7 +20,6 @@ const App: React.FunctionComponent<AppProps> = () => {
         <Button />
       </div>
     </LocalProvider>
-
   )
 }
 

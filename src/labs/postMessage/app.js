@@ -6,7 +6,9 @@ const app = express()
 const port = 3000
 
 app.get('/', (req, res) => {
-  res.send(fs.readFileSync(path.resolve(process.cwd(), 'remote.html')).toString())
+  res.send(
+    fs.readFileSync(path.resolve(process.cwd(), 'remote.html')).toString()
+  )
 })
 
 app.listen(port, () => {

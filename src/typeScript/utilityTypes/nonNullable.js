@@ -1,2 +1,2 @@
-var a = "aaa";
+var a = 'aaa'
 //# sourceMappingURL=nonNullable.js.map

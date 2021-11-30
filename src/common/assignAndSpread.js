@@ -13,7 +13,6 @@ obj.foo = 'baz'
 console.log(clone.foo)
 console.log(obj === clone)
 
-
 class BaseClass {
   foo() {
     return 1
@@ -27,7 +26,7 @@ class MyClass extends BaseClass {
 }
 
 const obj2 = new MyClass()
-obj2.baz = function() {
+obj2.baz = function () {
   return 3
 }
 
@@ -44,7 +43,6 @@ console.log(clone2) // { baz: [Function], [Symbol(test)]: 4 }
 console.log(clone2.constructor.name) // Object
 console.log(clone2 instanceof MyClass) // false
 
-
 // object assign 会触发 setter
 class MyClass2 {
   set val(v) {
@@ -58,19 +56,18 @@ console.log(Object.assign(obj3, { val: 42 }))
 
 const f = {
   obj3,
-  val: 42
+  val: 42,
 }
 console.log(f)
 
 // 可以看出， 触发 setter 只会触发第一个
 console.log(Object.assign({ val: 42 }, obj3))
 
-
 // 一些边界问题
 // 下面的代码是错误的语法
 // console.log({null, ...f})
 
-console.log({ undefined, ...f })  // { undefined: undefined, obj3: MyClass2 {}, val: 42 }
+console.log({ undefined, ...f }) // { undefined: undefined, obj3: MyClass2 {}, val: 42 }
 
 // console.log(Object.assign(undefined, f))  // Cannot convert undefined or null to object
 

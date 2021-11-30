@@ -6,14 +6,12 @@
  * Email: yuzl1123@163.com
  */
 
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 module.exports = {
-  entry: "./src/index.js",
+  entry: './src/index.js',
   output: {
     filename: './bundle.js',
   },
-  plugins: [
-    new HtmlWebpackPlugin()
-  ],
+  plugins: [new HtmlWebpackPlugin()],
 }

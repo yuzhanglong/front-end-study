@@ -6,14 +6,11 @@
  * Email: yuzl1123@163.com
  */
 
-
 import { useContext } from 'react'
 import LocalContext from './LocalContext'
 import Chinese from '../languages/chinese'
 
 export const useLocal = () => {
   const local = useContext(LocalContext) || Chinese
-  return [
-    local
-  ]
+  return [local]
 }

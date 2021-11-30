@@ -16,9 +16,12 @@ import CountingSort from '../CountingSort'
 import HeapSort from '../HeapSort'
 import ShellSort from '../ShellSort'
 
-const TEST_ARRAY = [3, 44, 38.45, 5, -47, 15, -36, 26.71, 27, 2, -46, 4, 19, 50, 48]
-const EXPECTED_SORTED_ARRAY = [-47, -46, -36, 2, 3, 4, 5, 15, 19, 26.71, 27, 38.45, 44, 48, 50]
-
+const TEST_ARRAY = [
+  3, 44, 38.45, 5, -47, 15, -36, 26.71, 27, 2, -46, 4, 19, 50, 48,
+]
+const EXPECTED_SORTED_ARRAY = [
+  -47, -46, -36, 2, 3, 4, 5, 15, 19, 26.71, 27, 38.45, 44, 48, 50,
+]
 
 describe('test bubble sort', () => {
   test('test number array', () => {
@@ -79,7 +82,6 @@ describe('test quick sort', () => {
   })
 })
 
-
 describe('test counting sort', () => {
   test('test number array', () => {
     let arr = [3, 44, 38, -47, 15, -36, 26, 27, 2, -46, 4, 19, 50, 48, 5]
@@ -89,7 +91,6 @@ describe('test counting sort', () => {
     expect(sort.getArray()).toStrictEqual(expected)
   })
 })
-
 
 describe('test heap sort', () => {
   test('test number array', () => {

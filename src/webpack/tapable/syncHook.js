@@ -13,6 +13,6 @@ hook.tap('hello again', (name) => {
 })
 
 hook.call({
-  foo:1,
-  bar:2
+  foo: 1,
+  bar: 2,
 })

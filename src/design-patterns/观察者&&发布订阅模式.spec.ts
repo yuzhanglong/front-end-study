@@ -33,15 +33,15 @@ describe('观察者模式和发布订阅模式', () => {
 
     const obj = new Subject()
     obj.addObserver({
-      update: ob1
+      update: ob1,
     })
 
     obj.addObserver({
-      update: ob2
+      update: ob2,
     })
 
     obj.addObserver({
-      update: ob3
+      update: ob3,
     })
 
     obj.notify('hello world')
@@ -57,16 +57,16 @@ describe('观察者模式和发布订阅模式', () => {
 
       subscribe(topic, callback) {
         console.log(`New subscription for topic [${topic}] coming!`)
-        if ((this.topicSubscribers)[topic]) {
-          (this.topicSubscribers)[topic].push(callback)
+        if (this.topicSubscribers[topic]) {
+          this.topicSubscribers[topic].push(callback)
         } else {
           this.topicSubscribers[topic] = [callback]
         }
       }
 
       notify(topic, params) {
-        if ((this.topicSubscribers)[topic]) {
-          const subscribers = (this.topicSubscribers)[topic]
+        if (this.topicSubscribers[topic]) {
+          const subscribers = this.topicSubscribers[topic]
 
           for (let i = 0; i < subscribers.length; i++) {
             try {

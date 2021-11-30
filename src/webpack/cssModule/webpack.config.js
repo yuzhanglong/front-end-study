@@ -6,10 +6,10 @@
  * Email: yuzl1123@163.com
  */
 
-const CSS_TEST = /\.css$/;
+const CSS_TEST = /\.css$/
 
 module.exports = {
-  entry: "./entry.js",
+  entry: './entry.js',
   output: {
     filename: './bundle.js',
   },
@@ -19,16 +19,16 @@ module.exports = {
         test: CSS_TEST,
         use: [
           {
-            loader: 'style-loader'
+            loader: 'style-loader',
           },
           {
             loader: 'css-loader',
             options: {
-              modules: true
-            }
-          }
-        ]
-      }
-    ]
-  }
+              modules: true,
+            },
+          },
+        ],
+      },
+    ],
+  },
 }

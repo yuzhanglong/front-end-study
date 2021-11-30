@@ -1,17 +1,16 @@
-import {foo, greet, Greeter, myLib} from "./src/script";
+import { foo, greet, Greeter, myLib } from './src/script'
 
-console.log(foo);
+console.log(foo)
 
 greet({
-  greeting: "hahah",
-  duration: 4000
-});
+  greeting: 'hahah',
+  duration: 4000,
+})
 
-myLib.makeGreeting("hello");
+myLib.makeGreeting('hello')
 
-console.log(myLib.numberOfGreetings);
+console.log(myLib.numberOfGreetings)
 
-
-let gt = new Greeter("hello world");
-gt.showGreeting();
-console.log(gt.greeting);
+let gt = new Greeter('hello world')
+gt.showGreeting()
+console.log(gt.greeting)

@@ -8,20 +8,20 @@
 
 ```js
 function add(a, b) {
-    return a + b
+  return a + b
 }
 ```
 
 现在如果我想给这个 `add` 函数添加一个输出结果的功能，那么你可能会考虑我直接使用 `console.log` 不就实现了么。说的没错，但是如果我们想做的更加优雅并且容易复用和扩展，我们可以这样去做：
 
 ```js
-function withLog (fn) {
-    function wrapper(a, b) {
-        const result = fn(a, b)
-        console.log(result)
-        return result
-    }
-    return wrapper
+function withLog(fn) {
+  function wrapper(a, b) {
+    const result = fn(a, b)
+    console.log(result)
+    return result
+  }
+  return wrapper
 }
 const withLogAdd = withLog(add)
 withLogAdd(1, 2)

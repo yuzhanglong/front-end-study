@@ -1,31 +1,30 @@
 <!DOCTYPE html>
-<html lang='en'>
-<head>
-  <meta charset='UTF-8'>
-  <title>css 媒体查询</title>
-</head>
-<body>
-一个div始终在页面中，水平垂直居中，屏幕宽度大于750px时，是一个直径100px的圆形
-宽度小于750px的时候，是一个正方形，宽度是屏幕宽度的一半。
-<div id='my-div'></div>
-</body>
-<style>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>css 媒体查询</title>
+  </head>
+  <body>
+    一个div始终在页面中，水平垂直居中，屏幕宽度大于750px时，是一个直径100px的圆形
+    宽度小于750px的时候，是一个正方形，宽度是屏幕宽度的一半。
+    <div id="my-div"></div>
+  </body>
+  <style>
     @media (min-width: 750px) {
-        #my-div {
-            width: 50vw;
-            background-color: #409EFF;
-            height: 100px;
-        }
+      #my-div {
+        width: 50vw;
+        background-color: #409eff;
+        height: 100px;
+      }
     }
 
     @media (max-width: 750px) {
-        #my-div {
-            width: 100px;
-            border-radius: 50%;
-            height: 100px;
-            background-color: #409EFF;
-        }
+      #my-div {
+        width: 100px;
+        border-radius: 50%;
+        height: 100px;
+        background-color: #409eff;
+      }
     }
-
-</style>
+  </style>
 </html>

@@ -1,23 +1,19 @@
 function SuperType() {
-  this.property = true;
+  this.property = true
 }
 
-
 SuperType.prototype.getSuperValue = function () {
-  return this.property;
+  return this.property
 }
 
 function SubType() {
-  this.subProperty = false;
+  this.subProperty = false
 }
 
-SubType.prototype = new SuperType();
-
+SubType.prototype = new SuperType()
 
 SubType.prototype.getSubValue = function () {
-  return this.subProperty;
+  return this.subProperty
 }
 
-let instance = new SubType();
-
-
+let instance = new SubType()

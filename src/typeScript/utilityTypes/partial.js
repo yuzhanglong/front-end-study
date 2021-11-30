@@ -1,8 +1,8 @@
 var entireUser = {
-    age: 20,
-    name: "yzl"
-};
+  age: 20,
+  name: 'yzl',
+}
 var partialUser = {
-    age: 10
-};
+  age: 10,
+}
 //# sourceMappingURL=partial.js.map

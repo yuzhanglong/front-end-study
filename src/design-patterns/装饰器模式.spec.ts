@@ -1,16 +1,19 @@
 import 'reflect-metadata'
 
 type Constructable<R = any> = {
-  new(...args: any[]): R;
-};
+  new (...args: any[]): R
+}
 
 // 尝试实现一个依赖注入
-describe('装饰器模式', function() {
+describe('装饰器模式', function () {
   test('实现依赖注入', () => {
     const classPool = []
 
     function Injectable(Constructor: Function) {
-      const paramsTypes: any[] = Reflect.getMetadata('design:paramtypes', Constructor)
+      const paramsTypes: any[] = Reflect.getMetadata(
+        'design:paramtypes',
+        Constructor
+      )
       if (classPool.includes(Constructor)) {
         return
       }
@@ -28,7 +31,10 @@ describe('装饰器模式', function() {
     }
 
     function create<T>(Constructor: Constructable): T {
-      const paramsTypes: any[] = Reflect.getMetadata('design:paramtypes', Constructor)
+      const paramsTypes: any[] = Reflect.getMetadata(
+        'design:paramtypes',
+        Constructor
+      )
       const paramInstances = paramsTypes.map((item) => {
         if (!classPool.includes(item)) {
           throw new Error('无法注入')
@@ -42,14 +48,10 @@ describe('装饰器模式', function() {
     }
 
     @Injectable
-    class B {
-
-    }
+    class B {}
 
     @Injectable
-    class C {
-
-    }
+    class C {}
 
     @Injectable
     class D {
@@ -79,8 +81,7 @@ describe('装饰器模式', function() {
     expect(a.b).toBeInstanceOf(B)
     expect(a.c).toBeInstanceOf(C)
     expect(a.d).toBeInstanceOf(D)
-    expect((a.d as D).b).toBeInstanceOf(B);
-    expect((a.d as D).c).toBeInstanceOf(C);
+    expect((a.d as D).b).toBeInstanceOf(B)
+    expect((a.d as D).c).toBeInstanceOf(C)
   })
 })
-

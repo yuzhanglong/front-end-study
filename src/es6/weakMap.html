@@ -1,34 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <title>Title</title>
   </head>
   <body>
-    <div id="test">
-      hello world
-    </div>
+    <div id="test">hello world</div>
     <div>
-      <button onclick="removeElement()">
-        移除元素
-      </button>
+      <button onclick="removeElement()">移除元素</button>
     </div>
     <script>
-      window.myWeakmap = new WeakMap();
+      window.myWeakmap = new WeakMap()
 
-      window.myWeakmap.set(
-        document.getElementById('test'), {
-          timesClicked: 0
-        });
+      window.myWeakmap.set(document.getElementById('test'), {
+        timesClicked: 0,
+      })
 
-      document.getElementById('test').addEventListener('click', function () {
-        let logoData = window.myWeakmap.get(document.getElementById('test'));
-        logoData.timesClicked++;
-      }, false);
+      document.getElementById('test').addEventListener(
+        'click',
+        function () {
+          let logoData = window.myWeakmap.get(document.getElementById('test'))
+          logoData.timesClicked++
+        },
+        false
+      )
 
       const removeElement = () => {
-        console.log("移除按钮被单击~");
-        document.getElementById('test')?.remove();
+        console.log('移除按钮被单击~')
+        document.getElementById('test')?.remove()
       }
     </script>
   </body>

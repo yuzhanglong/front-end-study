@@ -16,11 +16,10 @@ Promise.myAll = (promises) => {
       }
     }
 
-
     for (let i = 0; i < promises.length; i++) {
       let currentPromise = promises[i]
       if (isPromise(currentPromise)) {
-        currentPromise.then(res => {
+        currentPromise.then((res) => {
           processData(i, res)
         }, reject)
       } else {
@@ -30,14 +29,10 @@ Promise.myAll = (promises) => {
   })
 }
 
-const testPromises = new Array(10)
-  .fill(null)
-  .map((item, index) => {
-    return Promise.resolve('promise ' + index + ' resolved!')
-  })
+const testPromises = new Array(10).fill(null).map((item, index) => {
+  return Promise.resolve('promise ' + index + ' resolved!')
+})
 
-Promise
-  .all(testPromises)
-  .then(res => {
-    console.log(res)
-  })
+Promise.all(testPromises).then((res) => {
+  console.log(res)
+})

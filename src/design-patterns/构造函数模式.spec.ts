@@ -1,4 +1,4 @@
-describe('构造器模式', function() {
+describe('构造器模式', function () {
   // 在经典的面向对象编程语言中
   // 构造函数是一种特殊的方法
   // 用于在为新创建的对象分配内存后初始化它
@@ -27,7 +27,7 @@ describe('构造器模式', function() {
 
     // defineProperty
     Object.defineProperty(newObject, 'someKey', {
-      value: 'yuzhanglong'
+      value: 'yuzhanglong',
     })
     expect(newObject.someKey).toStrictEqual('yuzhanglong')
   })
@@ -37,12 +37,11 @@ describe('构造器模式', function() {
       this.model = model
       this.year = year
       this.miles = miles
-
     }
 
     // Note here that we are using Object.prototype.newMethod rather than
     // Object.prototype so as to avoid redefining the prototype object
-    Car.prototype.toString = function() {
+    Car.prototype.toString = function () {
       return this.model + ' has done ' + this.miles + ' miles'
     }
 

@@ -1,2 +1,2 @@
-var b = "b";
+var b = 'b'
 //# sourceMappingURL=exclude.js.map

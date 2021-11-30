@@ -3,7 +3,7 @@
 // eslint-disable-next-line no-unused-vars
 function throttle(fn, time) {
   let showRun = true
-  return function() {
+  return function () {
     if (!showRun) {
       return
     }
@@ -14,4 +14,3 @@ function throttle(fn, time) {
     }, time)
   }
 }
-

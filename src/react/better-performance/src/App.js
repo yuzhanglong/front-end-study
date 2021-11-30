@@ -1,12 +1,12 @@
-import React from "react";
-import DoNotUseInlineObject from "./避免使用内联对象";
+import React from 'react'
+import DoNotUseInlineObject from './避免使用内联对象'
 
 const App = () => {
   return (
     <div className="App">
-      <DoNotUseInlineObject/>
+      <DoNotUseInlineObject />
     </div>
-  );
+  )
 }
 
-export default App;
+export default App

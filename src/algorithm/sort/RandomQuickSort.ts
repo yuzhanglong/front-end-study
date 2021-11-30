@@ -6,13 +6,13 @@
  * Email: yuzl1123@163.com
  */
 
-import QuickSort from "./QuickSort";
+import QuickSort from './QuickSort'
 
 class RandomQuickSort<T> extends QuickSort<T> {
   protected choosePivot(begin: number, end: number) {
-    let randomIndexAddition = parseInt(String((Math.random() * (end - begin))));
-    this.swap(begin, begin + randomIndexAddition);
+    let randomIndexAddition = parseInt(String(Math.random() * (end - begin)))
+    this.swap(begin, begin + randomIndexAddition)
   }
 }
 
-export default RandomQuickSort;
+export default RandomQuickSort

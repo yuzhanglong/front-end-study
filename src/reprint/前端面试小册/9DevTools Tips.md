@@ -2,7 +2,7 @@
 
 这一章节的内容可能和面试没有太大关系，但是如果你能很好地使用 DevTools 的话，它能够很好地帮助你提高生产力和解决问题的能力。在这一章节中，我不会去介绍大家经常使用的功能，重点在于让大家学习到一些使用 DevTools 的技巧。
 
-## Elements 
+## Elements
 
 ![](https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2018/11/25/1674aad0f69568b2~tplv-t2oaga2asx-watermark.awebp)
 
@@ -11,7 +11,6 @@
 ### Element 状态
 
 你可能会在开发中遇到这么一个场景：给一个 `a` 标签设置了多种状态下的样式，但是如果手动去改变状态的话就有点麻烦，这时候这个 Tips 就能帮你解决这个问题。
-
 
 ![](https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2018/11/25/1674ab358e794a71~tplv-t2oaga2asx-watermark.awebp)
 

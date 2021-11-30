@@ -12,9 +12,9 @@ const classProxyFactory = (C) => {
         }
       }
       return Reflect.set(target, p, value, receiver)
-    }
+    },
   })
-  return proxy;
+  return proxy
 }
 const setInstance = classProxyFactory(
   class Set {
@@ -27,11 +27,3 @@ const setInstance = classProxyFactory(
 // 约定：_开头的为私有属性，不得修改
 console.log(setInstance.value)
 setInstance.value = 666
-
-
-
-
-
-
-
-

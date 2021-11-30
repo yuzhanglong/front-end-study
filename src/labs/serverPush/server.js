@@ -14,7 +14,7 @@ const path = require('path')
 
 const options = {
   key: fs.readFileSync('./server.key', 'utf8'),
-  cert: fs.readFileSync('./server.cert', 'utf8')
+  cert: fs.readFileSync('./server.cert', 'utf8'),
 }
 
 class KoaHttp2 extends Koa {
@@ -32,7 +32,6 @@ router.get('/', (ctx) => {
   ctx.set('Link', '</style>; rel=preload; as=style')
   ctx.body = fs.readFileSync(path.resolve(__dirname, './index.html')).toString()
 })
-
 
 router.get('/style', (ctx) => {
   ctx.set('content-type', 'text/css')

@@ -6,14 +6,14 @@
  * Email: yuzl1123@163.com
  */
 
-import React, {useEffect} from "react";
-import connect from "../utils/connect";
-import {subAction, addAction, remoteDataAction} from "../store/action"
+import React, { useEffect } from 'react'
+import connect from '../utils/connect'
+import { subAction, addAction, remoteDataAction } from '../store/action'
 
 const Home = (props) => {
   useEffect(() => {
-    props.getRemoteDataAction();
-  }, []);
+    props.getRemoteDataAction()
+  }, [])
   return (
     <div>
       <h1>home</h1>
@@ -25,25 +25,25 @@ const Home = (props) => {
     </div>
   )
 }
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   return {
     counter: state.counter,
-    remoteData: state.data
+    remoteData: state.data,
   }
-};
-const mapDispatchToProps = dispatch => {
+}
+const mapDispatchToProps = (dispatch) => {
   return {
     addAction: (num) => {
-      dispatch(addAction(num));
+      dispatch(addAction(num))
     },
     subAction: (num) => {
-      dispatch(subAction(num));
+      dispatch(subAction(num))
     },
     getRemoteDataAction: () => {
-      console.log("home dispatch!!");
-      dispatch(remoteDataAction());
-    }
+      console.log('home dispatch!!')
+      dispatch(remoteDataAction())
+    },
   }
-};
+}
 
-export default connect(mapStateToProps, mapDispatchToProps)(Home);
+export default connect(mapStateToProps, mapDispatchToProps)(Home)

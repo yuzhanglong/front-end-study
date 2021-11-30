@@ -9,16 +9,20 @@
 // that has a circular dependency, see nodeAdapter.js
 
 // Help Node out by setting up define.
-if (typeof exports === 'object' && typeof exports.nodeName !== 'string' && typeof define !== 'function') {
-    var define = function (factory) {
-        factory(require, exports, module);
-    };
+if (
+  typeof exports === 'object' &&
+  typeof exports.nodeName !== 'string' &&
+  typeof define !== 'function'
+) {
+  var define = function (factory) {
+    factory(require, exports, module)
+  }
 }
 
 define(function (require, exports, module) {
-    var b = require('b');
+  var b = require('b')
 
-    // Only attach properties to the exports object to define
-    // the module's properties.
-    exports.action = function () {};
-});
+  // Only attach properties to the exports object to define
+  // the module's properties.
+  exports.action = function () {}
+})

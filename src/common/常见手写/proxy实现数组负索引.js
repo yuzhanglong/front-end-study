@@ -7,7 +7,7 @@
  */
 
 const foo = new Proxy([1, 2, 3], {
-  get: function(obj, prop) {
+  get: function (obj, prop) {
     if (prop in obj) {
       return obj[prop]
     }
@@ -15,10 +15,10 @@ const foo = new Proxy([1, 2, 3], {
       return obj[obj.length + parseInt(prop)]
     }
     return undefined
-  }
+  },
 })
 
-console.log(foo[-1])  // 3
-console.log(foo[-2])  // 2
-console.log(foo[-3])  // 1
-console.log(foo[-4])  // undefined
+console.log(foo[-1]) // 3
+console.log(foo[-2]) // 2
+console.log(foo[-3]) // 1
+console.log(foo[-4]) // undefined

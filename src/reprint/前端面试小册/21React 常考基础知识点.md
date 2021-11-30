@@ -41,18 +41,18 @@ Fiber 本质上是一个虚拟的堆栈帧，新的调度器会按照优先级�
 class ExampleComponent extends React.Component {
   // Initialize state in constructor,
   // Or with a property initializer.
-  state = {};
+  state = {}
 
   static getDerivedStateFromProps(nextProps, prevState) {
     if (prevState.someMirroredValue !== nextProps.someValue) {
       return {
         derivedData: computeDerivedState(nextProps),
-        someMirroredValue: nextProps.someValue
-      };
+        someMirroredValue: nextProps.someValue,
+      }
     }
 
     // Return null to indicate no change to state.
-    return null;
+    return null
   }
 }
 ```
@@ -81,7 +81,7 @@ handle() {
 第二，虽然调用了三次 `setState` ，但是 `count` 的值还是为 1。因为多次调用会合并为一次，只有当更新结束后 `state` 才会改变，三次调用等同于如下代码
 
 ```js
-Object.assign(  
+Object.assign(
   {},
   { count: this.state.count + 1 },
   { count: this.state.count + 1 },
@@ -126,11 +126,7 @@ PS：下文中的 state 指代了 state 及 props
 ```js
 class Test extends React.PureComponent {
   render() {
-    return (
-      <div>
-        PureComponent
-      </div>
-    )
+    return <div>PureComponent</div>
   }
 }
 ```
@@ -138,11 +134,7 @@ class Test extends React.PureComponent {
 这时候你可能会考虑到函数组件就不能使用这种方式了，如果你使用 16.6.0 之后的版本的话，可以使用 `React.memo` 来实现相同的功能。
 
 ```js
-const Test = React.memo(() => (
-    <div>
-        PureComponent
-    </div>
-))
+const Test = React.memo(() => <div>PureComponent</div>)
 ```
 
 通过这种方式我们就可以既实现了 `shouldComponentUpdate` 的浅比较，又能够使用函数组件。
@@ -200,7 +192,6 @@ class Child extends React.Component {
 ### 任意组件
 
 这种方式可以通过 Redux 或者 Event Bus 解决，另外如果你不怕麻烦的话，可以使用这种方式解决上述所有的通信情况
-
 
 ## 小结
 

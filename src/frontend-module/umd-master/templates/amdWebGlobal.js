@@ -15,24 +15,24 @@
 // If the 'b' module also uses this type of boilerplate, then
 // in the browser, it will create a global .b that is used below.
 
-(function (root, factory) {
-    if (typeof define === 'function' && define.amd) {
-        // AMD. Register as an anonymous module.
-        define(['b'], function (b) {
-            // Also create a global in case some scripts
-            // that are loaded still are looking for
-            // a global even when an AMD loader is in use.
-            return (root.amdWebGlobal = factory(b));
-        });
-    } else {
-        // Browser globals
-        root.amdWebGlobal = factory(root.b);
-    }
-}(typeof self !== 'undefined' ? self : this, function (b) {
-    // Use b in some fashion.
+;(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD. Register as an anonymous module.
+    define(['b'], function (b) {
+      // Also create a global in case some scripts
+      // that are loaded still are looking for
+      // a global even when an AMD loader is in use.
+      return (root.amdWebGlobal = factory(b))
+    })
+  } else {
+    // Browser globals
+    root.amdWebGlobal = factory(root.b)
+  }
+})(typeof self !== 'undefined' ? self : this, function (b) {
+  // Use b in some fashion.
 
-    // Just return a value to define the module export.
-    // This example returns an object, but the module
-    // can return a function as the exported value.
-    return {};
-}));
+  // Just return a value to define the module export.
+  // This example returns an object, but the module
+  // can return a function as the exported value.
+  return {}
+})

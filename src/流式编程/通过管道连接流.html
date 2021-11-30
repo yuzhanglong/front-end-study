@@ -1,50 +1,47 @@
 <!DOCTYPE html>
-<html lang='en'>
-<head>
-  <meta charset='UTF-8'>
-  <title>Title</title>
-</head>
-<body>
-<script>
-  async function* ints() {
-    // 每1000毫秒生成一个递增的整数
-    for (let i = 0; i < 5; ++i) {
-      yield await new Promise((resolve) => setTimeout(resolve, 1000, i))
-    }
-  }
-
-  const integerStream = new ReadableStream({
-    start: async (controller) => {
-      for await (let chunk of ints()) {
-        controller.enqueue(chunk)
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Title</title>
+  </head>
+  <body>
+    <script>
+      async function* ints() {
+        // 每1000毫秒生成一个递增的整数
+        for (let i = 0; i < 5; ++i) {
+          yield await new Promise((resolve) => setTimeout(resolve, 1000, i))
+        }
       }
-      controller.close()
-    }
-  })
 
+      const integerStream = new ReadableStream({
+        start: async (controller) => {
+          for await (let chunk of ints()) {
+            controller.enqueue(chunk)
+          }
+          controller.close()
+        },
+      })
 
-  const doubleStream = new TransformStream({
-    transform: (chunk, controller) => {
-      controller.enqueue(chunk * 2)
-    }
-  })
+      const doubleStream = new TransformStream({
+        transform: (chunk, controller) => {
+          controller.enqueue(chunk * 2)
+        },
+      })
 
-  const pipedStream = integerStream.pipeThrough(doubleStream)
+      const pipedStream = integerStream.pipeThrough(doubleStream)
 
-  const pipedStreamDefaultReader = pipedStream.getReader();
+      const pipedStreamDefaultReader = pipedStream.getReader()
 
-  (async function() {
-    while (true) {
-      const { done, value } = await pipedStreamDefaultReader.read()
-      if (done) {
-        break
-      } else {
-        console.log(value)
-      }
-    }
-  })()
-
-</script>
-
-</body>
+      ;(async function () {
+        while (true) {
+          const { done, value } = await pipedStreamDefaultReader.read()
+          if (done) {
+            break
+          } else {
+            console.log(value)
+          }
+        }
+      })()
+    </script>
+  </body>
 </html>
