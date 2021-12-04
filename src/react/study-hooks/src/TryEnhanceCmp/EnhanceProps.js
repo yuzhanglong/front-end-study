@@ -1,10 +1,10 @@
-import React from 'react'
+import React from 'react';
 
 const enhanceAge = (Wrapper) => {
   return (props) => {
-    return <Wrapper {...props} age={20} />
-  }
-}
+    return <Wrapper {...props} age={20} />;
+  };
+};
 
 const User = (props) => {
   return (
@@ -12,17 +12,17 @@ const User = (props) => {
       <div>name:{props.name}</div>
       <div>age:{props.age}</div>
     </div>
-  )
-}
+  );
+};
 
-const En = enhanceAge(User)
+const En = enhanceAge(User);
 
 const EnhanceProps = (props) => {
   return (
     <div>
       <En name={'yzl'} />
     </div>
-  )
-}
+  );
+};
 
-export default EnhanceProps
+export default EnhanceProps;

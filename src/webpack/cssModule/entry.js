@@ -1,6 +1,6 @@
-import style from './style.css'
+import style from './style.css';
 
-console.log('Hello CSS Module!')
+console.log('Hello CSS Module!');
 
 // css module
-document.write(`<div class="${style.class1}"></div>`)
+document.write(`<div class="${style.class1}"></div>`);

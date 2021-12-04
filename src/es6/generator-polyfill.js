@@ -3,20 +3,20 @@ function gen$(_context) {
   while (1) {
     switch ((_context.prev = _context.next)) {
       case 0:
-        _context.next = 2
-        return 'result1'
+        _context.next = 2;
+        return 'result1';
 
       case 2:
-        _context.next = 4
-        return 'result2'
+        _context.next = 4;
+        return 'result2';
 
       case 4:
-        _context.next = 6
-        return 'result3'
+        _context.next = 6;
+        return 'result3';
 
       case 6:
       case 'end':
-        return _context.stop()
+        return _context.stop();
     }
   }
 }
@@ -27,27 +27,27 @@ let context = {
   prev: 0,
   done: false,
   stop: function stop() {
-    this.done = true
+    this.done = true;
   },
-}
+};
 
 // 低配版invoke
 let gen = function () {
   return {
     next: function () {
-      let value = context.done ? undefined : gen$(context)
-      let done = context.done
+      let value = context.done ? undefined : gen$(context);
+      let done = context.done;
       return {
         value,
         done,
-      }
+      };
     },
-  }
-}
+  };
+};
 
 // 测试使用
-var g = gen()
-console.log(g.next()) // {value: "result1", done: false}
-console.log(g.next()) // {value: "result2", done: false}
-console.log(g.next()) // {value: "result3", done: false}
-console.log(g.next()) // {value: undefined, done: true}
+var g = gen();
+console.log(g.next()); // {value: "result1", done: false}
+console.log(g.next()); // {value: "result2", done: false}
+console.log(g.next()); // {value: "result3", done: false}
+console.log(g.next()); // {value: undefined, done: true}

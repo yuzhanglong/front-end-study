@@ -6,7 +6,7 @@
  * Email: yuzl1123@163.com
  */
 
-const CSS_TEST = /\.css$/
+const CSS_TEST = /\.css$/;
 
 module.exports = {
   entry: './entry.js',
@@ -31,4 +31,4 @@ module.exports = {
       },
     ],
   },
-}
+};

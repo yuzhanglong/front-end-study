@@ -5,12 +5,12 @@
  * Author: yuzhanglong
  * Email: yuzl1123@163.com
  */
-const webpack = require('webpack')
-const HtmlWebpackPlugin = require('html-webpack-plugin')
+const webpack = require('webpack');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const devFlagPlugin = new webpack.DefinePlugin({
   __IS_PRODUCTION__: !process.env.DEBUG,
-})
+});
 
 module.exports = {
   entry: './entry.js',
@@ -18,4 +18,4 @@ module.exports = {
     filename: './bundle.js',
   },
   plugins: [new HtmlWebpackPlugin(), devFlagPlugin],
-}
+};

@@ -6,18 +6,18 @@
  * Email: yuzl1123@163.com
  */
 
-import React from 'react'
-import { useLocal } from '../local/useLocal'
+import React from 'react';
+import { useLocal } from '../local/useLocal';
 
 interface ButtonProps {}
 
 const Button: React.FunctionComponent<ButtonProps> = () => {
-  const [local] = useLocal()
+  const [local] = useLocal();
   return (
     <div>
       <button>{local.confirmText}</button>
     </div>
-  )
-}
+  );
+};
 
-export default Button
+export default Button;

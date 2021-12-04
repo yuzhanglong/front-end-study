@@ -6,9 +6,9 @@
  * Email: yuzl1123@163.com
  */
 
-const HtmlWebpackPlugin = require('html-webpack-plugin')
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 const BundleAnalyzerPlugin =
-  require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+  require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 module.exports = {
   entry: {
@@ -37,4 +37,4 @@ module.exports = {
       },
     },
   },
-}
+};

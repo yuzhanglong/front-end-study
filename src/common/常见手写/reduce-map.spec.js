@@ -7,11 +7,11 @@ describe('用 reduce 实现 map', function () {
           currentValue,
           currentIndex,
           arr
-        )
-        previousValue.push(result)
-        return previousValue
-      }, [])
-    }
-    expect([1, 2, 3].myMap((res) => res * 2)).toStrictEqual([2, 4, 6])
-  })
-})
+        );
+        previousValue.push(result);
+        return previousValue;
+      }, []);
+    };
+    expect([1, 2, 3].myMap((res) => res * 2)).toStrictEqual([2, 4, 6]);
+  });
+});

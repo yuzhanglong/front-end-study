@@ -1,9 +1,9 @@
-import { message } from './index.js'
+import { message } from './index.js';
 
-const count = 5
+const count = 5;
 
 setTimeout(() => {
-  console.log(message)
-}, 0)
+  console.log(message);
+}, 0);
 
-export { count }
+export { count };

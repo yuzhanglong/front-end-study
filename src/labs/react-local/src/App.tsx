@@ -6,10 +6,10 @@
  * Email: yuzl1123@163.com
  */
 
-import React from 'react'
-import LocalProvider from './local/LocalProvider'
-import Button from './components/Button'
-import Chinese from './languages/chinese'
+import React from 'react';
+import LocalProvider from './local/LocalProvider';
+import Button from './components/Button';
+import Chinese from './languages/chinese';
 
 interface AppProps {}
 
@@ -20,7 +20,7 @@ const App: React.FunctionComponent<AppProps> = () => {
         <Button />
       </div>
     </LocalProvider>
-  )
-}
+  );
+};
 
-export default App
+export default App;

@@ -1,8 +1,8 @@
 // Parameters<Type> 从函数类型 Type 的参数中使用的类型构造一个元组类型。
 
-type T0 = Parameters<() => string>
+type T0 = Parameters<() => string>;
 
-type T1 = Parameters<(s: string) => void>
+type T1 = Parameters<(s: string) => void>;
 
 // 原理：
 // type MyParameters<T extends (...args: any) => any>

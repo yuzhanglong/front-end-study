@@ -6,13 +6,13 @@
  * Email: yuzl1123@163.com
  */
 
-import Sort from './Sort'
+import Sort from './Sort';
 
 class SelectionSort<T> extends Sort<T> {
   public runSort(): void {
     for (let i = 0; i < this.array.length; i++) {
-      let index = this.findElement(i)
-      this.swap(index, i)
+      let index = this.findElement(i);
+      this.swap(index, i);
     }
   }
 
@@ -24,14 +24,14 @@ class SelectionSort<T> extends Sort<T> {
    * @return 寻找到的最小数字的下标
    */
   private findElement(startIndex: number) {
-    let minIndex = startIndex
+    let minIndex = startIndex;
     for (let i = startIndex + 1; i < this.array.length; i++) {
       if (this.compare(i, minIndex) < 0) {
-        minIndex = i
+        minIndex = i;
       }
     }
-    return minIndex
+    return minIndex;
   }
 }
 
-export default SelectionSort
+export default SelectionSort;

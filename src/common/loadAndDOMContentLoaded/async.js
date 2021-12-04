@@ -1,1 +1,1 @@
-console.log('async execute!')
+console.log('async execute!');

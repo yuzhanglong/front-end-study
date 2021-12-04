@@ -6,16 +6,16 @@
  * Email: yuzl1123@163.com
  */
 
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
 
 // 验证 TOKEN 的有效性
 const verify = (token, secret = 'KEY') => {
   try {
-    return jwt.verify(token, secret)
+    return jwt.verify(token, secret);
   } catch (e) {
-    return false
+    return false;
   }
-}
+};
 
 // 生成 TOKEN
 const generateToken = (uid, exp = 1000) => {
@@ -27,10 +27,10 @@ const generateToken = (uid, exp = 1000) => {
     {
       expiresIn: exp,
     }
-  )
-}
+  );
+};
 
 module.exports = {
   verify,
   generateToken,
-}
+};

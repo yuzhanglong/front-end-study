@@ -1,4 +1,4 @@
-import { sayHello, Foo } from './foo'
+import { sayHello, Foo } from './foo';
 
-sayHello()
-const f = new Foo()
+sayHello();
+const f = new Foo();

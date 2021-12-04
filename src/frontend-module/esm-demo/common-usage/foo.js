@@ -1,11 +1,11 @@
-export const name = 'yuzhanglong'
+export const name = 'yuzhanglong';
 
 function sayHello() {
-  console.log('hello!')
+  console.log('hello!');
 }
 
 class Foo {
   constructor() {}
 }
 
-export { Foo, sayHello }
+export { Foo, sayHello };

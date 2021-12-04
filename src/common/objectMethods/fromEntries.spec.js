@@ -3,13 +3,13 @@ describe('Object.fromEntries', function () {
     const entries = new Map([
       ['foo', 'bar'],
       ['baz', 42],
-    ])
+    ]);
 
-    const obj = Object.fromEntries(entries)
+    const obj = Object.fromEntries(entries);
 
     expect(obj).toStrictEqual({
       baz: 42,
       foo: 'bar',
-    })
-  })
-})
+    });
+  });
+});

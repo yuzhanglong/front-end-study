@@ -6,12 +6,12 @@
  * Email: yuzl1123@163.com
  */
 
-const path = require('path')
+const path = require('path');
 
-const CSS_TEST = /\.css$/
-const TS_TEST = /\.ts?$/
-const SASS_TEST = /\.scss$/
-const IMAGE_TEST = /\.(png|jpg|gif)$/
+const CSS_TEST = /\.css$/;
+const TS_TEST = /\.ts?$/;
+const SASS_TEST = /\.scss$/;
+const IMAGE_TEST = /\.(png|jpg|gif)$/;
 
 module.exports = {
   entry: './src/entry.ts',
@@ -67,4 +67,4 @@ module.exports = {
       },
     ],
   },
-}
+};

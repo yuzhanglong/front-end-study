@@ -1,85 +1,85 @@
 class Promise {
   // 待处理
-  static PENDING = 'PENDING'
+  static PENDING = 'PENDING';
   // 已完成
-  static FULFILLED = 'FULFILLED'
+  static FULFILLED = 'FULFILLED';
   // 拒绝
-  static REJECTED = 'REJECTED'
+  static REJECTED = 'REJECTED';
   //尽快执行
-  static SET_TIMEOUT_CONFIG = 0
+  static SET_TIMEOUT_CONFIG = 0;
 
   constructor(executor) {
-    this.status = Promise.PENDING
+    this.status = Promise.PENDING;
 
     // `value`是任何可能的JavaScript合法对象，包括`undefined`、`thenable`、`promise`。
-    this.value = undefined
+    this.value = undefined;
     // `reason`表示了为什么Promise会被拒绝
-    this.reason = undefined
+    this.reason = undefined;
 
     // 成功回调
-    this.onResolvedCallbacks = []
+    this.onResolvedCallbacks = [];
     // 失败回调
-    this.onRejectedCallbacks = []
+    this.onRejectedCallbacks = [];
 
     // resolve 被执行时，Promise状态由 PENDING 变成 FULFILLED
     // 尽量使用箭头函数，否则外界调用时 this 为 window
     const resolve = (value) => {
       if (this.status === Promise.PENDING) {
-        this.value = value
-        this.status = Promise.FULFILLED
-        this.onResolvedCallbacks.forEach((fn) => fn())
+        this.value = value;
+        this.status = Promise.FULFILLED;
+        this.onResolvedCallbacks.forEach((fn) => fn());
       }
-    }
+    };
 
     // reject 被执行时，Promise状态由 PENDING 变成 REJECTED
     const reject = (reason) => {
       if (this.status === Promise.PENDING) {
-        this.reason = reason
-        this.status = Promise.REJECTED
-        this.onRejectedCallbacks.forEach((fn) => fn())
+        this.reason = reason;
+        this.status = Promise.REJECTED;
+        this.onRejectedCallbacks.forEach((fn) => fn());
       }
-    }
+    };
 
     // 执行
     try {
-      executor(resolve, reject)
+      executor(resolve, reject);
     } catch (e) {
       // 执行时错误
-      reject(e)
+      reject(e);
     }
   }
 
   then(onFulfilled, onRejected) {
     onFulfilled =
-      typeof onFulfilled === 'function' ? onFulfilled : (value) => value
+      typeof onFulfilled === 'function' ? onFulfilled : (value) => value;
     onRejected =
       typeof onRejected === 'function'
         ? onRejected
         : (err) => {
-            throw err
-          }
+            throw err;
+          };
     let promise2 = new Promise((resolve, reject) => {
       // 处理同步
       if (this.status === Promise.FULFILLED) {
         setTimeout(() => {
           try {
-            let x = onFulfilled(this.value)
-            Promise.resolvePromise(promise2, x, resolve, reject)
+            let x = onFulfilled(this.value);
+            Promise.resolvePromise(promise2, x, resolve, reject);
           } catch (e) {
-            reject(e)
+            reject(e);
           }
-        }, Promise.SET_TIMEOUT_CONFIG)
+        }, Promise.SET_TIMEOUT_CONFIG);
       }
 
       if (this.status === Promise.REJECTED) {
         setTimeout(() => {
           try {
-            let x = onRejected(this.reason)
-            Promise.resolvePromise(promise2, x, resolve, reject)
+            let x = onRejected(this.reason);
+            Promise.resolvePromise(promise2, x, resolve, reject);
           } catch (e) {
-            reject(e)
+            reject(e);
           }
-        }, Promise.SET_TIMEOUT_CONFIG)
+        }, Promise.SET_TIMEOUT_CONFIG);
       }
 
       // 处理异步
@@ -88,98 +88,98 @@ class Promise {
         this.onResolvedCallbacks.push(() => {
           setTimeout(() => {
             try {
-              let x = onFulfilled(this.value)
-              Promise.resolvePromise(promise2, x, resolve, reject)
+              let x = onFulfilled(this.value);
+              Promise.resolvePromise(promise2, x, resolve, reject);
             } catch (e) {
-              reject(e)
+              reject(e);
             }
-          }, Promise.SET_TIMEOUT_CONFIG)
-        })
+          }, Promise.SET_TIMEOUT_CONFIG);
+        });
 
         // 失败回调
         this.onRejectedCallbacks.push(() => {
           setTimeout(() => {
             try {
-              let x = onRejected(this.reason)
-              Promise.resolvePromise(promise2, x, resolve, reject)
+              let x = onRejected(this.reason);
+              Promise.resolvePromise(promise2, x, resolve, reject);
             } catch (e) {
-              reject(e)
+              reject(e);
             }
-          }, Promise.SET_TIMEOUT_CONFIG)
-        })
+          }, Promise.SET_TIMEOUT_CONFIG);
+        });
       }
-    })
-    return promise2
+    });
+    return promise2;
   }
 
   finally(callback) {
     return this.then(
       (data) => {
-        return Promise.resolve(callback()).then(() => data)
+        return Promise.resolve(callback()).then(() => data);
       },
       (err) => {
         return Promise.resolve(
           callback().then(() => {
-            throw err
+            throw err;
           })
-        )
+        );
       }
-    )
+    );
   }
 
   static resolvePromise(promise, x, resolve, reject) {
     // 防止等待自身
     if (promise === x) {
-      return reject(new TypeError('Chaining cycle detected'))
+      return reject(new TypeError('Chaining cycle detected'));
     }
-    let called = false
+    let called = false;
     if (typeof x === 'function' || (typeof x === 'object' && x !== null)) {
       try {
-        let then = x.then
+        let then = x.then;
         if (typeof then === 'function') {
           then.call(
             x,
             (y) => {
               if (called) {
-                return
+                return;
               }
-              called = true
-              this.resolvePromise(promise, y, resolve, reject) // promise 的 resolve
+              called = true;
+              this.resolvePromise(promise, y, resolve, reject); // promise 的 resolve
             },
             (r) => {
               if (called) {
-                return
+                return;
               }
-              called = true
-              reject(r) // promise 的 reject
+              called = true;
+              reject(r); // promise 的 reject
             }
-          )
+          );
         } else {
-          resolve(x)
+          resolve(x);
         }
       } catch (e) {
         // promise 失败了
         if (called) {
-          return
+          return;
         }
-        called = true
-        reject(e)
+        called = true;
+        reject(e);
       }
     } else {
-      resolve(x)
+      resolve(x);
     }
   }
 
   static resolve(value) {
     return new Promise((resolve, reject) => {
-      resolve(value)
-    })
+      resolve(value);
+    });
   }
 
   static reject(value) {
     return new Promise((resolve, reject) => {
-      reject(value)
-    })
+      reject(value);
+    });
   }
 
   static isPromise(value) {
@@ -188,33 +188,33 @@ class Promise {
       (typeof value === 'object' && value !== null)
     ) {
       if (typeof value.then === 'function') {
-        return true
+        return true;
       }
     }
-    return false
+    return false;
   }
 
   static all(values) {
     return new Promise((resolve, reject) => {
-      let arr = []
-      let i = 0
+      let arr = [];
+      let i = 0;
 
       let processData = (key, value) => {
-        arr[key] = value // after函数
+        arr[key] = value; // after函数
         if (++i === values.length) {
-          resolve(arr)
+          resolve(arr);
         }
-      }
+      };
       for (let i = 0; i < values.length; i++) {
-        let current = values[i]
+        let current = values[i];
         if (Promise.isPromise(current)) {
           current.then((data) => {
-            processData(i, data)
-          }, reject)
+            processData(i, data);
+          }, reject);
         } else {
-          processData(i, current)
+          processData(i, current);
         }
       }
-    })
+    });
   }
 }

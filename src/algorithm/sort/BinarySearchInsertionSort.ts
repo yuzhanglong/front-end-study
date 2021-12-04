@@ -6,12 +6,12 @@
  * Email: yuzl1123@163.com
  */
 
-import Sort from './Sort'
+import Sort from './Sort';
 
 class BinarySearchInsertionSort<T> extends Sort<T> {
   public runSort(): void {
     for (let begin = 1; begin < this.array.length; begin++) {
-      this.insert(begin, this.findElementByByBinarySearch(begin))
+      this.insert(begin, this.findElementByByBinarySearch(begin));
     }
   }
 
@@ -22,11 +22,11 @@ class BinarySearchInsertionSort<T> extends Sort<T> {
    * @param target 目标插入位置，在这个位置之后的元素全部右移
    */
   private insert(source: number, target: number) {
-    let elementToBeInserted: T = this.array[source]
+    let elementToBeInserted: T = this.array[source];
     for (let i = source; i > target; i--) {
-      this.array[i] = this.array[i - 1]
+      this.array[i] = this.array[i - 1];
     }
-    this.array[target] = elementToBeInserted
+    this.array[target] = elementToBeInserted;
   }
 
   /**
@@ -37,19 +37,19 @@ class BinarySearchInsertionSort<T> extends Sort<T> {
    * @return 寻找到的最小数字的下标
    */
   private findElementByByBinarySearch(startIndex: number): number {
-    let start = 0
-    let end = startIndex
+    let start = 0;
+    let end = startIndex;
     while (start < end) {
-      let mid = (start + end) >>> 1
+      let mid = (start + end) >>> 1;
       //
       if (this.compare(startIndex, mid) < 0) {
-        end = mid
+        end = mid;
       } else {
-        start = mid + 1
+        start = mid + 1;
       }
     }
-    return start
+    return start;
   }
 }
 
-export default BinarySearchInsertionSort
+export default BinarySearchInsertionSort;

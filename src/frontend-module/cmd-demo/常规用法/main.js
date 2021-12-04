@@ -1,5 +1,5 @@
-const foo = require('./foo')
+const foo = require('./foo');
 
-console.log(foo.name)
-console.log(foo.age)
-foo.sayHello()
+console.log(foo.name);
+console.log(foo.age);
+foo.sayHello();

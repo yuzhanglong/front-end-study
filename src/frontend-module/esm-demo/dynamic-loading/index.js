@@ -1,8 +1,8 @@
-console.log('hello world!')
+console.log('hello world!');
 
-const click = document.getElementById('click-me')
+const click = document.getElementById('click-me');
 click.addEventListener('click', () => {
   import('./foo').then((res) => {
-    console.log(res)
-  })
-})
+    console.log(res);
+  });
+});

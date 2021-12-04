@@ -7,6 +7,6 @@
  */
 
 export interface Local {
-  confirmText: string
-  cancelText: string
+  confirmText: string;
+  cancelText: string;
 }

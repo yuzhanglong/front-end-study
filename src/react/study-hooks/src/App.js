@@ -1,12 +1,12 @@
-import React from 'react'
-import DemoHooks from './tinyHooks/DemoHooks'
+import React from 'react';
+import DemoHooks from './tinyHooks/DemoHooks';
 
 const App = () => {
   return (
     <div className="App">
       <DemoHooks />
     </div>
-  )
-}
+  );
+};
 
-export default App
+export default App;

@@ -15,14 +15,14 @@ if (
   typeof define !== 'function'
 ) {
   var define = function (factory) {
-    factory(require, exports, module)
-  }
+    factory(require, exports, module);
+  };
 }
 
 define(function (require, exports, module) {
-  var b = require('b')
+  var b = require('b');
 
   // Only attach properties to the exports object to define
   // the module's properties.
-  exports.action = function () {}
-})
+  exports.action = function () {};
+});

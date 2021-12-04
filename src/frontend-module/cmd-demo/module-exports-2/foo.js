@@ -1,9 +1,9 @@
-let name = 'yuzhanglong'
+let name = 'yuzhanglong';
 
 setTimeout(() => {
-  name = 'yzl'
-}, 0)
+  name = 'yzl';
+}, 0);
 
 module.exports = {
   name,
-}
+};

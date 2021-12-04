@@ -1,7 +1,7 @@
-let name = 'yuzhanglong'
+let name = 'yuzhanglong';
 
 setTimeout(() => {
-  name = 'yzl'
-}, 0)
+  name = 'yzl';
+}, 0);
 
-export { name }
+export { name };

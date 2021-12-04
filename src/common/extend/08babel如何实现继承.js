@@ -14,23 +14,23 @@
 // }
 
 // 转化后的代码
-'use strict'
+'use strict';
 
 function _inheritsLoose(subClass, superClass) {
-  subClass.prototype = Object.create(superClass.prototype)
-  subClass.prototype.constructor = subClass
+  subClass.prototype = Object.create(superClass.prototype);
+  subClass.prototype.constructor = subClass;
   // 继承静态属性
-  subClass.__proto__ = superClass
+  subClass.__proto__ = superClass;
 }
 
-var SuperType = function SuperType() {}
+var SuperType = function SuperType() {};
 
 var SubType = /*#__PURE__*/ (function (_SuperType) {
-  _inheritsLoose(SubType, _SuperType)
+  _inheritsLoose(SubType, _SuperType);
 
   function SubType() {
-    return _SuperType.call(this) || this
+    return _SuperType.call(this) || this;
   }
 
-  return SubType
-})(SuperType)
+  return SubType;
+})(SuperType);

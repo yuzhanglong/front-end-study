@@ -1,28 +1,28 @@
 interface Foo {
-  type: 'foo'
+  type: 'foo';
 }
 
 interface Bar {
-  type: 'bar'
+  type: 'bar';
 }
 
 interface Baz {
-  type: 'baz'
+  type: 'baz';
 }
 
-type All = Foo | Bar | Baz
+type All = Foo | Bar | Baz;
 
 function handleValue(val: All) {
   switch (val.type) {
     case 'foo':
       // 这里 val 被收窄为 Foo
-      break
+      break;
     case 'bar':
       // val 在这里是 Bar
-      break
+      break;
     default:
       // val 在这里是 never
 
-      break
+      break;
   }
 }

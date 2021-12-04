@@ -1,19 +1,19 @@
-const fs = require('fs')
+const fs = require('fs');
 
-const path = require('path')
+const path = require('path');
 
-const filePath = path.resolve('../test/myFolder')
+const filePath = path.resolve('../test/myFolder');
 
 if (!fs.existsSync(filePath)) {
   fs.mkdir(filePath, (err) => {
-    console.log(err)
-  })
+    console.log(err);
+  });
 }
 
 // 读取文件夹中的内容
 fs.readdir(filePath, (err, fs) => {
-  console.log(fs)
-})
+  console.log(fs);
+});
 
 const getFiles = (dir) => {
   fs.readdir(
@@ -24,13 +24,13 @@ const getFiles = (dir) => {
     (err, fs) => {
       for (let f of fs) {
         if (f.isDirectory()) {
-          getFiles(path.resolve(filePath, f.name))
+          getFiles(path.resolve(filePath, f.name));
         } else {
-          console.log(f.name)
+          console.log(f.name);
         }
       }
     }
-  )
-}
+  );
+};
 
-getFiles(filePath)
+getFiles(filePath);

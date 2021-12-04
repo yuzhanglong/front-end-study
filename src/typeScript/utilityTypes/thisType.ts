@@ -5,13 +5,13 @@
 // Compile with --noImplicitThis
 
 interface HelperThisValue {
-  logError: (error: string) => void
+  logError: (error: string) => void;
 }
 
 let helperFunctions: { [name: string]: Function } & ThisType<HelperThisValue> =
   {
     hello: function () {
-      this.logError('Error: Something went wrong!')
-      this.update() // 编译时会发现错误：Property 'update' does not exist on type 'HelperThisValue'.
+      this.logError('Error: Something went wrong!');
+      this.update(); // 编译时会发现错误：Property 'update' does not exist on type 'HelperThisValue'.
     },
-  }
+  };

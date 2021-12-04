@@ -6,12 +6,12 @@
  * Email: yuzl1123@163.com
  */
 
-import React from 'react'
-import LocalContext from './LocalContext'
-import { Local } from '../types'
+import React from 'react';
+import LocalContext from './LocalContext';
+import { Local } from '../types';
 
 interface LocalProviderProps {
-  local: Local
+  local: Local;
 }
 
 const LocalProvider: React.FunctionComponent<LocalProviderProps> = (props) => {
@@ -19,7 +19,7 @@ const LocalProvider: React.FunctionComponent<LocalProviderProps> = (props) => {
     <LocalContext.Provider value={props.local}>
       {props.children}
     </LocalContext.Provider>
-  )
-}
+  );
+};
 
-export default LocalProvider
+export default LocalProvider;

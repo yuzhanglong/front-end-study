@@ -1,7 +1,7 @@
-import { name } from './foo.js'
+import { name } from './foo.js';
 
-console.log(name)
+console.log(name);
 
 setTimeout(() => {
-  console.log(name)
-}, 1000)
+  console.log(name);
+}, 1000);

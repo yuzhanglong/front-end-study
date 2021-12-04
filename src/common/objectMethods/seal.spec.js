@@ -3,21 +3,21 @@ describe('Object.seal', function () {
     const obj = {
       aa: 1,
       bb: 2,
-    }
-    Object.seal(obj)
-    obj.aa = 312
-    expect(obj.aa).toStrictEqual(312)
-    obj.cc = 555
-    expect(obj.cc).toStrictEqual(undefined)
+    };
+    Object.seal(obj);
+    obj.aa = 312;
+    expect(obj.aa).toStrictEqual(312);
+    obj.cc = 555;
+    expect(obj.cc).toStrictEqual(undefined);
 
     try {
       Object.defineProperty(obj, 'aa', {
         get: function () {
-          return 'g'
+          return 'g';
         },
-      })
+      });
     } catch (e) {
-      expect(e.message).toStrictEqual('Cannot redefine property: aa')
+      expect(e.message).toStrictEqual('Cannot redefine property: aa');
     }
-  })
-})
+  });
+});

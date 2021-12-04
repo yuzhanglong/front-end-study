@@ -1,4 +1,4 @@
-import img from './img-test.jpg'
+import img from './img-test.jpg';
 
-document.write('hello world!')
-console.log(img)
+document.write('hello world!');
+console.log(img);

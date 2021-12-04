@@ -8,39 +8,39 @@
  * @date 2021-3-14 12:40:25
  */
 const throttle = (reqFn, timeout, limitation = 4) => {
-  const myIpMap = new Map()
+  const myIpMap = new Map();
 
   return function (targetIp, ...args) {
     if (!myIpMap.has(targetIp)) {
-      myIpMap.set(targetIp, 0)
+      myIpMap.set(targetIp, 0);
     }
-    const shouldLimit = myIpMap.get(targetIp) >= limitation
+    const shouldLimit = myIpMap.get(targetIp) >= limitation;
     if (shouldLimit) {
-      console.log(`the ip ${targetIp} has been banned!`)
+      console.log(`the ip ${targetIp} has been banned!`);
       setTimeout(() => {
-        myIpMap.set(targetIp, 0)
-      }, timeout)
+        myIpMap.set(targetIp, 0);
+      }, timeout);
     } else {
-      reqFn.call(this, targetIp, ...args)
-      myIpMap.set(targetIp, myIpMap.get(targetIp) + 1)
+      reqFn.call(this, targetIp, ...args);
+      myIpMap.set(targetIp, myIpMap.get(targetIp) + 1);
     }
-  }
-}
+  };
+};
 
 const reqFn = function (ip) {
-  console.log(`请求 IP：${ip}`)
-}
+  console.log(`请求 IP：${ip}`);
+};
 
-const req = throttle(reqFn, 3000)
+const req = throttle(reqFn, 3000);
 
-console.log('立刻尝试请求 10 次')
+console.log('立刻尝试请求 10 次');
 for (let i = 0; i < 10; i++) {
-  req('127.0.0.1')
+  req('127.0.0.1');
 }
 
 setTimeout(() => {
-  console.log('4 秒过后再次请求 10 次')
+  console.log('4 秒过后再次请求 10 次');
   for (let i = 0; i < 10; i++) {
-    req('127.0.0.1')
+    req('127.0.0.1');
   }
-}, 4000)
+}, 4000);

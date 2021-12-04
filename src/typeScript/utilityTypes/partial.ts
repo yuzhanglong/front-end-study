@@ -2,18 +2,18 @@
 // 该实用程序将返回一个表示给定类型的所有子集的类型。
 
 interface User {
-  name: string
-  age: number
+  name: string;
+  age: number;
 }
 
 const entireUser: User = {
   age: 20,
   name: 'yzl',
-}
+};
 
 const partialUser: Partial<User> = {
   age: 10,
-}
+};
 
 // 下面这个写法就是错误的
 // const badUser: Partial<User> = {
@@ -24,8 +24,8 @@ const partialUser: Partial<User> = {
 
 // partial 的本质
 type MyPartial<T> = {
-  [P in keyof T]?: T[P]
-}
+  [P in keyof T]?: T[P];
+};
 
 // keyof 本质上产生的是一个联合类型
 // 也就是将 T 的所有 key 组成一个联合类型

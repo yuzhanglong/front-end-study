@@ -1,7 +1,7 @@
-import { count } from './counter.js'
+import { count } from './counter.js';
 
-const message = '666'
+const message = '666';
 
-console.log(count)
+console.log(count);
 
-export { message }
+export { message };

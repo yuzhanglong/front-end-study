@@ -1,26 +1,26 @@
-let foo = 'hello world'
+let foo = 'hello world';
 
 const greet = (s) => {
-  console.log(s)
-}
+  console.log(s);
+};
 
 const myLib = {
   makeGreeting: (s) => {
-    greet(s)
+    greet(s);
   },
   numberOfGreetings: 0,
-}
+};
 
 class Greeter {
-  greeting
+  greeting;
 
   constructor(s) {
-    greet(s)
-    this.greeting = s
+    greet(s);
+    this.greeting = s;
   }
 
   showGreeting() {
-    console.log('greet! -- ' + this.greeting)
+    console.log('greet! -- ' + this.greeting);
   }
 }
 
@@ -29,4 +29,4 @@ module.exports = {
   greet,
   myLib,
   Greeter,
-}
+};

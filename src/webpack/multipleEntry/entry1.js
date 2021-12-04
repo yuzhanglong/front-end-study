@@ -1,1 +1,1 @@
-document.write('<h1>ENTRY1 -- HELLO WEBPACK!</h1>')
+document.write('<h1>ENTRY1 -- HELLO WEBPACK!</h1>');

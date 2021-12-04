@@ -1,7 +1,7 @@
-const fs = require('fs')
-const path = require('path')
+const fs = require('fs');
+const path = require('path');
 
-const filePath = path.resolve('../test/yzl.txt')
+const filePath = path.resolve('../test/yzl.txt');
 
 fs.writeFile(
   filePath,
@@ -11,10 +11,10 @@ fs.writeFile(
   },
   (err) => {
     if (err) {
-      console.log(err)
+      console.log(err);
     }
   }
-)
+);
 
 fs.readFile(
   filePath,
@@ -22,6 +22,6 @@ fs.readFile(
     encoding: 'utf8',
   },
   (err, data) => {
-    console.log(data)
+    console.log(data);
   }
-)
+);

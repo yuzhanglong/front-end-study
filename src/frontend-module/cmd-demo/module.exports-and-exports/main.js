@@ -1,4 +1,4 @@
-const foo = require('./foo')
+const foo = require('./foo');
 
-console.log(foo.name)
-console.log(foo.age)
+console.log(foo.name);
+console.log(foo.age);

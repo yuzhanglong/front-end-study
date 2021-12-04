@@ -6,10 +6,10 @@
  * Email: yuzl1123@163.com
  */
 
-const WebSocket = require('ws')
+const WebSocket = require('ws');
 
 // WebSocket Server 对象
-let wss = null
+let wss = null;
 
 // 创建 wss 对象，我们可以把 Koa 的 Server 的对象传入，来共享端口，
 // 第一次创建时，我们会结果赋值给将上面的 wss，
@@ -18,19 +18,19 @@ const createWss = (server) => {
   if (!wss) {
     wss = new WebSocket.Server({
       server: server,
-    })
-    return wss
+    });
+    return wss;
   } else {
-    return wss
+    return wss;
   }
-}
+};
 
 // 获取 wss 对象
 const getWss = () => {
-  return wss
-}
+  return wss;
+};
 
 module.exports = {
   createWss: createWss,
   getWss: getWss,
-}
+};

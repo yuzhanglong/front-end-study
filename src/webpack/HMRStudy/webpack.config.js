@@ -6,8 +6,8 @@
  * Email: yuzl1123@163.com
  */
 
-const HtmlWebpackPlugin = require('html-webpack-plugin')
-const path = require('path')
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const path = require('path');
 
 module.exports = {
   entry: {
@@ -26,4 +26,4 @@ module.exports = {
   devServer: {
     hot: true,
   },
-}
+};

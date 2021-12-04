@@ -1,5 +1,5 @@
-document.write('<h1>Hello World</h1>')
+document.write('<h1>Hello World</h1>');
 
 if (__IS_PRODUCTION__) {
-  document.write('这是生产环境~')
+  document.write('这是生产环境~');
 }

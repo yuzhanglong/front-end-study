@@ -1,5 +1,5 @@
-let count = require('./counter.js').count
+let count = require('./counter.js').count;
 
-console.log(count)
+console.log(count);
 
-exports.message = 'hello world!'
+exports.message = 'hello world!';

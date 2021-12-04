@@ -3,11 +3,11 @@ describe('Object.entries', function () {
     const object1 = {
       a: 'someString',
       b: 42,
-    }
-    const res = []
+    };
+    const res = [];
     for (const [key, value] of Object.entries(object1)) {
-      res.push(`${key}: ${value}`)
+      res.push(`${key}: ${value}`);
     }
-    expect(res).toStrictEqual(['a: someString', 'b: 42'])
-  })
-})
+    expect(res).toStrictEqual(['a: someString', 'b: 42']);
+  });
+});
