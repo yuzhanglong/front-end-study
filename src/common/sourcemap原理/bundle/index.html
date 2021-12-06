@@ -4,6 +4,7 @@
   <meta charset='UTF-8'>
   <title>test-app</title>
   <script src='https://unpkg.com/source-map@0.7.3/dist/source-map.js'></script>
+  <script src='./vlq.js'></script>
 
   <script>
     window.addEventListener('error', async (e) => {
@@ -39,16 +40,50 @@
             column: col
           });
 
+          console.log(info);
+
           const sourceContent = SOURCE_MAP.sourcesContent[consumer.sources.findIndex(item => item === info.source)] || '';
-
           const arr = sourceContent.split('\n');
-
-          console.log(arr);
           console.log('高亮行:', arr[info.line - 1]);
         });
       };
 
+      const decodeByYuZhanglong = async () => {
+        const lines = SOURCE_MAP['mappings'].split(':');
+        const decodedLines = lines.map(l => l.split(',').map(item => decode(item)));
+
+        const absoluteDecodedLines = decodedLines.map((line) => {
+          if (!line.length) {
+            return [];
+          }
+
+          const tmp = [];
+
+          line.reduce((prev, next) => {
+            const len = Math.max(prev.length, next.length);
+            const arr = [];
+            for (let i = 0; i < len; i++) {
+              arr.push((prev[i] || 0) + (next[i] || 0));
+            }
+            tmp.push(arr);
+            return arr;
+          }, [0, 0, 0, 0, 0]);
+          return tmp;
+        });
+
+        const lineInfo = absoluteDecodedLines[row - 1];
+        for (let lineInfoElement of lineInfo) {
+          if (lineInfoElement[0] === col - 1) {
+            const [col, sourcesIndex, sourceRow, sourceColumn, name] = lineInfoElement;
+            console.log(lineInfoElement);
+            const content = SOURCE_MAP.sourcesContent[sourcesIndex].split('\n');
+            console.log('高亮行:', content[sourceRow]);
+          }
+        }
+      };
+
       await decodeBySourceMapLibrary();
+      await decodeByYuZhanglong();
     });
   </script>
   <script defer='defer' src='./static/js/runtime.cb8e5522.bundle.js'></script>
