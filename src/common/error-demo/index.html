@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta charset='UTF-8'>
+  <title>index</title>
+  <script>
+    window.addEventListener('error', (e) => {
+      console.log(e);
+      console.log(e.error.stack);
+    })
+  </script>
+  <script src='./index.js'></script>
+</head>
+<body>
+<script>
+  b()
+</script>
+</body>
+</html>
