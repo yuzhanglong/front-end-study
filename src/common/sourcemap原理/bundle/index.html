@@ -50,8 +50,9 @@
 
       const decodeByYuZhanglong = async () => {
         const lines = SOURCE_MAP['mappings'].split(':');
+        console.log(lines);
         const decodedLines = lines.map(l => l.split(',').map(item => decode(item)));
-
+        console.log(decodedLines);
         const absoluteDecodedLines = decodedLines.map((line) => {
           if (!line.length) {
             return [];
@@ -70,6 +71,8 @@
           }, [0, 0, 0, 0, 0]);
           return tmp;
         });
+
+        console.log('绝对坐标', absoluteDecodedLines);
 
         const lineInfo = absoluteDecodedLines[row - 1];
         for (let lineInfoElement of lineInfo) {
