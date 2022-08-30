@@ -32,15 +32,14 @@
 
       // 节流函数
       const throttle = (fn, delay) => {
-        let isRunning = true
+        let isBusy = true
         return function () {
-          if (!isRunning) {
+          if (isBusy) {
             return
           }
-          isRunning = false
           setTimeout(() => {
             fn.apply(this, arguments)
-            isRunning = true
+            isBusy = false;
           }, delay)
         }
       }
