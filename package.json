@@ -25,6 +25,7 @@
     "webpack-cli": "^4.5.0"
   },
   "devDependencies": {
-    "prettier": "^2.5.0"
+    "prettier": "^2.5.0",
+    "ts-node": "^10.9.1"
   }
 }
