@@ -2,15 +2,15 @@
 // 连续触发时每 n ms 执行一次
 // eslint-disable-next-line no-unused-vars
 function throttle(fn, time) {
-  let showRun = true;
+  let isAllowRun = true;
   return function () {
-    if (!showRun) {
+    if (!isAllowRun) {
       return;
     }
-    showRun = false;
+    isAllowRun = false;
     setTimeout(() => {
       fn.apply(this, arguments);
-      showRun = true;
+      isAllowRun = true;
     }, time);
   };
 }
